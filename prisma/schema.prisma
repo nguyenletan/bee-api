@@ -9,27 +9,27 @@ datasource db {
 
 model AverageOperatingHours {
   id                 Int       @id @default(autoincrement())
-  propertyId         Int?
+  propId             Int?
   weekly             Float?
   monthly            Float?
   annually           Float?
-  mondayStart        DateTime? @db.Time(6)
-  mondayEnd          DateTime? @db.Time(6)
-  tuesdayStart       DateTime? @db.Time(6)
-  tuesdayEnd         DateTime? @db.Time(6)
-  wednesdayStart     DateTime? @db.Time(6)
-  wednesdayEnd       DateTime? @db.Time(6)
-  thursdayStart      DateTime? @db.Time(6)
-  thursdayEnd        DateTime? @db.Time(6)
-  fridayStart        DateTime? @db.Time(6)
-  fridayEnd          DateTime? @db.Time(6)
-  saturdayStat       DateTime? @db.Time(6)
-  saturdayEnd        DateTime? @db.Time(6)
-  sundayStart        DateTime? @db.Time(6)
-  sundayEnd          DateTime? @db.Time(6)
-  publicHolidayStart DateTime? @db.Time(6)
-  publicHolidayEnd   DateTime? @db.Time(6)
-  Property           Property? @relation(fields: [propertyId], references: [id])
+  mondayStart        String?   @db.VarChar
+  mondayEnd          String?   @db.VarChar
+  tuesdayStart       String?   @db.VarChar
+  tuesdayEnd         String?   @db.VarChar
+  wednesdayStart     String?   @db.VarChar
+  wednesdayEnd       String?   @db.VarChar
+  thursdayStart      String?   @db.VarChar
+  thursdayEnd        String?   @db.VarChar
+  fridayStart        String?   @db.VarChar
+  fridayEnd          String?   @db.VarChar
+  saturdayStart      String?   @db.VarChar
+  saturdayEnd        String?   @db.VarChar
+  sundayStart        String?   @db.VarChar
+  sundayEnd          String?   @db.VarChar
+  publicHolidayStart String?   @db.VarChar
+  publicHolidayEnd   String?   @db.VarChar
+  Property           Property? @relation(fields: [propId], references: [id])
 }
 
 model Building {
@@ -442,19 +442,23 @@ model SolarPanelSystem {
 }
 
 model SpaceUsage {
-  id               Int             @id @default(autoincrement())
-  usageTypeId      Int
-  usagePercentage  Int?
-  climateControlId Int?
-  propertyId       Int?
-  ClimateControl   ClimateControl? @relation(fields: [climateControlId], references: [id])
-  Property         Property?       @relation(fields: [propertyId], references: [id])
-  SpaceUsageType   SpaceUsageType  @relation(fields: [usageTypeId], references: [id])
+  id                Int             @id @default(autoincrement())
+  usageTypeId       Int
+  usagePercentage   Int?
+  climateControlId  Int?
+  propertyId        Int?
+  title             String?         @db.VarChar
+  fanTypeId         Int?
+  hasReheatRecovery Boolean?
+  ClimateControl    ClimateControl? @relation(fields: [climateControlId], references: [id])
+  FanType           FanType?        @relation(fields: [fanTypeId], references: [id])
+  Property          Property?       @relation(fields: [propertyId], references: [id])
+  SpaceUsageType    SpaceUsageType  @relation(fields: [usageTypeId], references: [id])
 }
 
 model SpaceUsageType {
   id           Int          @id @default(autoincrement())
-  name         Int?
+  name         String?      @db.VarChar
   countryCode  String?      @db.VarChar
   coolingLoad  Float?
   heatingLoad  Float?
@@ -562,4 +566,11 @@ model SustainabilityRatingScheme {
   description          String?
   Property             Property[]
   SustainabilityRating SustainabilityRating[]
+}
+
+model FanType {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique @db.VarChar
+  description String?
+  SpaceUsage  SpaceUsage[]
 }

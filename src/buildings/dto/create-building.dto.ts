@@ -45,16 +45,30 @@ interface IGeneralBuildingInformation {
   buildingPhoto: string;
 }
 
+interface IBuildingActivity {
+  name: string;
+  codeName: string;
+  startTime: Date;
+  endTime: Date;
+  isEnable: boolean;
+}
+
+export interface ISpaceUsageGFA {
+  title: string;
+  typeId: number;
+  percentage: number;
+  climateControlId: number;
+  fanTypeId: number;
+  hasReheatRecovery: boolean;
+}
+
 export class CreateBuildingDto {
-  // buildingName: searchValue?.value?.structured_formatting?.main_text,
-  // address: '',
-  // city: '',
-  // state: '',
-  // countryCode: '',
-  // suburb: '',
-  // postalCode: '',
-  // location: result?.results[0]?.geometry?.location,
-  // formatted_address: result?.results[0]?.formatted_address,
   @ApiProperty()
   generalBuildingInformation: IGeneralBuildingInformation;
+
+  @ApiProperty()
+  buildingActivity: IBuildingActivity[];
+
+  @ApiProperty()
+  spaceUsageGFAList: ISpaceUsageGFA[];
 }

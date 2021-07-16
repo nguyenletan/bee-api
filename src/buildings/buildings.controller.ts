@@ -6,13 +6,13 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards, Req
-} from "@nestjs/common";
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { BuildingsService } from './buildings.service';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
 import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
-
 
 @Controller('buildings')
 export class BuildingsController {
@@ -23,7 +23,7 @@ export class BuildingsController {
   create(@Body() createBuildingDto: CreateBuildingDto, @Req() req: any) {
     console.log('Create building');
     console.log(req.user);
-    console.log(createBuildingDto.generalBuildingInformation);
+    console.log(createBuildingDto.spaceUsageGFAList);
     return this.buildingsService.create(createBuildingDto);
   }
 
