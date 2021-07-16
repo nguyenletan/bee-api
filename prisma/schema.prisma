@@ -1,0 +1,565 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AverageOperatingHours {
+  id                 Int       @id @default(autoincrement())
+  propertyId         Int?
+  weekly             Float?
+  monthly            Float?
+  annually           Float?
+  mondayStart        DateTime? @db.Time(6)
+  mondayEnd          DateTime? @db.Time(6)
+  tuesdayStart       DateTime? @db.Time(6)
+  tuesdayEnd         DateTime? @db.Time(6)
+  wednesdayStart     DateTime? @db.Time(6)
+  wednesdayEnd       DateTime? @db.Time(6)
+  thursdayStart      DateTime? @db.Time(6)
+  thursdayEnd        DateTime? @db.Time(6)
+  fridayStart        DateTime? @db.Time(6)
+  fridayEnd          DateTime? @db.Time(6)
+  saturdayStat       DateTime? @db.Time(6)
+  saturdayEnd        DateTime? @db.Time(6)
+  sundayStart        DateTime? @db.Time(6)
+  sundayEnd          DateTime? @db.Time(6)
+  publicHolidayStart DateTime? @db.Time(6)
+  publicHolidayEnd   DateTime? @db.Time(6)
+  Property           Property? @relation(fields: [propertyId], references: [id])
+}
+
+model Building {
+  id                                  Int        @id @default(autoincrement())
+  name                                String     @unique @db.VarChar
+  numberOfFloorAboveGroundLvl         Int?
+  numberOfFloorBelowGroundLvl         Int?
+  buildingMajorOrientationId          Int
+  averageInternalFloorToCeilingHeight Float?
+  storeysAboveGround                  Int?
+  storeysBelowGround                  Int?
+  Floor                               Floor[]
+  Property                            Property[]
+  Zone                                Zone[]
+}
+
+model BuildingMajorOrientation {
+  id       Int        @id @default(autoincrement())
+  name     String     @unique @db.VarChar
+  Property Property[]
+}
+
+model CO2EmissionRate {
+  id                               Int                            @id @default(autoincrement())
+  supplierId                       Int?
+  country                          String?                        @db.VarChar
+  state                            String?                        @db.VarChar
+  city                             String?                        @db.VarChar
+  gridEmissionRate                 Float?
+  electricitySupplierInformationId Int
+  ElectricitySupplierInformation   ElectricitySupplierInformation @relation(fields: [electricitySupplierInformationId], references: [id])
+}
+
+model Chiller {
+  id                        Int                  @id @default(autoincrement())
+  chillerTypeId             Int?
+  compressorTypeId          Int?
+  capacity                  Float?
+  refrigerantTypeId         Int?
+  manufacturerId            Int?
+  modelId                   Int?
+  chillerEnergySourceTypeId Int?
+  coolingSystemId           Int
+  ChillerEnergySource       ChillerEnergySource? @relation(fields: [chillerEnergySourceTypeId], references: [id])
+  ChillerType               ChillerType?         @relation(fields: [chillerTypeId], references: [id])
+  CompressorType            CompressorType?      @relation(fields: [compressorTypeId], references: [id])
+  CoolingSystem             CoolingSystem        @relation(fields: [coolingSystemId], references: [id])
+  RefrigerantType           RefrigerantType?     @relation(fields: [refrigerantTypeId], references: [id])
+}
+
+model ChillerEnergySource {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar
+  description String?
+  Chiller     Chiller[]
+}
+
+model ChillerType {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar
+  description String?
+  Chiller     Chiller[]
+}
+
+model ClimateControl {
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar
+  description String?
+  SpaceUsage  SpaceUsage[]
+}
+
+model CompressorType {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar
+  description String?
+  Chiller     Chiller[]
+}
+
+model CoolingSystem {
+  id                               Int                @id @default(autoincrement())
+  estimatedCoolingSystemEfficiency Float?
+  propertyId                       Int?
+  estimatedCoolingLoad             Float?
+  percentageCooledFloorArea        Float?
+  coolingSystemTypeId              Int?
+  CoolingSystemType                CoolingSystemType? @relation(fields: [coolingSystemTypeId], references: [id])
+  Property                         Property?          @relation(fields: [propertyId], references: [id])
+  Chiller                          Chiller[]
+}
+
+model CoolingSystemType {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar
+  description   String?
+  CoolingSystem CoolingSystem[]
+}
+
+model ElectricityConsumption {
+  id                             Int                            @id @default(autoincrement())
+  electricitySupplierId          Int
+  monthlyCost                    Float
+  monthlyValue                   Float
+  month                          Int
+  year                           Int
+  ElectricitySupplierInformation ElectricitySupplierInformation @relation(fields: [electricitySupplierId], references: [id])
+}
+
+model ElectricitySupplierAPI {
+  id                               Int                            @id @default(autoincrement())
+  supplierId                       Int?
+  apiUrl                           String?                        @db.VarChar
+  apiKey                           String?                        @db.VarChar
+  apiFormat                        String?                        @db.VarChar
+  electricitySupplierInformationId Int
+  ElectricitySupplierInformation   ElectricitySupplierInformation @relation(fields: [electricitySupplierInformationId], references: [id])
+}
+
+model ElectricitySupplierAreas {
+  id                               Int                            @id @default(autoincrement())
+  supplierId                       String                         @db.VarChar
+  countryService                   String?                        @db.VarChar
+  stateService                     String?                        @db.VarChar
+  cityService                      String?                        @db.VarChar
+  electricitySupplierInformationId Int
+  ElectricitySupplierInformation   ElectricitySupplierInformation @relation(fields: [electricitySupplierInformationId], references: [id])
+}
+
+model ElectricitySupplierInformation {
+  id                       Int                        @id @default(autoincrement())
+  companyName              String?                    @db.VarChar
+  apiKey                   String?                    @db.VarChar
+  CO2EmissionRate          CO2EmissionRate[]
+  ElectricityConsumption   ElectricityConsumption[]
+  ElectricitySupplierAPI   ElectricitySupplierAPI[]
+  ElectricitySupplierAreas ElectricitySupplierAreas[]
+}
+
+model ExternalEnvelopeSubSystem {
+  id                                                                                              Int                   @id @default(autoincrement())
+  externalWindowToWallRatio                                                                       Float?
+  externalRoofInsulationTypeId                                                                    Int?
+  externalWallInsulationTypeId                                                                    Int?
+  externalWindowInsulationTypeId                                                                  Int?
+  groundInsulationTypeId                                                                          Int?
+  floorInsulationTypeId                                                                           Int?
+  roofInsulationTypeId                                                                            Int?
+  floorName                                                                                       String?               @db.VarChar
+  zoneName                                                                                        String?               @db.VarChar
+  propertyId                                                                                      Int?
+  externalGroundInsulationTypeId                                                                  Int?
+  GroundInsulationType                                                                            GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id])
+  RoofInsulationType_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType   RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType", fields: [externalRoofInsulationTypeId], references: [id])
+  WallInsulationType                                                                              WallInsulationType?   @relation(fields: [externalWallInsulationTypeId], references: [id])
+  WindowInsulationType                                                                            WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id])
+  RoofInsulationType_ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType", fields: [externalWindowInsulationTypeId], references: [id])
+  Property                                                                                        Property?             @relation(fields: [propertyId], references: [id])
+}
+
+model Floor {
+  id         Int        @id @default(autoincrement())
+  buildingId Int
+  name       String     @db.VarChar
+  number     String?    @db.VarChar
+  createdAt  DateTime?  @db.Date
+  updatedAt  DateTime?  @db.Date
+  Building   Building   @relation(fields: [buildingId], references: [id])
+  Property   Property[]
+  Zone       Zone[]
+}
+
+model GroundInsulationType {
+  id                        Int                         @id @default(autoincrement())
+  name                      String                      @db.VarChar
+  uValue                    Float
+  ExternalEnvelopeSubSystem ExternalEnvelopeSubSystem[]
+}
+
+model Heater {
+  id                          Int                        @id @default(autoincrement())
+  heaterTypeId                Int?
+  capacity                    Float
+  manufacturerId              Int?
+  modelId                     Int?
+  heatingSystemId             Int
+  heatingSystemEnergySourceId Int?
+  HeaterType                  HeaterType?                @relation(fields: [heaterTypeId], references: [id])
+  HeatingSystemEnergySource   HeatingSystemEnergySource? @relation(fields: [heatingSystemEnergySourceId], references: [id])
+  HeatingSystem               HeatingSystem              @relation(fields: [heatingSystemId], references: [id])
+}
+
+model HeaterType {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar
+  description String?
+  Heater      Heater[]
+}
+
+model HeatingSystem {
+  id                               Int                @id
+  propertyId                       Int?
+  heatingSystemTypeId              Int?
+  estimatedHeatingSystemEfficiency Float?
+  estimatedHeatingLoad             Float?
+  percentageHeatedFloorArea        Float?
+  HeatingSystemType                HeatingSystemType? @relation(fields: [heatingSystemTypeId], references: [id])
+  Property                         Property?          @relation(fields: [propertyId], references: [id])
+  Heater                           Heater[]
+}
+
+model HeatingSystemEnergySource {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar
+  description String?
+  Heater      Heater[]
+}
+
+model HeatingSystemType {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique @db.VarChar
+  description   String?
+  HeatingSystem HeatingSystem[]
+}
+
+model LightingFittingType {
+  id             Int              @id @default(autoincrement())
+  name           String           @unique @db.VarChar
+  description    String?
+  LightingSystem LightingSystem[]
+}
+
+model LightingSystem {
+  id                          Int                 @id @default(autoincrement())
+  estimatedLightingLoad_      Float               @map("estimatedLightingLoad ")
+  lightingFittingTypeId       Int
+  percentageOfFittingTypeUsed Float
+  propertyId                  Int?
+  LightingFittingType         LightingFittingType @relation(fields: [lightingFittingTypeId], references: [id])
+  Property                    Property?           @relation(fields: [propertyId], references: [id])
+}
+
+model PVSystemType {
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar
+  SolarPanelSystem SolarPanelSystem[]
+}
+
+model PVTechChoice {
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar
+  SolarPanelSystem SolarPanelSystem[]
+}
+
+model Property {
+  id                           Int                         @id @default(autoincrement())
+  streetAddress                String                      @db.VarChar
+  postCode                     String                      @db.Char(10)
+  city                         String                      @db.VarChar
+  state                        String?                     @db.VarChar
+  region                       String?                     @db.VarChar
+  countryCode                  String?                     @db.VarChar
+  grossFloorArea               Float
+  completionYear               Int?
+  majorOrientationId           Int?
+  createdAt                    DateTime?                   @default(now()) @db.Timestamp(6)
+  updatedAt                    DateTime?                   @db.Timestamp(6)
+  buildingId                   Int?
+  floorId                      Int?
+  zoneId                       Int?
+  sustainabilityRatingSchemeId Int?
+  sustainabilityRatingId       Int?
+  latitude                     Decimal?                    @db.Decimal
+  longitude                    Decimal?                    @db.Decimal
+  grossInteriorArea            Float?
+  netUsableArea                Float?
+  useTypeId                    Int?
+  photo                        String?
+  Building                     Building?                   @relation(fields: [buildingId], references: [id])
+  Floor                        Floor?                      @relation(fields: [floorId], references: [id])
+  BuildingMajorOrientation     BuildingMajorOrientation?   @relation(fields: [majorOrientationId], references: [id])
+  SustainabilityRating         SustainabilityRating?       @relation(fields: [sustainabilityRatingId], references: [id])
+  SustainabilityRatingScheme   SustainabilityRatingScheme? @relation(fields: [sustainabilityRatingSchemeId], references: [id])
+  UseType                      UseType?                    @relation(fields: [useTypeId], references: [id])
+  Zone                         Zone?                       @relation(fields: [zoneId], references: [id])
+  AverageOperatingHours        AverageOperatingHours[]
+  CoolingSystem                CoolingSystem[]
+  ExternalEnvelopeSubSystem    ExternalEnvelopeSubSystem[]
+  HeatingSystem                HeatingSystem[]
+  LightingSystem               LightingSystem[]
+  PropertyUser                 PropertyUser[]
+  Property_UseType             Property_UseType[]
+  SolarPanelSystem             SolarPanelSystem[]
+  SpaceUsage                   SpaceUsage[]
+}
+
+model PropertyUser {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  propertyId Int
+  Property   Property @relation(fields: [propertyId], references: [id])
+  User       User     @relation(fields: [userId], references: [id])
+}
+
+model Property_UseType {
+  id         Int      @id @default(autoincrement())
+  useTypeId  Int
+  propertyId Int
+  Property   Property @relation(fields: [propertyId], references: [id])
+  UseType    UseType  @relation(fields: [useTypeId], references: [id])
+}
+
+model R_CoolingLoadRuleOfThumb {
+  id            Int     @id @default(autoincrement())
+  building_type String  @db.Char(50)
+  use           String
+  people        Decimal @db.Decimal
+  lighting      Decimal @db.Decimal
+  equipment     Decimal @db.Decimal
+}
+
+model R_CorrespondingEfficiencyRatio {
+  id              Int     @id @default(autoincrement())
+  type            String  @db.Char(50)
+  cooling         Decimal @db.Decimal
+  heating         Decimal @db.Decimal
+  direct_electric Decimal @db.Decimal
+}
+
+model R_Country {
+  id   Int    @id @default(autoincrement())
+  code String @unique @db.Char(2)
+  name String @unique @db.VarChar
+}
+
+model R_CountryGridEmissions {
+  id            Int     @id @default(autoincrement())
+  country_code  String  @db.Char(10)
+  co2_emissions Decimal @db.Decimal
+}
+
+model R_EfficiencyRatio {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar
+  value       Float?
+  description String?
+}
+
+model R_HeatingLoadRuleOfThumb {
+  id            Int     @id @default(autoincrement())
+  building_type String  @db.Char(50)
+  use           String
+  heating_tbc   Decimal @db.Decimal
+}
+
+model R_LightFittingEfficacy {
+  id            Int     @id @default(autoincrement())
+  light_fitting String
+  efficacy      Decimal @db.Decimal
+}
+
+model R_LightingLoadRuleOfThumb {
+  id                Int     @id @default(autoincrement())
+  building_type     String  @db.Char(50)
+  use               String
+  lighting_load_tbc Decimal @db.Decimal
+}
+
+model R_WallTypeUValue {
+  id        Int     @id @default(autoincrement())
+  wall_type String
+  u_value   Decimal @db.Decimal
+}
+
+model R_WindowTypeUValue {
+  id                  Int     @id @default(autoincrement())
+  window_type         String
+  u_value             Decimal @db.Decimal
+  shading_coefficient Decimal @db.Decimal
+}
+
+model RefrigerantType {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar
+  description String?
+  Chiller     Chiller[]
+}
+
+model RoofInsulationType {
+  id                                                                                                     Int                         @id @default(autoincrement())
+  name                                                                                                   String?                     @db.VarChar
+  uValue                                                                                                 Float?
+  description                                                                                            String?
+  ExternalEnvelopeSubSystem_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType   ExternalEnvelopeSubSystem[] @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType")
+  ExternalEnvelopeSubSystem_ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType ExternalEnvelopeSubSystem[] @relation("ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType")
+}
+
+model SolarPanelSystem {
+  id                    Int           @id @default(autoincrement())
+  installedCapacity     Float?
+  systemLoss            Float?
+  inclineAngle          Float?
+  trackingTypeId        Int?
+  pvTechChoiceId        Int?
+  pvSystemTypeId        Int?
+  renewableEnergySystem Int
+  propertyId            Int
+  Property              Property      @relation(fields: [propertyId], references: [id])
+  PVSystemType          PVSystemType? @relation(fields: [pvSystemTypeId], references: [id])
+  PVTechChoice          PVTechChoice? @relation(fields: [pvTechChoiceId], references: [id])
+  TrackingType          TrackingType? @relation(fields: [trackingTypeId], references: [id])
+}
+
+model SpaceUsage {
+  id               Int             @id @default(autoincrement())
+  usageTypeId      Int
+  usagePercentage  Int?
+  climateControlId Int?
+  propertyId       Int?
+  ClimateControl   ClimateControl? @relation(fields: [climateControlId], references: [id])
+  Property         Property?       @relation(fields: [propertyId], references: [id])
+  SpaceUsageType   SpaceUsageType  @relation(fields: [usageTypeId], references: [id])
+}
+
+model SpaceUsageType {
+  id           Int          @id @default(autoincrement())
+  name         Int?
+  countryCode  String?      @db.VarChar
+  coolingLoad  Float?
+  heatingLoad  Float?
+  mvLoad       Float?
+  lightingLoad Float?
+  SpaceUsage   SpaceUsage[]
+}
+
+model TrackingType {
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar
+  SolarPanelSystem SolarPanelSystem[]
+}
+
+model UseType {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique @db.VarChar
+  description      String?
+  Property         Property[]
+  Property_UseType Property_UseType[]
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  email        String         @unique @db.VarChar
+  password     String?        @db.VarChar
+  status       String?        @db.VarChar
+  userTypeId   Int?
+  createdAt    DateTime       @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime?      @db.Timestamp(6)
+  UserType     UserType?      @relation(fields: [userTypeId], references: [id])
+  PropertyUser PropertyUser[]
+  UserDetail   UserDetail[]
+}
+
+model UserDetail {
+  id          Int       @id @default(autoincrement())
+  companyName String    @db.VarChar
+  firstName   String?   @db.VarChar
+  lastName    String?   @db.VarChar
+  userId      Int?
+  createdAt   DateTime? @db.Timestamp(6)
+  updatedAt   DateTime? @db.Timestamp(6)
+  User        User?     @relation(fields: [userId], references: [id])
+}
+
+model UserType {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar
+  User User[]
+}
+
+model WallInsulationType {
+  id                        Int                         @id @default(autoincrement())
+  name                      String?                     @db.VarChar
+  uValue                    Float?
+  description               String?
+  ExternalEnvelopeSubSystem ExternalEnvelopeSubSystem[]
+}
+
+model WindowInsulationType {
+  id                        Int                         @id @default(autoincrement())
+  name                      String?                     @db.VarChar
+  uValue                    Float?
+  shadingCoefficient        Float?
+  description               String?
+  ExternalEnvelopeSubSystem ExternalEnvelopeSubSystem[]
+}
+
+model Zone {
+  id         Int        @id
+  name       String?    @db.VarChar
+  floorId    Int?
+  buildingId Int?
+  Building   Building?  @relation(fields: [buildingId], references: [id])
+  Floor      Floor?     @relation(fields: [floorId], references: [id])
+  Property   Property[]
+}
+
+model nc_evolutions {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(255)
+  titleDown   String?   @db.VarChar(255)
+  description String?   @db.VarChar(255)
+  batch       Int?
+  checksum    String?   @db.VarChar(255)
+  status      Int?
+  created     DateTime? @db.Timestamptz(6)
+  created_at  DateTime? @db.Timestamptz(6)
+  updated_at  DateTime? @db.Timestamptz(6)
+}
+
+model SustainabilityRating {
+  id                           Int                        @id @default(autoincrement())
+  name                         String                     @db.VarChar
+  description                  String?
+  SustainabilityRatingSchemaId Int
+  SustainabilityRatingScheme   SustainabilityRatingScheme @relation(fields: [SustainabilityRatingSchemaId], references: [id])
+  Property                     Property[]
+}
+
+model SustainabilityRatingScheme {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique @db.VarChar
+  description          String?
+  Property             Property[]
+  SustainabilityRating SustainabilityRating[]
+}
