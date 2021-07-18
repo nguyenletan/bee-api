@@ -1,10 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { format } from 'date-fns';
-import { CreateBuildingDto, ISpaceUsageGFA } from './dto/create-building.dto';
+import {
+  CreateBuildingDto,
+  IElectricityConsumption,
+  ISpaceUsageGFA,
+} from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { PrismaService } from '../prisma.service';
-import { AverageOperatingHours, SpaceUsage } from '@prisma/client';
+import {
+  AverageOperatingHours,
+  SpaceUsage,
+  ElectricityConsumption,
+} from '@prisma/client';
 
 @Injectable()
 export class BuildingsService {
@@ -24,10 +31,10 @@ export class BuildingsService {
     //   throw new HttpException('Existing building', 406);
     // }
 
+    /// mapping for averageOperatingHours
     const averageOperatingHours: AverageOperatingHours = <
       AverageOperatingHours
     >{};
-
     for (const item of createBuildingDto?.buildingActivity) {
       if (item.isEnable) {
         averageOperatingHours[item.codeName + 'Start'] = format(
@@ -44,6 +51,18 @@ export class BuildingsService {
       }
     }
 
+    const electricityConsumptionList =
+      createBuildingDto?.electricityConsumptionList.map(
+        (item: IElectricityConsumption) => {
+          return <ElectricityConsumption>{
+            month: item.month,
+            year: item.year,
+            monthlyValue: Number(item.value),
+            monthlyCost: Number(item.cost),
+          };
+        },
+      );
+
     const spaceUsageGFAList = createBuildingDto?.spaceUsageGFAList.map(
       (item: ISpaceUsageGFA) => {
         return <SpaceUsage>{
@@ -57,103 +76,146 @@ export class BuildingsService {
       },
     );
 
-    //console.log(averageOperatingHours);
+    // console.log('newBuilding: ');
+    // console.log(newBuilding);
+    const addingBuildingObject = {
+      name: createBuildingDto.generalBuildingInformation.buildingName,
 
-    const newBuilding = await this.prismaService.building.create({
-      data: {
-        name: createBuildingDto.generalBuildingInformation.buildingName,
+      storeysBelowGround: Number(
+        createBuildingDto.generalBuildingInformation.storeysBelowGround,
+      ),
 
-        storeysBelowGround: Number(
-          createBuildingDto.generalBuildingInformation.storeysBelowGround,
-        ),
+      storeysAboveGround: Number(
+        createBuildingDto.generalBuildingInformation.storeysAboveGround,
+      ),
 
-        storeysAboveGround: Number(
-          createBuildingDto.generalBuildingInformation.storeysAboveGround,
-        ),
+      numberOfFloorAboveGroundLvl: 0,
 
-        numberOfFloorAboveGroundLvl: 0,
+      numberOfFloorBelowGroundLvl: 0,
 
-        numberOfFloorBelowGroundLvl: 0,
+      buildingMajorOrientationId: 1,
 
-        buildingMajorOrientationId: 1,
+      averageInternalFloorToCeilingHeight: Number(
+        createBuildingDto.generalBuildingInformation
+          .avgInternalFloorToCeilingHeight,
+      ),
 
-        averageInternalFloorToCeilingHeight: Number(
-          createBuildingDto.generalBuildingInformation
-            .avgInternalFloorToCeilingHeight,
-        ),
+      Property: {
+        create: {
+          streetAddress: createBuildingDto.generalBuildingInformation.address,
 
-        Property: {
-          create: {
-            streetAddress: createBuildingDto.generalBuildingInformation.address,
+          postCode: createBuildingDto.generalBuildingInformation.postalCode,
 
-            postCode: createBuildingDto.generalBuildingInformation.postalCode,
+          state: createBuildingDto.generalBuildingInformation.state,
 
-            state: createBuildingDto.generalBuildingInformation.state,
+          city: createBuildingDto.generalBuildingInformation.city,
 
-            city: createBuildingDto.generalBuildingInformation.city,
+          countryCode: createBuildingDto.generalBuildingInformation.countryCode,
 
-            countryCode:
-              createBuildingDto.generalBuildingInformation.countryCode,
+          grossFloorArea: 0,
 
-            grossFloorArea: 0,
+          grossInteriorArea: Number(
+            createBuildingDto.generalBuildingInformation.grossInteriorArea,
+          ),
 
-            grossInteriorArea: Number(
-              createBuildingDto.generalBuildingInformation.grossInteriorArea,
-            ),
+          netUsableArea: Number(
+            createBuildingDto.generalBuildingInformation.netUsableArea,
+          ),
 
-            netUsableArea: Number(
-              createBuildingDto.generalBuildingInformation.netUsableArea,
-            ),
+          latitude: createBuildingDto.generalBuildingInformation.location.lat,
 
-            latitude: createBuildingDto.generalBuildingInformation.location.lat,
+          longitude: createBuildingDto.generalBuildingInformation.location.lng,
 
-            longitude:
-              createBuildingDto.generalBuildingInformation.location.lng,
+          majorOrientationId:
+            createBuildingDto.generalBuildingInformation.buildingOrientedId,
 
-            majorOrientationId:
-              createBuildingDto.generalBuildingInformation.buildingOrientedId,
+          completionYear: Number(
+            createBuildingDto.generalBuildingInformation
+              .constructionPeriodValue,
+          ),
 
-            completionYear: Number(
-              createBuildingDto.generalBuildingInformation
-                .constructionPeriodValue,
-            ),
+          sustainabilityRatingSchemeId: Number(
+            createBuildingDto.generalBuildingInformation
+              .sustainabilityRatingSchemeId,
+          ),
 
-            sustainabilityRatingSchemeId: Number(
-              createBuildingDto.generalBuildingInformation
-                .sustainabilityRatingSchemeId,
-            ),
+          sustainabilityRatingId: Number(
+            createBuildingDto.generalBuildingInformation.sustainabilityRatingId,
+          ),
 
-            sustainabilityRatingId: Number(
-              createBuildingDto.generalBuildingInformation
-                .sustainabilityRatingId,
-            ),
+          useTypeId: Number(
+            createBuildingDto.generalBuildingInformation.useTypeId,
+          ),
 
-            useTypeId: Number(
-              createBuildingDto.generalBuildingInformation.useTypeId,
-            ),
+          photo: createBuildingDto.generalBuildingInformation.buildingPhoto,
 
-            photo: createBuildingDto.generalBuildingInformation.buildingPhoto,
-
-            AverageOperatingHours: {
-              create: {
-                ...averageOperatingHours,
-              },
+          AverageOperatingHours: {
+            create: {
+              ...averageOperatingHours,
             },
+          },
 
-            SpaceUsage: {
-              create: spaceUsageGFAList,
-            },
+          SpaceUsage: {
+            create: spaceUsageGFAList,
+          },
+
+          ElectricityConsumption: {
+            create: electricityConsumptionList,
           },
         },
       },
+    };
+
+    if (createBuildingDto.coolingSystem.hasCoolingSystem) {
+      addingBuildingObject.Property.create = <any>{
+        ...addingBuildingObject.Property.create,
+        CoolingSystem: {
+          create: {
+            coolingSystemTypeId:
+              createBuildingDto.coolingSystem.coolingSystemTypeId,
+            Chiller: {
+              create: {
+                compressorTypeId:
+                  createBuildingDto.coolingSystem.compressorTypeId,
+                refrigerantTypeId:
+                  createBuildingDto.coolingSystem.compressorTypeId,
+                chillerEnergySourceTypeId:
+                  createBuildingDto.coolingSystem.chillerEnergySourceTypeId,
+              },
+            },
+          },
+        },
+      };
+    }
+
+    if (createBuildingDto.heatingSystem.hasHeatingSystem) {
+      addingBuildingObject.Property.create = <any>{
+        ...addingBuildingObject.Property.create,
+        HeatingSystem: {
+          create: {
+            heatingSystemTypeId:
+              createBuildingDto.heatingSystem.heatingSystemTypeId,
+            Heater: {
+              create: {
+                heaterTypeId: createBuildingDto.heatingSystem.heaterTypeId,
+                heaterEnergySourceId:
+                  createBuildingDto.heatingSystem.heaterEnergySourceTypeId,
+              },
+            },
+          },
+        },
+      };
+    }
+
+    //console.log(addingBuildingObject);
+    //return addingBuildingObject;
+
+    return await this.prismaService.building.create({
+      data: addingBuildingObject,
       include: {
         Property: true, // Include all posts in the returned object
       },
     });
-
-    // console.log('newBuilding: ');
-    // console.log(newBuilding);
-    return newBuilding;
     //return 'This action adds a new building';
   }
 

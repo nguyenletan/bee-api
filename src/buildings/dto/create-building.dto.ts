@@ -62,6 +62,28 @@ export interface ISpaceUsageGFA {
   hasReheatRecovery: boolean;
 }
 
+export interface IElectricityConsumption {
+  month: number;
+  year: number;
+  value: number;
+  cost: number;
+}
+
+export interface ICoolingSystem {
+  hasCoolingSystem: boolean;
+  coolingSystemTypeId: number;
+  compressorTypeId: number;
+  refrigerantTypeId: number;
+  chillerEnergySourceTypeId: number;
+}
+
+export interface IHeatingSystem {
+  hasHeatingSystem: boolean;
+  heatingSystemTypeId: number;
+  heaterTypeId: number;
+  heaterEnergySourceTypeId: number;
+}
+
 export class CreateBuildingDto {
   @ApiProperty()
   generalBuildingInformation: IGeneralBuildingInformation;
@@ -71,4 +93,13 @@ export class CreateBuildingDto {
 
   @ApiProperty()
   spaceUsageGFAList: ISpaceUsageGFA[];
+
+  @ApiProperty()
+  electricityConsumptionList: IElectricityConsumption[];
+
+  @ApiProperty()
+  coolingSystem: ICoolingSystem;
+
+  @ApiProperty()
+  heatingSystem: IHeatingSystem;
 }

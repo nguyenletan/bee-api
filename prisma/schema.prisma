@@ -34,7 +34,7 @@ model AverageOperatingHours {
 
 model Building {
   id                                  Int        @id @default(autoincrement())
-  name                                String     @unique @db.VarChar
+  name                                String     @db.VarChar
   numberOfFloorAboveGroundLvl         Int?
   numberOfFloorBelowGroundLvl         Int?
   buildingMajorOrientationId          Int
@@ -111,12 +111,12 @@ model CompressorType {
 model CoolingSystem {
   id                               Int                @id @default(autoincrement())
   estimatedCoolingSystemEfficiency Float?
-  propertyId                       Int?
+  propId                           Int?
   estimatedCoolingLoad             Float?
   percentageCooledFloorArea        Float?
   coolingSystemTypeId              Int?
   CoolingSystemType                CoolingSystemType? @relation(fields: [coolingSystemTypeId], references: [id])
-  Property                         Property?          @relation(fields: [propertyId], references: [id])
+  Property                         Property?          @relation(fields: [propId], references: [id])
   Chiller                          Chiller[]
 }
 
@@ -128,13 +128,15 @@ model CoolingSystemType {
 }
 
 model ElectricityConsumption {
-  id                             Int                            @id @default(autoincrement())
-  electricitySupplierId          Int
+  id                             Int                             @id @default(autoincrement())
+  electricitySupplierId          Int?
   monthlyCost                    Float
   monthlyValue                   Float
   month                          Int
   year                           Int
-  ElectricitySupplierInformation ElectricitySupplierInformation @relation(fields: [electricitySupplierId], references: [id])
+  propId                         Int?
+  ElectricitySupplierInformation ElectricitySupplierInformation? @relation(fields: [electricitySupplierId], references: [id])
+  Property                       Property?                       @relation(fields: [propId], references: [id])
 }
 
 model ElectricitySupplierAPI {
@@ -183,8 +185,8 @@ model ExternalEnvelopeSubSystem {
   GroundInsulationType                                                                            GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id])
   RoofInsulationType_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType   RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType", fields: [externalRoofInsulationTypeId], references: [id])
   WallInsulationType                                                                              WallInsulationType?   @relation(fields: [externalWallInsulationTypeId], references: [id])
-  WindowInsulationType                                                                            WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id])
   RoofInsulationType_ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType", fields: [externalWindowInsulationTypeId], references: [id])
+  WindowInsulationType                                                                            WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id])
   Property                                                                                        Property?             @relation(fields: [propertyId], references: [id])
 }
 
@@ -208,16 +210,16 @@ model GroundInsulationType {
 }
 
 model Heater {
-  id                          Int                        @id @default(autoincrement())
-  heaterTypeId                Int?
-  capacity                    Float
-  manufacturerId              Int?
-  modelId                     Int?
-  heatingSystemId             Int
-  heatingSystemEnergySourceId Int?
-  HeaterType                  HeaterType?                @relation(fields: [heaterTypeId], references: [id])
-  HeatingSystemEnergySource   HeatingSystemEnergySource? @relation(fields: [heatingSystemEnergySourceId], references: [id])
-  HeatingSystem               HeatingSystem              @relation(fields: [heatingSystemId], references: [id])
+  id                   Int                 @id @default(autoincrement())
+  heaterTypeId         Int?
+  capacity             Float?
+  manufacturerId       Int?
+  modelId              Int?
+  heaterEnergySourceId Int?
+  heatingSystemId      Int?
+  HeaterEnergySource   HeaterEnergySource? @relation(fields: [heaterEnergySourceId], references: [id])
+  HeaterType           HeaterType?         @relation(fields: [heaterTypeId], references: [id])
+  HeatingSystem        HeatingSystem?      @relation(fields: [heatingSystemId], references: [id])
 }
 
 model HeaterType {
@@ -228,22 +230,15 @@ model HeaterType {
 }
 
 model HeatingSystem {
-  id                               Int                @id
-  propertyId                       Int?
+  id                               Int                @id @default(autoincrement())
+  propId                           Int?
   heatingSystemTypeId              Int?
   estimatedHeatingSystemEfficiency Float?
   estimatedHeatingLoad             Float?
   percentageHeatedFloorArea        Float?
   HeatingSystemType                HeatingSystemType? @relation(fields: [heatingSystemTypeId], references: [id])
-  Property                         Property?          @relation(fields: [propertyId], references: [id])
+  Property                         Property?          @relation(fields: [propId], references: [id])
   Heater                           Heater[]
-}
-
-model HeatingSystemEnergySource {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique @db.VarChar
-  description String?
-  Heater      Heater[]
 }
 
 model HeatingSystemType {
@@ -315,6 +310,7 @@ model Property {
   Zone                         Zone?                       @relation(fields: [zoneId], references: [id])
   AverageOperatingHours        AverageOperatingHours[]
   CoolingSystem                CoolingSystem[]
+  ElectricityConsumption       ElectricityConsumption[]
   ExternalEnvelopeSubSystem    ExternalEnvelopeSubSystem[]
   HeatingSystem                HeatingSystem[]
   LightingSystem               LightingSystem[]
@@ -573,4 +569,11 @@ model FanType {
   name        String       @unique @db.VarChar
   description String?
   SpaceUsage  SpaceUsage[]
+}
+
+model HeaterEnergySource {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar
+  description String?
+  Heater      Heater[]
 }
