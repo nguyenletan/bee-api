@@ -84,6 +84,12 @@ export interface IHeatingSystem {
   heaterEnergySourceTypeId: number;
 }
 
+export interface ILightingSubSystem {
+  title: string;
+  indoorLightingSystemTypeId: number;
+  percentage: number;
+}
+
 export class CreateBuildingDto {
   @ApiProperty()
   generalBuildingInformation: IGeneralBuildingInformation;
@@ -102,4 +108,7 @@ export class CreateBuildingDto {
 
   @ApiProperty()
   heatingSystem: IHeatingSystem;
+
+  @ApiProperty()
+  lightingSubSystemList: ILightingSubSystem[];
 }

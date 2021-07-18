@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import {
   CreateBuildingDto,
   IElectricityConsumption,
+  ILightingSubSystem,
   ISpaceUsageGFA,
 } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
@@ -11,6 +12,7 @@ import {
   AverageOperatingHours,
   SpaceUsage,
   ElectricityConsumption,
+  LightingSystem,
 } from '@prisma/client';
 
 @Injectable()
@@ -62,6 +64,15 @@ export class BuildingsService {
           };
         },
       );
+
+    const lightingSubSystemList = createBuildingDto?.lightingSubSystemList.map(
+      (item: ILightingSubSystem) => {
+        return <LightingSystem>{
+          lightingFittingTypeId: item.indoorLightingSystemTypeId,
+          percentageOfFittingTypeUsed: Number(item.percentage),
+        };
+      },
+    );
 
     const spaceUsageGFAList = createBuildingDto?.spaceUsageGFAList.map(
       (item: ISpaceUsageGFA) => {
@@ -161,6 +172,10 @@ export class BuildingsService {
 
           ElectricityConsumption: {
             create: electricityConsumptionList,
+          },
+
+          LightingSystem: {
+            create: lightingSubSystemList,
           },
         },
       },

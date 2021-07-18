@@ -256,13 +256,13 @@ model LightingFittingType {
 }
 
 model LightingSystem {
-  id                          Int                 @id @default(autoincrement())
-  estimatedLightingLoad_      Float               @map("estimatedLightingLoad ")
-  lightingFittingTypeId       Int
-  percentageOfFittingTypeUsed Float
+  id                          Int                  @id @default(autoincrement())
+  estimatedLightingLoad       Float?
+  lightingFittingTypeId       Int?
+  percentageOfFittingTypeUsed Float?
   propertyId                  Int?
-  LightingFittingType         LightingFittingType @relation(fields: [lightingFittingTypeId], references: [id])
-  Property                    Property?           @relation(fields: [propertyId], references: [id])
+  LightingFittingType         LightingFittingType? @relation(fields: [lightingFittingTypeId], references: [id])
+  Property                    Property?            @relation(fields: [propertyId], references: [id])
 }
 
 model PVSystemType {
