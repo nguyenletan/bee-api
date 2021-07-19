@@ -90,6 +90,25 @@ export interface ILightingSubSystem {
   percentage: number;
 }
 
+export interface IEnvelopFacade {
+  externalWindowToWallRatio: number;
+  externalRoofInsulationTypeId: number;
+  externalWallInsulationTypeId: number;
+  externalWindowInsulationTypeId: number;
+  externalGroundFloorInsulationTypeId: number;
+}
+
+export interface ISolarPanelSystem {
+  title: string;
+  installedCapacity: number;
+  trackingTypeId: number;
+  inclineAngel: number;
+  orientationAngle: number;
+  systemLoss: number;
+  pvTechChoiceId: number;
+  mountingTypeId: number;
+}
+
 export class CreateBuildingDto {
   @ApiProperty()
   generalBuildingInformation: IGeneralBuildingInformation;
@@ -111,4 +130,10 @@ export class CreateBuildingDto {
 
   @ApiProperty()
   lightingSubSystemList: ILightingSubSystem[];
+
+  @ApiProperty()
+  envelopFacade: IEnvelopFacade;
+
+  @ApiProperty()
+  solarPanelSystemList: ISolarPanelSystem[];
 }

@@ -23,7 +23,7 @@ export class BuildingsController {
   create(@Body() createBuildingDto: CreateBuildingDto, @Req() req: any) {
     console.log('Create building');
     console.log(req.user);
-    console.log(createBuildingDto.lightingSubSystemList);
+    console.log(createBuildingDto.solarPanelSystemList);
     return this.buildingsService.create(createBuildingDto);
   }
 

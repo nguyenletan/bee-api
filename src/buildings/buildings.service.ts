@@ -4,6 +4,7 @@ import {
   CreateBuildingDto,
   IElectricityConsumption,
   ILightingSubSystem,
+  ISolarPanelSystem,
   ISpaceUsageGFA,
 } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
@@ -13,6 +14,7 @@ import {
   SpaceUsage,
   ElectricityConsumption,
   LightingSystem,
+  SolarPanelSystem,
 } from '@prisma/client';
 
 @Injectable()
@@ -84,6 +86,28 @@ export class BuildingsService {
           fanTypeId: item.fanTypeId,
           hasReheatRecovery: item.hasReheatRecovery,
         };
+      },
+    );
+
+    const solarPanelSystemList = createBuildingDto?.solarPanelSystemList.map(
+      (item: ISolarPanelSystem) => {
+        const solarPanelSystem = <SolarPanelSystem>{
+          systemLoss: item.systemLoss,
+          installedCapacity: Number(item.installedCapacity),
+          pvTechChoiceId: item.pvTechChoiceId,
+          inclineAngle:
+            item.trackingTypeId === 1 || item.trackingTypeId === 2
+              ? item.inclineAngel
+              : null,
+          trackingTypeId: item.trackingTypeId,
+          mountingTypeId: item.mountingTypeId,
+          orientationAngle:
+            item.trackingTypeId === 1 || item.trackingTypeId === 3
+              ? item.orientationAngle
+              : null,
+        };
+
+        return solarPanelSystem;
       },
     );
 
@@ -177,6 +201,26 @@ export class BuildingsService {
           LightingSystem: {
             create: lightingSubSystemList,
           },
+
+          ExternalEnvelopeSubSystem: {
+            create: {
+              externalWindowToWallRatio:
+                createBuildingDto.envelopFacade.externalWindowToWallRatio,
+              externalWindowInsulationTypeId:
+                createBuildingDto.envelopFacade.externalWindowInsulationTypeId,
+              externalRoofInsulationTypeId:
+                createBuildingDto.envelopFacade.externalRoofInsulationTypeId,
+              externalWallInsulationTypeId:
+                createBuildingDto.envelopFacade.externalWallInsulationTypeId,
+              externalGroundInsulationTypeId:
+                createBuildingDto.envelopFacade
+                  .externalGroundFloorInsulationTypeId,
+            },
+          },
+
+          SolarPanelSystem: {
+            create: solarPanelSystemList,
+          },
         },
       },
     };
@@ -193,7 +237,7 @@ export class BuildingsService {
                 compressorTypeId:
                   createBuildingDto.coolingSystem.compressorTypeId,
                 refrigerantTypeId:
-                  createBuildingDto.coolingSystem.compressorTypeId,
+                  createBuildingDto.coolingSystem.refrigerantTypeId,
                 chillerEnergySourceTypeId:
                   createBuildingDto.coolingSystem.chillerEnergySourceTypeId,
               },

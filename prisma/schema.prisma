@@ -180,14 +180,14 @@ model ExternalEnvelopeSubSystem {
   roofInsulationTypeId                                                                            Int?
   floorName                                                                                       String?               @db.VarChar
   zoneName                                                                                        String?               @db.VarChar
-  propertyId                                                                                      Int?
+  propId                                                                                          Int?
   externalGroundInsulationTypeId                                                                  Int?
   GroundInsulationType                                                                            GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id])
   RoofInsulationType_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType   RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType", fields: [externalRoofInsulationTypeId], references: [id])
   WallInsulationType                                                                              WallInsulationType?   @relation(fields: [externalWallInsulationTypeId], references: [id])
-  RoofInsulationType_ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType", fields: [externalWindowInsulationTypeId], references: [id])
   WindowInsulationType                                                                            WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id])
-  Property                                                                                        Property?             @relation(fields: [propertyId], references: [id])
+  RoofInsulationType_ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType", fields: [externalWindowInsulationTypeId], references: [id])
+  Property                                                                                        Property?             @relation(fields: [propId], references: [id])
 }
 
 model Floor {
@@ -205,7 +205,8 @@ model Floor {
 model GroundInsulationType {
   id                        Int                         @id @default(autoincrement())
   name                      String                      @db.VarChar
-  uValue                    Float
+  uValue                    Float?
+  type                      String?                     @db.VarChar
   ExternalEnvelopeSubSystem ExternalEnvelopeSubSystem[]
 }
 
@@ -429,9 +430,12 @@ model SolarPanelSystem {
   trackingTypeId        Int?
   pvTechChoiceId        Int?
   pvSystemTypeId        Int?
-  renewableEnergySystem Int
-  propertyId            Int
-  Property              Property      @relation(fields: [propertyId], references: [id])
+  renewableEnergySystem Int?
+  propId                Int
+  mountingTypeId        Int?
+  orientationAngle      Float?
+  MountingType          MountingType? @relation(fields: [mountingTypeId], references: [id])
+  Property              Property      @relation(fields: [propId], references: [id])
   PVSystemType          PVSystemType? @relation(fields: [pvSystemTypeId], references: [id])
   PVTechChoice          PVTechChoice? @relation(fields: [pvTechChoiceId], references: [id])
   TrackingType          TrackingType? @relation(fields: [trackingTypeId], references: [id])
@@ -576,4 +580,11 @@ model HeaterEnergySource {
   name        String   @unique @db.VarChar
   description String?
   Heater      Heater[]
+}
+
+model MountingType {
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar
+  description      String?
+  SolarPanelSystem SolarPanelSystem[]
 }
