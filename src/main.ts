@@ -3,7 +3,12 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const allowList = ['http://localhost:3000', 'http://localhost:4000'];
+  const allowList = [
+    'http://localhost:3000',
+    'http://localhost:4000',
+    'https://bee-mvp.vercel.app',
+    'https://bee-poc.netlify.app',
+  ];
   // const corsOptionsDelegate = function (req, callback) {
   //   let corsOptions;
   //   if (allowlist.indexOf(req.header('Origin')) !== -1) {

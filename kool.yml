@@ -1,0 +1,7 @@
+scripts:
+  nest: kool exec app nest
+  psql: kool exec -e PGPASSWORD=$DB_PASSWORD database psql -U $DB_USERNAME $DB_DATABASE
+  setup:
+  - kool docker kooldev/node:14 yarn install
+  - kool start
+  yarn: kool exec app yarn
