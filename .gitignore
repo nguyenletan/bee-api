@@ -34,4 +34,4 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # Firebase
-*/**/firebase.config.json1
+*/**/firebase.config.json
