@@ -4,10 +4,12 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const allowList = [
-    'http://localhost:3000',
-    'http://localhost:4000',
-    'https://bee-mvp.vercel.app',
-    'https://bee-poc.netlify.app',
+    // 'http://localhost:3000',
+    // 'http://localhost:4000',
+    // 'https://bee-mvp.vercel.app',
+    // 'https://bee-mvp.vercel.app/',
+    // 'https://bee-poc.netlify.app',
+    // 'https://bee-poc.netlify.app/',
   ];
   // const corsOptionsDelegate = function (req, callback) {
   //   let corsOptions;
@@ -24,13 +26,14 @@ async function bootstrap() {
     origin: function (origin, callback) {
       console.log(origin);
       console.log(allowList);
-      if (origin === undefined || allowList.indexOf(origin) !== -1) {
-        console.log('allowed cors for:', origin);
-        callback(null, true);
-      } else {
-        console.log('blocked cors for:', origin);
-        callback(new Error('Not allowed by CORS'));
-      }
+      callback(null, true);
+      // if (origin === undefined || allowList.indexOf(origin) !== -1) {
+      //   console.log('allowed cors for:', origin);
+      //   callback(null, true);
+      // } else {
+      //   console.log('blocked cors for:', origin);
+      //   callback(new Error('Not allowed by CORS'));
+      // }
     },
     methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
   });
