@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { AreaMeasureUnit, LengthMeasureUnit } from '../../shared/types/unit';
 
 interface ILocation {
   lat: number;
@@ -27,10 +28,13 @@ interface IGeneralBuildingInformation {
   storeysBelowGround: number;
 
   grossInteriorArea: number;
+  grossInteriorAreaUnit: AreaMeasureUnit;
 
   netUsableArea: number;
+  netUsableAreaUnit: AreaMeasureUnit;
 
   avgInternalFloorToCeilingHeight: number;
+  avgInternalFloorToCeilingHeightUnit: LengthMeasureUnit;
 
   buildingOrientedId: number;
 

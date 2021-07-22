@@ -33,17 +33,18 @@ model AverageOperatingHours {
 }
 
 model Building {
-  id                                  Int        @id @default(autoincrement())
-  name                                String     @db.VarChar
-  numberOfFloorAboveGroundLvl         Int?
-  numberOfFloorBelowGroundLvl         Int?
-  buildingMajorOrientationId          Int
-  averageInternalFloorToCeilingHeight Float?
-  storeysAboveGround                  Int?
-  storeysBelowGround                  Int?
-  Floor                               Floor[]
-  Property                            Property[]
-  Zone                                Zone[]
+  id                                      Int        @id @default(autoincrement())
+  name                                    String     @db.VarChar
+  numberOfFloorAboveGroundLvl             Int?
+  numberOfFloorBelowGroundLvl             Int?
+  buildingMajorOrientationId              Int
+  averageInternalFloorToCeilingHeight     Float?
+  storeysAboveGround                      Int?
+  storeysBelowGround                      Int?
+  averageInternalFloorToCeilingHeightUnit String?    @db.VarChar
+  Floor                                   Floor[]
+  Property                                Property[]
+  Zone                                    Zone[]
 }
 
 model BuildingMajorOrientation {
@@ -185,8 +186,8 @@ model ExternalEnvelopeSubSystem {
   GroundInsulationType                                                                            GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id])
   RoofInsulationType_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType   RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType", fields: [externalRoofInsulationTypeId], references: [id])
   WallInsulationType                                                                              WallInsulationType?   @relation(fields: [externalWallInsulationTypeId], references: [id])
-  WindowInsulationType                                                                            WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id])
   RoofInsulationType_ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType", fields: [externalWindowInsulationTypeId], references: [id])
+  WindowInsulationType                                                                            WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id])
   Property                                                                                        Property?             @relation(fields: [propId], references: [id])
 }
 
@@ -302,6 +303,8 @@ model Property {
   netUsableArea                Float?
   useTypeId                    Int?
   photo                        String?
+  grossInteriorAreaUnit        String?                     @db.VarChar
+  netUsableAreaUnit            String?                     @db.VarChar
   Building                     Building?                   @relation(fields: [buildingId], references: [id])
   Floor                        Floor?                      @relation(fields: [floorId], references: [id])
   BuildingMajorOrientation     BuildingMajorOrientation?   @relation(fields: [majorOrientationId], references: [id])

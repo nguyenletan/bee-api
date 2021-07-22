@@ -135,6 +135,10 @@ export class BuildingsService {
           .avgInternalFloorToCeilingHeight,
       ),
 
+      averageInternalFloorToCeilingHeightUnit:
+        createBuildingDto.generalBuildingInformation
+          .avgInternalFloorToCeilingHeightUnit,
+
       Property: {
         create: {
           streetAddress: createBuildingDto.generalBuildingInformation.address,
@@ -153,13 +157,19 @@ export class BuildingsService {
             createBuildingDto.generalBuildingInformation.grossInteriorArea,
           ),
 
+          grossInteriorAreaUnit:
+            createBuildingDto.generalBuildingInformation.grossInteriorAreaUnit,
+
           netUsableArea: Number(
             createBuildingDto.generalBuildingInformation.netUsableArea,
           ),
 
-          latitude: createBuildingDto.generalBuildingInformation.location.lat,
+          netUsableAreaUnit:
+            createBuildingDto.generalBuildingInformation.netUsableAreaUnit,
 
-          longitude: createBuildingDto.generalBuildingInformation.location.lng,
+          latitude: createBuildingDto.generalBuildingInformation.location?.lat,
+
+          longitude: createBuildingDto.generalBuildingInformation.location?.lng,
 
           majorOrientationId:
             createBuildingDto.generalBuildingInformation.buildingOrientedId,
