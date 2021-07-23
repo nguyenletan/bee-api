@@ -171,24 +171,24 @@ model ElectricitySupplierInformation {
 }
 
 model ExternalEnvelopeSubSystem {
-  id                                                                                              Int                   @id @default(autoincrement())
-  externalWindowToWallRatio                                                                       Float?
-  externalRoofInsulationTypeId                                                                    Int?
-  externalWallInsulationTypeId                                                                    Int?
-  externalWindowInsulationTypeId                                                                  Int?
-  groundInsulationTypeId                                                                          Int?
-  floorInsulationTypeId                                                                           Int?
-  roofInsulationTypeId                                                                            Int?
-  floorName                                                                                       String?               @db.VarChar
-  zoneName                                                                                        String?               @db.VarChar
-  propId                                                                                          Int?
-  externalGroundInsulationTypeId                                                                  Int?
-  GroundInsulationType                                                                            GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id])
-  RoofInsulationType_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType   RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType", fields: [externalRoofInsulationTypeId], references: [id])
-  WallInsulationType                                                                              WallInsulationType?   @relation(fields: [externalWallInsulationTypeId], references: [id])
-  RoofInsulationType_ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType", fields: [externalWindowInsulationTypeId], references: [id])
-  WindowInsulationType                                                                            WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id])
-  Property                                                                                        Property?             @relation(fields: [propId], references: [id])
+  id                                                                                            Int                   @id @default(autoincrement())
+  externalWindowToWallRatio                                                                     Float?
+  externalRoofInsulationTypeId                                                                  Int?
+  externalWallInsulationTypeId                                                                  Int?
+  externalWindowInsulationTypeId                                                                Int?
+  groundInsulationTypeId                                                                        Int?
+  floorInsulationTypeId                                                                         Int?
+  roofInsulationTypeId                                                                          Int?
+  floorName                                                                                     String?               @db.VarChar
+  zoneName                                                                                      String?               @db.VarChar
+  propId                                                                                        Int?
+  externalGroundInsulationTypeId                                                                Int?
+  GroundInsulationType                                                                          GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id])
+  RoofInsulationType_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType", fields: [externalRoofInsulationTypeId], references: [id])
+  WallInsulationType                                                                            WallInsulationType?   @relation(fields: [externalWallInsulationTypeId], references: [id])
+  WindowInsulationType                                                                          WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id])
+  Property                                                                                      Property?             @relation(fields: [propId], references: [id])
+  RoofType                                                                                      RoofType?             @relation(fields: [roofInsulationTypeId], references: [id])
 }
 
 model Floor {
@@ -417,12 +417,11 @@ model RefrigerantType {
 }
 
 model RoofInsulationType {
-  id                                                                                                     Int                         @id @default(autoincrement())
-  name                                                                                                   String?                     @db.VarChar
-  uValue                                                                                                 Float?
-  description                                                                                            String?
-  ExternalEnvelopeSubSystem_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType   ExternalEnvelopeSubSystem[] @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType")
-  ExternalEnvelopeSubSystem_ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType ExternalEnvelopeSubSystem[] @relation("ExternalEnvelopeSubSystem_externalWindowInsulationTypeIdToRoofInsulationType")
+  id                                                                                                   Int                         @id @default(autoincrement())
+  name                                                                                                 String?                     @db.VarChar
+  uValue                                                                                               Float?
+  description                                                                                          String?
+  ExternalEnvelopeSubSystem_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType ExternalEnvelopeSubSystem[] @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType")
 }
 
 model SolarPanelSystem {
@@ -590,4 +589,11 @@ model MountingType {
   name             String             @db.VarChar
   description      String?
   SolarPanelSystem SolarPanelSystem[]
+}
+
+model RoofType {
+  id                        Int                         @id @default(autoincrement())
+  name                      String?                     @db.VarChar
+  description               String?
+  ExternalEnvelopeSubSystem ExternalEnvelopeSubSystem[]
 }

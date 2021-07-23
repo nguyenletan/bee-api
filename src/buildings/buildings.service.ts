@@ -216,12 +216,8 @@ export class BuildingsService {
             create: {
               externalWindowToWallRatio:
                 createBuildingDto.envelopFacade.externalWindowToWallRatio,
-              externalWindowInsulationTypeId:
-                createBuildingDto.envelopFacade.externalWindowInsulationTypeId,
-              externalRoofInsulationTypeId:
+              roofInsulationTypeId:
                 createBuildingDto.envelopFacade.externalRoofInsulationTypeId,
-              externalWallInsulationTypeId:
-                createBuildingDto.envelopFacade.externalWallInsulationTypeId,
               externalGroundInsulationTypeId:
                 createBuildingDto.envelopFacade
                   .externalGroundFloorInsulationTypeId,
