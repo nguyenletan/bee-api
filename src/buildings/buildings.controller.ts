@@ -24,6 +24,7 @@ export class BuildingsController {
     console.log('Create building');
     console.log(req.user);
     console.log(createBuildingDto.generalBuildingInformation);
+
     return this.buildingsService.create(createBuildingDto);
   }
 

@@ -280,48 +280,50 @@ model PVTechChoice {
 }
 
 model Property {
-  id                           Int                         @id @default(autoincrement())
-  streetAddress                String                      @db.VarChar
-  postCode                     String                      @db.Char(10)
-  city                         String                      @db.VarChar
-  state                        String?                     @db.VarChar
-  region                       String?                     @db.VarChar
-  countryCode                  String?                     @db.VarChar
-  grossFloorArea               Float
-  completionYear               Int?
-  majorOrientationId           Int?
-  createdAt                    DateTime?                   @default(now()) @db.Timestamp(6)
-  updatedAt                    DateTime?                   @db.Timestamp(6)
-  buildingId                   Int?
-  floorId                      Int?
-  zoneId                       Int?
-  sustainabilityRatingSchemeId Int?
-  sustainabilityRatingId       Int?
-  latitude                     Decimal?                    @db.Decimal
-  longitude                    Decimal?                    @db.Decimal
-  grossInteriorArea            Float?
-  netUsableArea                Float?
-  useTypeId                    Int?
-  photo                        String?
-  grossInteriorAreaUnit        String?                     @db.VarChar
-  netUsableAreaUnit            String?                     @db.VarChar
-  Building                     Building?                   @relation(fields: [buildingId], references: [id])
-  Floor                        Floor?                      @relation(fields: [floorId], references: [id])
-  BuildingMajorOrientation     BuildingMajorOrientation?   @relation(fields: [majorOrientationId], references: [id])
-  SustainabilityRating         SustainabilityRating?       @relation(fields: [sustainabilityRatingId], references: [id])
-  SustainabilityRatingScheme   SustainabilityRatingScheme? @relation(fields: [sustainabilityRatingSchemeId], references: [id])
-  UseType                      UseType?                    @relation(fields: [useTypeId], references: [id])
-  Zone                         Zone?                       @relation(fields: [zoneId], references: [id])
-  AverageOperatingHours        AverageOperatingHours[]
-  CoolingSystem                CoolingSystem[]
-  ElectricityConsumption       ElectricityConsumption[]
-  ExternalEnvelopeSubSystem    ExternalEnvelopeSubSystem[]
-  HeatingSystem                HeatingSystem[]
-  LightingSystem               LightingSystem[]
-  PropertyUser                 PropertyUser[]
-  Property_UseType             Property_UseType[]
-  SolarPanelSystem             SolarPanelSystem[]
-  SpaceUsage                   SpaceUsage[]
+  id                                    Int                         @id @default(autoincrement())
+  streetAddress                         String                      @db.VarChar
+  postCode                              String                      @db.Char(10)
+  city                                  String                      @db.VarChar
+  state                                 String?                     @db.VarChar
+  region                                String?                     @db.VarChar
+  countryCode                           String?                     @db.VarChar
+  grossFloorArea                        Float
+  completionYear                        Int?
+  majorOrientationId                    Int?
+  createdAt                             DateTime?                   @default(now()) @db.Timestamp(6)
+  updatedAt                             DateTime?                   @db.Timestamp(6)
+  buildingId                            Int?
+  floorId                               Int?
+  zoneId                                Int?
+  sustainabilityRatingSchemeId          Int?
+  sustainabilityRatingId                Int?
+  latitude                              Decimal?                    @db.Decimal
+  longitude                             Decimal?                    @db.Decimal
+  grossInteriorArea                     Float?
+  netUsableArea                         Float?
+  useTypeId                             Int?
+  photo                                 String?
+  grossInteriorAreaUnit                 String?                     @db.VarChar
+  netUsableAreaUnit                     String?                     @db.VarChar
+  hasMajorRefurbishmentOrExtensionsDone Boolean?
+  latestYearForRefurbishmentOrExtension Decimal?                    @db.Decimal
+  Building                              Building?                   @relation(fields: [buildingId], references: [id])
+  Floor                                 Floor?                      @relation(fields: [floorId], references: [id])
+  BuildingMajorOrientation              BuildingMajorOrientation?   @relation(fields: [majorOrientationId], references: [id])
+  SustainabilityRating                  SustainabilityRating?       @relation(fields: [sustainabilityRatingId], references: [id])
+  SustainabilityRatingScheme            SustainabilityRatingScheme? @relation(fields: [sustainabilityRatingSchemeId], references: [id])
+  UseType                               UseType?                    @relation(fields: [useTypeId], references: [id])
+  Zone                                  Zone?                       @relation(fields: [zoneId], references: [id])
+  AverageOperatingHours                 AverageOperatingHours[]
+  CoolingSystem                         CoolingSystem[]
+  ElectricityConsumption                ElectricityConsumption[]
+  ExternalEnvelopeSubSystem             ExternalEnvelopeSubSystem[]
+  HeatingSystem                         HeatingSystem[]
+  LightingSystem                        LightingSystem[]
+  PropertyUser                          PropertyUser[]
+  Property_UseType                      Property_UseType[]
+  SolarPanelSystem                      SolarPanelSystem[]
+  SpaceUsage                            SpaceUsage[]
 }
 
 model PropertyUser {
@@ -491,6 +493,8 @@ model User {
   userTypeId   Int?
   createdAt    DateTime       @default(now()) @db.Timestamp(6)
   updatedAt    DateTime?      @db.Timestamp(6)
+  authTypeId   Int?
+  AuthType     AuthType?      @relation(fields: [authTypeId], references: [id])
   UserType     UserType?      @relation(fields: [userTypeId], references: [id])
   PropertyUser PropertyUser[]
   UserDetail   UserDetail[]
@@ -596,4 +600,11 @@ model RoofType {
   name                      String?                     @db.VarChar
   description               String?
   ExternalEnvelopeSubSystem ExternalEnvelopeSubSystem[]
+}
+
+model AuthType {
+  id          Int     @id @default(autoincrement())
+  name        String? @db.VarChar
+  description String?
+  User        User[]
 }

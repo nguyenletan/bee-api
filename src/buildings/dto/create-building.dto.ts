@@ -47,6 +47,10 @@ interface IGeneralBuildingInformation {
   useTypeId: number;
 
   buildingPhoto: string;
+
+  hasMajorRefurbishmentOrExtensionsDone: boolean;
+
+  latestYearForRefurbishmentOrExtension: number;
 }
 
 interface IBuildingActivity {

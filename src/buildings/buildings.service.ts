@@ -194,6 +194,14 @@ export class BuildingsService {
 
           photo: createBuildingDto.generalBuildingInformation.buildingPhoto,
 
+          hasMajorRefurbishmentOrExtensionsDone:
+            createBuildingDto.generalBuildingInformation
+              .hasMajorRefurbishmentOrExtensionsDone,
+
+          latestYearForRefurbishmentOrExtension:
+            createBuildingDto.generalBuildingInformation
+              .latestYearForRefurbishmentOrExtension,
+
           AverageOperatingHours: {
             create: {
               ...averageOperatingHours,
