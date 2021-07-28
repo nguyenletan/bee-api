@@ -25,12 +25,14 @@ export class BuildingsController {
     console.log(req.user);
     console.log(createBuildingDto.generalBuildingInformation);
 
-    return this.buildingsService.create(createBuildingDto);
+    return this.buildingsService.create(createBuildingDto, req.user);
   }
 
   @Get()
-  findAll() {
-    return this.buildingsService.findAll();
+  @UseGuards(FirebaseAuthGuard)
+  findAll(@Req() req: any) {
+    console.log(req.user);
+    return this.buildingsService.findAll(req.user);
   }
 
   @Get(':id')

@@ -11,17 +11,18 @@ import { UpdateBuildingDto } from './dto/update-building.dto';
 import { PrismaService } from '../prisma.service';
 import {
   AverageOperatingHours,
-  SpaceUsage,
   ElectricityConsumption,
   LightingSystem,
   SolarPanelSystem,
+  SpaceUsage,
 } from '@prisma/client';
+import { Property } from '../properties/entities/property.entity';
 
 @Injectable()
 export class BuildingsService {
   constructor(private prismaService: PrismaService) {}
 
-  async create(createBuildingDto: CreateBuildingDto) {
+  async create(createBuildingDto: CreateBuildingDto, user: any) {
     //console.log(createBuildingDto);
 
     // if (
@@ -235,6 +236,12 @@ export class BuildingsService {
           SolarPanelSystem: {
             create: solarPanelSystemList,
           },
+
+          PropertyUser: {
+            create: {
+              userAuthUID: user.uid,
+            },
+          },
         },
       },
     };
@@ -292,8 +299,26 @@ export class BuildingsService {
     //return 'This action adds a new building';
   }
 
-  findAll() {
-    return `This action returns all buildings`;
+  async findAll(user: any) {
+    const result = await this.prismaService.$queryRaw`
+        SELECT p.*, B.* FROM "Property" p
+        INNER JOIN "PropertyUser" PU ON p.id = PU."propertyId"
+        INNER JOIN "Building" B on B.id = p."buildingId"
+        WHERE "statusId" = 2 AND PU."userAuthUID" = ${user.uid} AND "buildingId" is not null`;
+    // return await this.prismaService.property.findMany({
+    //   where: {
+    //     statusId: {
+    //       equals: 2,
+    //     },
+    //     PropertyUser: {
+    //       userAuthUID : {
+    //         equals: ''
+    //       }
+    //     }
+    //   },
+    // });
+    console.log(result);
+    return result;
   }
 
   findOne(id: number) {

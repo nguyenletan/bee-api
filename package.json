@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": "14.17.3"
+    "node": "14.7.3"
   },
   "scripts": {
     "prebuild": "rimraf dist",
@@ -28,7 +28,7 @@
     "@nestjs/core": "^8.0.4",
     "@nestjs/passport": "^8.0.0",
     "@nestjs/platform-express": "^8.0.4",
-    "@prisma/client": "^2.27.0",
+    "@prisma/client": "^2.28.0",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.4.0",
     "date-fns": "^2.22.1",
@@ -36,7 +36,7 @@
     "passport": "^0.4.1",
     "passport-firebase-jwt": "^1.1.0",
     "passport-local": "^1.0.0",
-    "prisma": "^2.27.0",
+    "prisma": "^2.28.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"

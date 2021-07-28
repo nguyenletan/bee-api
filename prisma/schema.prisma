@@ -307,9 +307,11 @@ model Property {
   netUsableAreaUnit                     String?                     @db.VarChar
   hasMajorRefurbishmentOrExtensionsDone Boolean?
   latestYearForRefurbishmentOrExtension Decimal?                    @db.Decimal
+  statusId                              Int?                        @default(2)
   Building                              Building?                   @relation(fields: [buildingId], references: [id])
   Floor                                 Floor?                      @relation(fields: [floorId], references: [id])
   BuildingMajorOrientation              BuildingMajorOrientation?   @relation(fields: [majorOrientationId], references: [id])
+  Status                                Status?                     @relation(fields: [statusId], references: [id])
   SustainabilityRating                  SustainabilityRating?       @relation(fields: [sustainabilityRatingId], references: [id])
   SustainabilityRatingScheme            SustainabilityRatingScheme? @relation(fields: [sustainabilityRatingSchemeId], references: [id])
   UseType                               UseType?                    @relation(fields: [useTypeId], references: [id])
@@ -327,11 +329,10 @@ model Property {
 }
 
 model PropertyUser {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  propertyId Int
-  Property   Property @relation(fields: [propertyId], references: [id])
-  User       User     @relation(fields: [userId], references: [id])
+  id          Int      @id @default(autoincrement())
+  userAuthUID String   @db.VarChar
+  propertyId  Int
+  Property    Property @relation(fields: [propertyId], references: [id])
 }
 
 model Property_UseType {
@@ -486,18 +487,17 @@ model UseType {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique @db.VarChar
-  password     String?        @db.VarChar
-  status       String?        @db.VarChar
-  userTypeId   Int?
-  createdAt    DateTime       @default(now()) @db.Timestamp(6)
-  updatedAt    DateTime?      @db.Timestamp(6)
-  authTypeId   Int?
-  AuthType     AuthType?      @relation(fields: [authTypeId], references: [id])
-  UserType     UserType?      @relation(fields: [userTypeId], references: [id])
-  PropertyUser PropertyUser[]
-  UserDetail   UserDetail[]
+  id         Int          @id @default(autoincrement())
+  email      String       @unique @db.VarChar
+  password   String?      @db.VarChar
+  status     String?      @db.VarChar
+  userTypeId Int?
+  createdAt  DateTime     @default(now()) @db.Timestamp(6)
+  updatedAt  DateTime?    @db.Timestamp(6)
+  authTypeId Int?
+  AuthType   AuthType?    @relation(fields: [authTypeId], references: [id])
+  UserType   UserType?    @relation(fields: [userTypeId], references: [id])
+  UserDetail UserDetail[]
 }
 
 model UserDetail {
@@ -607,4 +607,10 @@ model AuthType {
   name        String? @db.VarChar
   description String?
   User        User[]
+}
+
+model Status {
+  id       Int        @id @default(autoincrement())
+  name     String?    @db.VarChar
+  Property Property[]
 }
