@@ -321,8 +321,20 @@ export class BuildingsService {
     return result;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} building`;
+  async findOne(id: number) {
+    const result = await this.prismaService.$queryRaw`
+        SELECT p.*, B.*, UT.name as "useTypeName",
+              SR.name as "sustainabilityRatingName",
+              SRS.name as "sustainabilityRatingSchemeName"
+        FROM "Property" p
+        INNER JOIN "Building" B on B.id = p."buildingId"
+        INNER JOIN "UseType" UT on UT.id = p."useTypeId"
+        INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
+        INNER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
+        WHERE "statusId" = 2 AND "buildingId" = ${id}`;
+    console.log(result);
+    return result;
+    //return `This action returns a #${id} building`;
   }
 
   update(id: number, updateBuildingDto: UpdateBuildingDto) {
