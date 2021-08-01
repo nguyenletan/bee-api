@@ -16,7 +16,7 @@ import {
   SolarPanelSystem,
   SpaceUsage,
 } from '@prisma/client';
-import { Property } from '../properties/entities/property.entity';
+import { Utilities } from '../shared/utilities';
 
 @Injectable()
 export class BuildingsService {
@@ -40,6 +40,7 @@ export class BuildingsService {
     const averageOperatingHours: AverageOperatingHours = <
       AverageOperatingHours
     >{};
+
     for (const item of createBuildingDto?.buildingActivity) {
       if (item.isEnable) {
         averageOperatingHours[item.codeName + 'Start'] = format(
@@ -301,7 +302,7 @@ export class BuildingsService {
 
   async findAll(user: any) {
     const result = await this.prismaService.$queryRaw`
-        SELECT p.*, B.* FROM "Property" p
+        SELECT p."streetAddress", p.photo, p.id, B.name FROM "Property" p
         INNER JOIN "PropertyUser" PU ON p.id = PU."propertyId"
         INNER JOIN "Building" B on B.id = p."buildingId"
         WHERE "statusId" = 2 AND PU."userAuthUID" = ${user.uid} AND "buildingId" is not null`;
@@ -322,18 +323,42 @@ export class BuildingsService {
   }
 
   async findOne(id: number) {
-    const result = await this.prismaService.$queryRaw`
+    const prop = await this.prismaService.$queryRaw`
         SELECT p.*, B.*, UT.name as "useTypeName",
               SR.name as "sustainabilityRatingName",
               SRS.name as "sustainabilityRatingSchemeName"
         FROM "Property" p
-        INNER JOIN "Building" B on B.id = p."buildingId"
-        INNER JOIN "UseType" UT on UT.id = p."useTypeId"
-        INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
-        INNER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
-        WHERE "statusId" = 2 AND "buildingId" = ${id}`;
-    console.log(result);
-    return result;
+          INNER JOIN "Building" B on B.id = p."buildingId"
+          INNER JOIN "UseType" UT on UT.id = p."useTypeId"
+          INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
+          INNER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
+        WHERE "statusId" = 2 AND p.id = ${id}`;
+    let totalCost = 0;
+    let totalConsumption = 0;
+
+    const electricConsumptions =
+      await this.prismaService.electricityConsumption.findMany({
+        where: {
+          propId: {
+            equals: id,
+          },
+        },
+        orderBy: {
+          id: 'desc',
+        },
+      });
+
+    for (const i of electricConsumptions) {
+      totalCost += i.monthlyCost;
+      totalConsumption += i.monthlyValue;
+    }
+
+    return {
+      totalCost: totalCost,
+      totalConsumption: totalConsumption / 1000,
+      prop: prop[0],
+      electricConsumptions: electricConsumptions,
+    };
     //return `This action returns a #${id} building`;
   }
 
