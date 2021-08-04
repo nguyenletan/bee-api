@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { format } from 'date-fns';
+import { format, differenceInHours, differenceInMinutes } from 'date-fns';
+
 import {
   CreateBuildingDto,
   IElectricityConsumption,
@@ -326,6 +327,73 @@ export class BuildingsService {
     return result;
   }
 
+  private subtractTime(time1: string, time2: string): number {
+    if (time1 && time2) {
+      return differenceInMinutes(
+        new Date('2000-01-01T' + time1),
+        new Date('2000-01-01T' + time2),
+      );
+    }
+    return 0;
+  }
+
+  private calculateTotalOperatingHours(
+    operationHours: AverageOperatingHours,
+  ): number {
+    const mondayHours = this.subtractTime(
+      operationHours.mondayEnd,
+      operationHours.mondayStart,
+    );
+
+    const tuesdayHours = this.subtractTime(
+      operationHours.tuesdayEnd,
+      operationHours.tuesdayStart,
+    );
+
+    const wednesdayHours = this.subtractTime(
+      operationHours.wednesdayEnd,
+      operationHours.wednesdayStart,
+    );
+
+    const thursdayHours = this.subtractTime(
+      operationHours.thursdayEnd,
+      operationHours.thursdayStart,
+    );
+
+    const fridayHours = this.subtractTime(
+      operationHours.fridayEnd,
+      operationHours.fridayStart,
+    );
+
+    const saturdayHours = this.subtractTime(
+      operationHours.saturdayEnd,
+      operationHours.saturdayStart,
+    );
+
+    const sundayHours = this.subtractTime(
+      operationHours.sundayEnd,
+      operationHours.saturdayStart,
+    );
+
+    ///TODO: we will calculate it late
+    // const publicHoliday = this.subtractTime(
+    //   operationHours.publicHolidayEnd,
+    //   operationHours.publicHolidayStart,
+    // );
+
+    return (
+      ((mondayHours +
+        tuesdayHours +
+        wednesdayHours +
+        thursdayHours +
+        fridayHours +
+        saturdayHours +
+        sundayHours) *
+        52.1428571) /
+      60
+    );
+  }
+
   async findOne(id: number) {
     const prop = await this.prismaService.$queryRaw`
         SELECT p.*, B.*, UT.name as "useTypeName",
@@ -352,6 +420,20 @@ export class BuildingsService {
         },
       });
 
+    const operationHours =
+      await this.prismaService.averageOperatingHours.findFirst({
+        where: {
+          propId: {
+            equals: id,
+          },
+        },
+        orderBy: {
+          id: 'asc',
+        },
+      });
+
+    console.log(operationHours);
+
     const last12MonthConsumptions = _.take<ElectricityConsumption>(
       electricConsumptions,
       12,
@@ -362,7 +444,7 @@ export class BuildingsService {
       annualCost += last12MonthConsumptions[i].monthlyCost;
       annualConsumption += last12MonthConsumptions[i].monthlyValue;
 
-      if (i + 12 <= electricConsumptions.length) {
+      if (i + 12 < electricConsumptions.length) {
         /// TODO: will remove it, just use it for debugging
         last12MonthConsumptions[i]['sameMonthLastYearValue'] =
           electricConsumptions[i + 12].monthlyValue / 1000;
@@ -399,6 +481,7 @@ export class BuildingsService {
       annualCarbonEmissions: annualCarbonEmissions,
       lastMonthComparison: lastMonthComparison / 1000,
       periodOf12Month: periodOf12Month / 1000,
+      totalOperatingHours: this.calculateTotalOperatingHours(operationHours),
       prop: prop[0],
       electricConsumptions: _.take<ElectricityConsumption>(
         electricConsumptions,
