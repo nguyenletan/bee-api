@@ -33,6 +33,7 @@
     "class-transformer": "^0.4.0",
     "date-fns": "^2.23.0",
     "firebase-admin": "^9.11.0",
+    "lodash": "^4.17.21",
     "passport": "^0.4.1",
     "passport-firebase-jwt": "^1.1.0",
     "passport-local": "^1.0.0",
@@ -42,6 +43,7 @@
     "rxjs": "^7.3.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.171",
     "@nestjs/cli": "^8.1.0",
     "@nestjs/schematics": "^8.0.2",
     "@nestjs/swagger": "^5.0.8",

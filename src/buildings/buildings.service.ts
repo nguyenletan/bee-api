@@ -17,6 +17,7 @@ import {
   SpaceUsage,
 } from '@prisma/client';
 import { Utilities } from '../shared/utilities';
+import * as _ from 'lodash';
 
 @Injectable()
 export class BuildingsService {
@@ -305,7 +306,10 @@ export class BuildingsService {
         SELECT p."streetAddress", p.photo, p.id, B.name FROM "Property" p
         INNER JOIN "PropertyUser" PU ON p.id = PU."propertyId"
         INNER JOIN "Building" B on B.id = p."buildingId"
-        WHERE "statusId" = 2 AND PU."userAuthUID" = ${user.uid} AND "buildingId" is not null`;
+        WHERE "statusId" = 2 AND PU."userAuthUID" = ${user.uid} AND "buildingId" is not null
+        ORDER BY p.id DESC
+        `;
+
     // return await this.prismaService.property.findMany({
     //   where: {
     //     statusId: {
@@ -333,8 +337,8 @@ export class BuildingsService {
           INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
           INNER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
         WHERE "statusId" = 2 AND p.id = ${id}`;
-    let totalCost = 0;
-    let totalConsumption = 0;
+    let annualCost = 0;
+    let annualConsumption = 0;
 
     const electricConsumptions =
       await this.prismaService.electricityConsumption.findMany({
@@ -344,20 +348,62 @@ export class BuildingsService {
           },
         },
         orderBy: {
-          id: 'desc',
+          id: 'asc',
         },
       });
 
-    for (const i of electricConsumptions) {
-      totalCost += i.monthlyCost;
-      totalConsumption += i.monthlyValue;
+    const last12MonthConsumptions = _.take<ElectricityConsumption>(
+      electricConsumptions,
+      12,
+    );
+
+    //console.log(electricConsumptions.length);
+    for (let i = 0; i < last12MonthConsumptions.length; i++) {
+      annualCost += last12MonthConsumptions[i].monthlyCost;
+      annualConsumption += last12MonthConsumptions[i].monthlyValue;
+
+      if (i + 12 <= electricConsumptions.length) {
+        /// TODO: will remove it, just use it for debugging
+        last12MonthConsumptions[i]['sameMonthLastYearValue'] =
+          electricConsumptions[i + 12].monthlyValue / 1000;
+
+        last12MonthConsumptions[i]['sameMonthLastYearComparison'] =
+          (last12MonthConsumptions[i].monthlyValue -
+            electricConsumptions[i + 12].monthlyValue) /
+          1000;
+      }
+    }
+
+    //console.log(electricConsumptions);
+
+    let last24Consumption = 0;
+    let periodOf12Month: any = null;
+    if (electricConsumptions.length >= 24) {
+      for (let i = 12; i < 24; i++) {
+        last24Consumption += electricConsumptions[i].monthlyValue;
+      }
+      periodOf12Month = annualConsumption - last24Consumption;
+    }
+
+    const annualCarbonEmissions = annualConsumption * 0.000208;
+    let lastMonthComparison = 0;
+    if (electricConsumptions.length > 2) {
+      lastMonthComparison =
+        electricConsumptions[electricConsumptions.length - 1].monthlyValue -
+        electricConsumptions[electricConsumptions.length - 2].monthlyValue;
     }
 
     return {
-      totalCost: totalCost,
-      totalConsumption: totalConsumption / 1000,
+      annualCost: annualCost,
+      annualConsumption: annualConsumption / 1000,
+      annualCarbonEmissions: annualCarbonEmissions,
+      lastMonthComparison: lastMonthComparison / 1000,
+      periodOf12Month: periodOf12Month / 1000,
       prop: prop[0],
-      electricConsumptions: electricConsumptions,
+      electricConsumptions: _.take<ElectricityConsumption>(
+        electricConsumptions,
+        24,
+      ),
     };
     //return `This action returns a #${id} building`;
   }
