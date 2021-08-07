@@ -29,4 +29,8 @@ export class Utilities {
         return 'Error';
     }
   }
+
+  public static convertFt2ToM2(squareFootNumber: number): number {
+    return squareFootNumber * 0.09290304;
+  }
 }

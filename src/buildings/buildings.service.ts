@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { format, differenceInHours, differenceInMinutes } from 'date-fns';
+import { differenceInMinutes, format } from 'date-fns';
 
 import {
   CreateBuildingDto,
@@ -16,9 +16,13 @@ import {
   LightingSystem,
   SolarPanelSystem,
   SpaceUsage,
+  HeatingSystem,
 } from '@prisma/client';
-import { Utilities } from '../shared/utilities';
 import * as _ from 'lodash';
+import { Formulas } from '../shared/formulas';
+import { Utilities } from '../shared/utilities';
+import { ICoolingLoadForGeneralSpace } from '../shared/types/coolingLoadForGeneralSpace';
+import { IHeatingLoadForGeneralSpace } from '../shared/types/heatingLoadForGeneralSpace';
 
 @Injectable()
 export class BuildingsService {
@@ -95,7 +99,7 @@ export class BuildingsService {
 
     const solarPanelSystemList = createBuildingDto?.solarPanelSystemList.map(
       (item: ISolarPanelSystem) => {
-        const solarPanelSystem = <SolarPanelSystem>{
+        return <SolarPanelSystem>{
           systemLoss: item.systemLoss,
           installedCapacity: Number(item.installedCapacity),
           pvTechChoiceId: item.pvTechChoiceId,
@@ -110,8 +114,6 @@ export class BuildingsService {
               ? item.orientationAngle
               : null,
         };
-
-        return solarPanelSystem;
       },
     );
 
@@ -327,7 +329,7 @@ export class BuildingsService {
     return result;
   }
 
-  private subtractTime(time1: string, time2: string): number {
+  private static subtractTime(time1: string, time2: string): number {
     if (time1 && time2) {
       return differenceInMinutes(
         new Date('2000-01-01T' + time1),
@@ -337,40 +339,40 @@ export class BuildingsService {
     return 0;
   }
 
-  private calculateTotalOperatingHours(
+  private static calculateTotalOperatingHours(
     operationHours: AverageOperatingHours,
   ): number {
-    const mondayHours = this.subtractTime(
+    const mondayHours = BuildingsService.subtractTime(
       operationHours.mondayEnd,
       operationHours.mondayStart,
     );
 
-    const tuesdayHours = this.subtractTime(
+    const tuesdayHours = BuildingsService.subtractTime(
       operationHours.tuesdayEnd,
       operationHours.tuesdayStart,
     );
 
-    const wednesdayHours = this.subtractTime(
+    const wednesdayHours = BuildingsService.subtractTime(
       operationHours.wednesdayEnd,
       operationHours.wednesdayStart,
     );
 
-    const thursdayHours = this.subtractTime(
+    const thursdayHours = BuildingsService.subtractTime(
       operationHours.thursdayEnd,
       operationHours.thursdayStart,
     );
 
-    const fridayHours = this.subtractTime(
+    const fridayHours = BuildingsService.subtractTime(
       operationHours.fridayEnd,
       operationHours.fridayStart,
     );
 
-    const saturdayHours = this.subtractTime(
+    const saturdayHours = BuildingsService.subtractTime(
       operationHours.saturdayEnd,
       operationHours.saturdayStart,
     );
 
-    const sundayHours = this.subtractTime(
+    const sundayHours = BuildingsService.subtractTime(
       operationHours.sundayEnd,
       operationHours.saturdayStart,
     );
@@ -392,6 +394,80 @@ export class BuildingsService {
         52.1428571) /
       60
     );
+  }
+
+  private static coolingLoadForGeneralSpace(
+    spaceUsages: SpaceUsage[],
+    totalFloorArea: number,
+    annualTotalOperatingHours: number,
+  ): ICoolingLoadForGeneralSpace {
+    const result: ICoolingLoadForGeneralSpace = {
+      coolingLoad: 0,
+      coolingLoadForSpace: 0,
+    };
+    if (spaceUsages) {
+      for (const spaceUsage of spaceUsages) {
+        if (
+          spaceUsage.climateControlId === 2 ||
+          spaceUsage.climateControlId === 3
+        ) {
+          const coolingLoadForGeneralSpace =
+            Formulas.calculateCoolingLoadForGeneralSpace(
+              spaceUsage,
+              totalFloorArea,
+              spaceUsage.usagePercentage,
+              annualTotalOperatingHours,
+            );
+          if (coolingLoadForGeneralSpace) {
+            result.coolingLoad +=
+              coolingLoadForGeneralSpace.coolingLoad *
+              spaceUsage.usagePercentage;
+            result.coolingLoadForSpace +=
+              coolingLoadForGeneralSpace.coolingLoadForSpace;
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private static heatingLoadForGeneralSpace(
+    spaceUsages: SpaceUsage[],
+    totalFloorArea: number,
+    annualTotalOperatingHours: number,
+    heatingSystem: any,
+  ): IHeatingLoadForGeneralSpace {
+    const result: IHeatingLoadForGeneralSpace = {
+      heatingLoad: 0,
+      heatingLoadForSpace: 0,
+    };
+    if (spaceUsages) {
+      for (const spaceUsage of spaceUsages) {
+        if (
+          spaceUsage.climateControlId === 1 ||
+          spaceUsage.climateControlId === 3
+        ) {
+          const heatingLoadForGeneralSpace =
+            Formulas.calculateHeatingLoadForGeneralSpace(
+              spaceUsage,
+              totalFloorArea,
+              spaceUsage.usagePercentage,
+              annualTotalOperatingHours,
+              heatingSystem,
+            );
+          if (heatingLoadForGeneralSpace) {
+            result.heatingLoad +=
+              heatingLoadForGeneralSpace.heatingLoad *
+              spaceUsage.usagePercentage;
+            result.heatingLoadForSpace +=
+              heatingLoadForGeneralSpace.heatingLoadForSpace;
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   async findOne(id: number) {
@@ -432,7 +508,41 @@ export class BuildingsService {
         },
       });
 
-    console.log(operationHours);
+    const spaceUsages = await this.prismaService.spaceUsage.findMany({
+      where: {
+        AND: [
+          {
+            propId: {
+              equals: id,
+            },
+          },
+          {
+            climateControlId: {
+              in: [1, 2, 3],
+            },
+          },
+        ],
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
+
+    console.log(spaceUsages);
+
+    const heatingSystem = await this.prismaService.heatingSystem.findFirst({
+      where: {
+        propId: {
+          equals: id,
+        },
+      },
+      include: {
+        Heater: true,
+      },
+    });
+
+    console.log(heatingSystem);
+    console.log(typeof heatingSystem);
 
     const last12MonthConsumptions = _.take<ElectricityConsumption>(
       electricConsumptions,
@@ -475,13 +585,38 @@ export class BuildingsService {
         electricConsumptions[electricConsumptions.length - 2].monthlyValue;
     }
 
+    const totalOperatingHours =
+      BuildingsService.calculateTotalOperatingHours(operationHours);
+
+    const totalFloorArea =
+      prop[0].grossInteriorAreaUnit === 'ft2'
+        ? Utilities.convertFt2ToM2(prop[0].grossInteriorArea)
+        : prop[0].grossInteriorAreaUnit;
+
+    // KWh
+    const coolingLoadForSpace = BuildingsService.coolingLoadForGeneralSpace(
+      spaceUsages,
+      totalFloorArea,
+      totalOperatingHours,
+    );
+
+    // KWh
+    const heatingLoadForSpace = BuildingsService.heatingLoadForGeneralSpace(
+      spaceUsages,
+      totalFloorArea,
+      totalOperatingHours,
+      heatingSystem,
+    );
+
     return {
       annualCost: annualCost,
       annualConsumption: annualConsumption / 1000,
       annualCarbonEmissions: annualCarbonEmissions,
       lastMonthComparison: lastMonthComparison / 1000,
       periodOf12Month: periodOf12Month / 1000,
-      totalOperatingHours: this.calculateTotalOperatingHours(operationHours),
+      totalOperatingHours: totalOperatingHours,
+      coolingLoadForSpace: coolingLoadForSpace,
+      heatingLoadForSpace: heatingLoadForSpace,
       prop: prop[0],
       electricConsumptions: _.take<ElectricityConsumption>(
         electricConsumptions,

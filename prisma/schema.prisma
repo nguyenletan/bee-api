@@ -451,13 +451,13 @@ model SpaceUsage {
   usageTypeId       Int
   usagePercentage   Int?
   climateControlId  Int?
-  propertyId        Int?
+  propId            Int?
   title             String?         @db.VarChar
   fanTypeId         Int?
   hasReheatRecovery Boolean?
   ClimateControl    ClimateControl? @relation(fields: [climateControlId], references: [id])
   FanType           FanType?        @relation(fields: [fanTypeId], references: [id])
-  Property          Property?       @relation(fields: [propertyId], references: [id])
+  Property          Property?       @relation(fields: [propId], references: [id])
   SpaceUsageType    SpaceUsageType  @relation(fields: [usageTypeId], references: [id])
 }
 
