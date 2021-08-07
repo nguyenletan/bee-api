@@ -19,10 +19,11 @@ import {
   HeatingSystem,
 } from '@prisma/client';
 import * as _ from 'lodash';
-import { Formulas } from '../shared/formulas';
+import { EnergyConsumptionFormulas } from '../shared/formulas/energyConsumptionFormulas';
 import { Utilities } from '../shared/utilities';
 import { ICoolingLoadForGeneralSpace } from '../shared/types/coolingLoadForGeneralSpace';
 import { IHeatingLoadForGeneralSpace } from '../shared/types/heatingLoadForGeneralSpace';
+import { IMechanicalVentilationForGeneralSpace } from '../shared/types/iMechanicalVentilationForGeneralSpace';
 
 @Injectable()
 export class BuildingsService {
@@ -412,7 +413,7 @@ export class BuildingsService {
           spaceUsage.climateControlId === 3
         ) {
           const coolingLoadForGeneralSpace =
-            Formulas.calculateCoolingLoadForGeneralSpace(
+            EnergyConsumptionFormulas.calculateCoolingLoadForGeneralSpace(
               spaceUsage,
               totalFloorArea,
               spaceUsage.usagePercentage,
@@ -421,7 +422,7 @@ export class BuildingsService {
           if (coolingLoadForGeneralSpace) {
             result.coolingLoad +=
               coolingLoadForGeneralSpace.coolingLoad *
-              spaceUsage.usagePercentage;
+              (spaceUsage.usagePercentage / 100);
             result.coolingLoadForSpace +=
               coolingLoadForGeneralSpace.coolingLoadForSpace;
           }
@@ -449,7 +450,7 @@ export class BuildingsService {
           spaceUsage.climateControlId === 3
         ) {
           const heatingLoadForGeneralSpace =
-            Formulas.calculateHeatingLoadForGeneralSpace(
+            EnergyConsumptionFormulas.calculateHeatingLoadForGeneralSpace(
               spaceUsage,
               totalFloorArea,
               spaceUsage.usagePercentage,
@@ -459,9 +460,41 @@ export class BuildingsService {
           if (heatingLoadForGeneralSpace) {
             result.heatingLoad +=
               heatingLoadForGeneralSpace.heatingLoad *
-              spaceUsage.usagePercentage;
+              (spaceUsage.usagePercentage / 100);
             result.heatingLoadForSpace +=
               heatingLoadForGeneralSpace.heatingLoadForSpace;
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private static mechanicalVentilationForGeneralSpace(
+    spaceUsages: SpaceUsage[],
+    totalFloorArea: number,
+    annualTotalOperatingHours: number,
+  ): IMechanicalVentilationForGeneralSpace {
+    const result: IMechanicalVentilationForGeneralSpace = {
+      airVolumeFlowRate: 0,
+      annualEnergyUsage: 0,
+    };
+    if (spaceUsages) {
+      for (const spaceUsage of spaceUsages) {
+        if (spaceUsage.climateControlId === 4) {
+          const mechanicalVentilationForGeneralSpace =
+            EnergyConsumptionFormulas.calculateAnnualEnergyUsageForEachMechanicallyVentilatedSpace(
+              spaceUsage,
+              totalFloorArea,
+              annualTotalOperatingHours,
+            );
+          if (mechanicalVentilationForGeneralSpace) {
+            result.airVolumeFlowRate +=
+              mechanicalVentilationForGeneralSpace.airVolumeFlowRate *
+              (spaceUsage.usagePercentage / 100);
+            result.annualEnergyUsage +=
+              mechanicalVentilationForGeneralSpace.annualEnergyUsage;
           }
         }
       }
@@ -518,7 +551,7 @@ export class BuildingsService {
           },
           {
             climateControlId: {
-              in: [1, 2, 3],
+              in: [1, 2, 3, 4],
             },
           },
         ],
@@ -608,6 +641,14 @@ export class BuildingsService {
       heatingSystem,
     );
 
+    // kwh
+    const mechanicalVentilationForSpace =
+      BuildingsService.mechanicalVentilationForGeneralSpace(
+        spaceUsages,
+        totalFloorArea,
+        totalOperatingHours,
+      );
+
     return {
       annualCost: annualCost,
       annualConsumption: annualConsumption / 1000,
@@ -617,6 +658,7 @@ export class BuildingsService {
       totalOperatingHours: totalOperatingHours,
       coolingLoadForSpace: coolingLoadForSpace,
       heatingLoadForSpace: heatingLoadForSpace,
+      mechanicalVentilationForSpace: mechanicalVentilationForSpace,
       prop: prop[0],
       electricConsumptions: _.take<ElectricityConsumption>(
         electricConsumptions,

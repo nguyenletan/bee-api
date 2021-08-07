@@ -1,10 +1,12 @@
 import { SpaceUsage, HeatingSystem } from '@prisma/client';
-import { SpaceUsageActivityDetails } from './reference-tables/spaceUsageActivityDetails';
-import { CorrespondingEfficiencyRatios } from './reference-tables/correspondingEfficiencyRatio';
-import { ICoolingLoadForGeneralSpace } from './types/coolingLoadForGeneralSpace';
-import { IHeatingLoadForGeneralSpace } from './types/heatingLoadForGeneralSpace';
+import { SpaceUsageActivityDetails } from '../reference-tables/spaceUsageActivityDetails';
+import { CorrespondingEfficiencyRatios } from '../reference-tables/correspondingEfficiencyRatio';
+import { ICoolingLoadForGeneralSpace } from '../types/coolingLoadForGeneralSpace';
+import { IHeatingLoadForGeneralSpace } from '../types/heatingLoadForGeneralSpace';
+import { IMechanicalVentilationForGeneralSpace } from '../types/iMechanicalVentilationForGeneralSpace';
+import { MechanicalVentilationSpecificFanPowers } from '../reference-tables/mechanicalVentilation';
 
-export class Formulas {
+export class EnergyConsumptionFormulas {
   // Cooling Load for Space (kWh) = [Space Cooling Load] * [Total Floor Area (Internal)] * [% of Total Floor Area (Internal)]
   // * [Annual Total Operating Hours] / (1000 * [Efficiency Ratio of (Cooled/Both)])
   static calculateCoolingLoadForGeneralSpace(
@@ -33,7 +35,7 @@ export class Formulas {
           coolingLoadForSpace:
             (spaceCoolingLoad *
               totalInternalFloorArea *
-              percentageOfTotalInternalFloorArea *
+              (percentageOfTotalInternalFloorArea / 100) *
               annualTotalOperatingHours) /
             (1000 * efficiencyRatioOfCooledOrBoth),
         };
@@ -63,6 +65,20 @@ export class Formulas {
     return 0;
   }
 
+  // Heating Load = Heating Load (W/m2)
+  static calculateHeatingLoad(spaceUsage: SpaceUsage): number {
+    if (spaceUsage) {
+      const spaceUsageActivityDetail = SpaceUsageActivityDetails.find(
+        (x) => x.id === spaceUsage.usageTypeId,
+      );
+
+      if (spaceUsageActivityDetail) {
+        return spaceUsageActivityDetail.heatingLoad;
+      }
+    }
+    return 0;
+  }
+
   // Heating Load for Space (kWh) =  [Space Heating Load]
   // * [Total Floor Area (Internal)] * [% of Total Floor Area (Internal)]
   // * [Annual Total Operating Hours] /
@@ -86,8 +102,6 @@ export class Formulas {
 
       const spaceHeatingLoad = this.calculateHeatingLoad(spaceUsage);
 
-      console.log(heatingSystem.Heater);
-
       if (
         efficiencyRatioOfCooledOrBoth &&
         efficiencyRatioOfCooledOrBoth !== 0
@@ -102,7 +116,7 @@ export class Formulas {
             heatingLoadForSpace:
               (spaceHeatingLoad *
                 totalInternalFloorArea *
-                percentageOfTotalInternalFloorArea *
+                (percentageOfTotalInternalFloorArea / 100) *
                 annualTotalOperatingHours) /
               (1000 * efficiencyRatioOfCooledOrBoth),
           };
@@ -112,17 +126,71 @@ export class Formulas {
     return null;
   }
 
-  // Heating Load = Heating Load (W/m2)
-  static calculateHeatingLoad(spaceUsage: SpaceUsage): number {
+  // Air Volume Flow Rate for each Mechanically Ventilated Space (L/s) =
+  // [Air Change Rate for Activity] * [Occupancy Density] *
+  // [Total Floor Area (Internal)] * [% of Total Floor Area (Internal)]
+  // Air Change Rate for Activity = OA_FLOW_PERSON
+  static calculateAirVolumeFlowRateForEachMechanicallyVentilatedSpace(
+    spaceUsage: SpaceUsage,
+    totalFloorArea: number,
+  ): number {
     if (spaceUsage) {
       const spaceUsageActivityDetail = SpaceUsageActivityDetails.find(
         (x) => x.id === spaceUsage.usageTypeId,
       );
 
       if (spaceUsageActivityDetail) {
-        return spaceUsageActivityDetail.heatingLoad;
+        return (
+          spaceUsageActivityDetail.oaFlowPerson *
+          spaceUsageActivityDetail.occupancyDens *
+          totalFloorArea *
+          (spaceUsage.usagePercentage / 100)
+        );
       }
     }
     return 0;
   }
+
+  // Annual Energy Usage for each Mechanically Ventilated Space (kWh) =
+  // [Air Volume Flow Rate for each Mechanically Ventilated Space] *
+  // [Specific Fan Power of (Fan System Type)] *
+  // [Annual Total Operating Hours] / 1000000
+  static calculateAnnualEnergyUsageForEachMechanicallyVentilatedSpace(
+    spaceUsage: SpaceUsage,
+    totalFloorArea: number,
+    annualTotalOperatingHours: number,
+  ): IMechanicalVentilationForGeneralSpace {
+    if (spaceUsage) {
+      const airVolumeFlowRate =
+        this.calculateAirVolumeFlowRateForEachMechanicallyVentilatedSpace(
+          spaceUsage,
+          totalFloorArea,
+        );
+
+      const specificFanPowerItem = MechanicalVentilationSpecificFanPowers.find(
+        (x) =>
+          x.fanTypeId === spaceUsage.fanTypeId &&
+          x.hasHeatRecovery === spaceUsage.hasReheatRecovery,
+      );
+      const specificFanPower = specificFanPowerItem
+        ? specificFanPowerItem.specificFanPower
+        : 1;
+
+      return {
+        airVolumeFlowRate: airVolumeFlowRate,
+        annualEnergyUsage:
+          (airVolumeFlowRate * specificFanPower * annualTotalOperatingHours) /
+          1000000,
+      };
+    }
+
+    return null;
+  }
+
+  // // Annual Energy Usage for Mechanical Ventilation System (kWh) =
+  // // SUM([Annual Energy Usage for each Mechanically Ventilated Space])
+  // static calculateAnnualEnergyUsageForMechanicalVentilationSystem(): number {
+  //
+  //   return 0;
+  // }
 }
