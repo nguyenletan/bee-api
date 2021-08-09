@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { differenceInMinutes, format } from 'date-fns';
+import { format } from 'date-fns';
 
 import {
   CreateBuildingDto,
@@ -20,15 +20,222 @@ import {
 import * as _ from 'lodash';
 import { EnergyConsumptionFormulas } from '../shared/formulas/energyConsumptionFormulas';
 import { Utilities } from '../shared/utilities';
-import { ICoolingLoadForGeneralSpace } from '../shared/types/coolingLoadForGeneralSpace';
-import { IHeatingLoadForGeneralSpace } from '../shared/types/heatingLoadForGeneralSpace';
+import { ICoolingLoadForGeneralSpace } from '../shared/types/iCoolingLoadForGeneralSpace';
+import { IHeatingLoadForGeneralSpace } from '../shared/types/iHeatingLoadForGeneralSpace';
 import { IMechanicalVentilationForGeneralSpace } from '../shared/types/iMechanicalVentilationForGeneralSpace';
-import { ILightingLoadForSpaces } from '../shared/types/iLightingLoadForSpaces';
+import { ILightingLoadForSpace } from '../shared/types/iLightingLoadForSpace';
 import { IBreakdownConsumption } from '../shared/types/iBreakdownConsumption';
 
 @Injectable()
 export class BuildingsService {
   constructor(private prismaService: PrismaService) {}
+
+  private static calculateCoolingLoadForGeneralSpace(
+    spaceUsages: SpaceUsage[],
+    totalFloorArea: number,
+    annualTotalOperatingHours: number,
+  ): ICoolingLoadForGeneralSpace {
+    const result: ICoolingLoadForGeneralSpace = {
+      coolingLoad: 0,
+      coolingLoadForSpace: 0,
+    };
+    if (spaceUsages) {
+      for (const spaceUsage of spaceUsages) {
+        if (
+          spaceUsage.climateControlId === 2 ||
+          spaceUsage.climateControlId === 3
+        ) {
+          const coolingLoadForGeneralSpace =
+            EnergyConsumptionFormulas.calculateCoolingLoadForGeneralSpace(
+              spaceUsage,
+              totalFloorArea,
+              spaceUsage.usagePercentage,
+              annualTotalOperatingHours,
+            );
+          if (coolingLoadForGeneralSpace) {
+            result.coolingLoad +=
+              coolingLoadForGeneralSpace.coolingLoad *
+              (spaceUsage.usagePercentage / 100);
+            result.coolingLoadForSpace +=
+              coolingLoadForGeneralSpace.coolingLoadForSpace;
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private static calculateHeatingLoadForGeneralSpace(
+    spaceUsages: SpaceUsage[],
+    totalFloorArea: number,
+    annualTotalOperatingHours: number,
+    heatingSystem: any,
+  ): IHeatingLoadForGeneralSpace {
+    const result: IHeatingLoadForGeneralSpace = {
+      heatingLoad: 0,
+      heatingLoadForSpace: 0,
+    };
+    if (spaceUsages) {
+      for (const spaceUsage of spaceUsages) {
+        if (
+          spaceUsage.climateControlId === 1 ||
+          spaceUsage.climateControlId === 3
+        ) {
+          const heatingLoadForGeneralSpace =
+            EnergyConsumptionFormulas.calculateHeatingLoadForGeneralSpace(
+              spaceUsage,
+              totalFloorArea,
+              spaceUsage.usagePercentage,
+              annualTotalOperatingHours,
+              heatingSystem,
+            );
+          if (heatingLoadForGeneralSpace) {
+            result.heatingLoad +=
+              heatingLoadForGeneralSpace.heatingLoad *
+              (spaceUsage.usagePercentage / 100);
+            result.heatingLoadForSpace +=
+              heatingLoadForGeneralSpace.heatingLoadForSpace;
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private static calculateLightingLoadForSpaces(
+    spaceUsages: SpaceUsage[],
+    totalFloorArea: number,
+    annualTotalOperatingHours: number,
+    lightingSystems: LightingSystem[],
+  ): ILightingLoadForSpace {
+    const result: ILightingLoadForSpace = {
+      lightingLoad: 0,
+      lightingEnergyConsumption: 0,
+    };
+
+    if (spaceUsages) {
+      let totalLightingEnergyUse = 0; // W
+      for (const spaceUsage of spaceUsages) {
+        totalLightingEnergyUse +=
+          EnergyConsumptionFormulas.calculateLightingEnergyUseForSpace(
+            spaceUsage,
+            totalFloorArea,
+            lightingSystems,
+          );
+      }
+      result.lightingEnergyConsumption =
+        (totalLightingEnergyUse * annualTotalOperatingHours) / 1000; //(kWh)
+
+      result.lightingLoad = result.lightingEnergyConsumption / totalFloorArea; //(W/m2)
+    }
+    return result;
+  }
+
+  private static calculateMechanicalVentilationForGeneralSpace(
+    spaceUsages: SpaceUsage[],
+    totalFloorArea: number,
+    annualTotalOperatingHours: number,
+  ): IMechanicalVentilationForGeneralSpace {
+    const result: IMechanicalVentilationForGeneralSpace = {
+      airVolumeFlowRate: 0,
+      annualEnergyUsage: 0,
+    };
+    if (spaceUsages) {
+      for (const spaceUsage of spaceUsages) {
+        if (spaceUsage.climateControlId === 4) {
+          const mechanicalVentilationForGeneralSpace =
+            EnergyConsumptionFormulas.calculateAnnualEnergyUsageForEachMechanicallyVentilatedSpace(
+              spaceUsage,
+              totalFloorArea,
+              annualTotalOperatingHours,
+            );
+          if (mechanicalVentilationForGeneralSpace) {
+            result.airVolumeFlowRate +=
+              mechanicalVentilationForGeneralSpace.airVolumeFlowRate *
+              (spaceUsage.usagePercentage / 100);
+            result.annualEnergyUsage +=
+              mechanicalVentilationForGeneralSpace.annualEnergyUsage;
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private static getConsumptionBreakdown(
+    coolingLoadConsumption: number,
+    heatingLoadConsumption: number,
+    mechanicalVentilationConsumption: number,
+    lightingLoadConsumption: number,
+    otherConsumption: number,
+  ): IBreakdownConsumption[] {
+    const total =
+      coolingLoadConsumption +
+      heatingLoadConsumption +
+      mechanicalVentilationConsumption +
+      lightingLoadConsumption +
+      otherConsumption;
+
+    // console.log(total);
+
+    const coolingLoadConsumptionPercentage = +(
+      (coolingLoadConsumption * 100) /
+      total
+    ).toFixed(2);
+
+    const heatingLoadConsumptionPercentage = +(
+      (heatingLoadConsumption * 100) /
+      total
+    ).toFixed(2);
+
+    const mechanicalVentilationConsumptionPercentage = +(
+      (mechanicalVentilationConsumption * 100) /
+      total
+    ).toFixed(2);
+
+    const lightingLoadConsumptionPercentage = +(
+      (lightingLoadConsumption * 100) /
+      total
+    ).toFixed(2);
+
+    const otherConsumptionPercentage =
+      100 -
+      (coolingLoadConsumptionPercentage +
+        heatingLoadConsumptionPercentage +
+        mechanicalVentilationConsumptionPercentage +
+        lightingLoadConsumptionPercentage);
+
+    return [
+      {
+        id: 'cooling',
+        value: coolingLoadConsumptionPercentage,
+        color: '#636c2e',
+      },
+      {
+        id: 'heating',
+        value: heatingLoadConsumptionPercentage,
+        color: '#87972f',
+      },
+      {
+        id: 'lighting',
+        value: +lightingLoadConsumptionPercentage,
+        color: '#acbf42',
+      },
+      {
+        id: 'mechanical ventilation',
+        value: mechanicalVentilationConsumptionPercentage,
+        color: '#c1cf74',
+      },
+      {
+        id: 'others',
+        value: otherConsumptionPercentage,
+        color: '#d5dfa3',
+      },
+    ];
+  }
 
   async create(createBuildingDto: CreateBuildingDto, user: any) {
     //console.log(createBuildingDto);
@@ -119,8 +326,6 @@ export class BuildingsService {
       },
     );
 
-    // console.log('newBuilding: ');
-    // console.log(newBuilding);
     const addingBuildingObject = {
       name: createBuildingDto.generalBuildingInformation.buildingName,
 
@@ -307,13 +512,6 @@ export class BuildingsService {
   }
 
   async findAll(user: any) {
-    const result = await this.prismaService.$queryRaw`
-        SELECT p."streetAddress", p.photo, p.id, B.name FROM "Property" p
-        INNER JOIN "PropertyUser" PU ON p.id = PU."propertyId"
-        INNER JOIN "Building" B on B.id = p."buildingId"
-        WHERE "statusId" = 2 AND PU."userAuthUID" = ${user.uid} AND "buildingId" is not null
-        ORDER BY p.id DESC`;
-
     // return await this.prismaService.property.findMany({
     //   where: {
     //     statusId: {
@@ -326,284 +524,13 @@ export class BuildingsService {
     //     }
     //   },
     // });
-    console.log(result);
-    return result;
-  }
-
-  private static subtractTime(time1: string, time2: string): number {
-    if (time1 && time2) {
-      return differenceInMinutes(
-        new Date('2000-01-01T' + time1),
-        new Date('2000-01-01T' + time2),
-      );
-    }
-    return 0;
-  }
-
-  private static calculateTotalOperatingHours(
-    operationHours: AverageOperatingHours,
-  ): number {
-    const mondayHours = BuildingsService.subtractTime(
-      operationHours.mondayEnd,
-      operationHours.mondayStart,
-    );
-
-    const tuesdayHours = BuildingsService.subtractTime(
-      operationHours.tuesdayEnd,
-      operationHours.tuesdayStart,
-    );
-
-    const wednesdayHours = BuildingsService.subtractTime(
-      operationHours.wednesdayEnd,
-      operationHours.wednesdayStart,
-    );
-
-    const thursdayHours = BuildingsService.subtractTime(
-      operationHours.thursdayEnd,
-      operationHours.thursdayStart,
-    );
-
-    const fridayHours = BuildingsService.subtractTime(
-      operationHours.fridayEnd,
-      operationHours.fridayStart,
-    );
-
-    const saturdayHours = BuildingsService.subtractTime(
-      operationHours.saturdayEnd,
-      operationHours.saturdayStart,
-    );
-
-    const sundayHours = BuildingsService.subtractTime(
-      operationHours.sundayEnd,
-      operationHours.saturdayStart,
-    );
-
-    ///TODO: we will calculate it late
-    // const publicHoliday = this.subtractTime(
-    //   operationHours.publicHolidayEnd,
-    //   operationHours.publicHolidayStart,
-    // );
-
-    return (
-      ((mondayHours +
-        tuesdayHours +
-        wednesdayHours +
-        thursdayHours +
-        fridayHours +
-        saturdayHours +
-        sundayHours) *
-        52.1428571) /
-      60
-    );
-  }
-
-  private static calculateCoolingLoadForGeneralSpace(
-    spaceUsages: SpaceUsage[],
-    totalFloorArea: number,
-    annualTotalOperatingHours: number,
-  ): ICoolingLoadForGeneralSpace {
-    const result: ICoolingLoadForGeneralSpace = {
-      coolingLoad: 0,
-      coolingLoadForSpace: 0,
-    };
-    if (spaceUsages) {
-      for (const spaceUsage of spaceUsages) {
-        if (
-          spaceUsage.climateControlId === 2 ||
-          spaceUsage.climateControlId === 3
-        ) {
-          const coolingLoadForGeneralSpace =
-            EnergyConsumptionFormulas.calculateCoolingLoadForGeneralSpace(
-              spaceUsage,
-              totalFloorArea,
-              spaceUsage.usagePercentage,
-              annualTotalOperatingHours,
-            );
-          if (coolingLoadForGeneralSpace) {
-            result.coolingLoad +=
-              coolingLoadForGeneralSpace.coolingLoad *
-              (spaceUsage.usagePercentage / 100);
-            result.coolingLoadForSpace +=
-              coolingLoadForGeneralSpace.coolingLoadForSpace;
-          }
-        }
-      }
-    }
-
-    return result;
-  }
-
-  private static calculateHeatingLoadForGeneralSpace(
-    spaceUsages: SpaceUsage[],
-    totalFloorArea: number,
-    annualTotalOperatingHours: number,
-    heatingSystem: any,
-  ): IHeatingLoadForGeneralSpace {
-    const result: IHeatingLoadForGeneralSpace = {
-      heatingLoad: 0,
-      heatingLoadForSpace: 0,
-    };
-    if (spaceUsages) {
-      for (const spaceUsage of spaceUsages) {
-        if (
-          spaceUsage.climateControlId === 1 ||
-          spaceUsage.climateControlId === 3
-        ) {
-          const heatingLoadForGeneralSpace =
-            EnergyConsumptionFormulas.calculateHeatingLoadForGeneralSpace(
-              spaceUsage,
-              totalFloorArea,
-              spaceUsage.usagePercentage,
-              annualTotalOperatingHours,
-              heatingSystem,
-            );
-          if (heatingLoadForGeneralSpace) {
-            result.heatingLoad +=
-              heatingLoadForGeneralSpace.heatingLoad *
-              (spaceUsage.usagePercentage / 100);
-            result.heatingLoadForSpace +=
-              heatingLoadForGeneralSpace.heatingLoadForSpace;
-          }
-        }
-      }
-    }
-
-    return result;
-  }
-
-  private static calculateLightingLoadForSpaces(
-    spaceUsages: SpaceUsage[],
-    totalFloorArea: number,
-    annualTotalOperatingHours: number,
-    lightingSystems: LightingSystem[],
-  ): ILightingLoadForSpaces {
-    const result: ILightingLoadForSpaces = {
-      lightingLoad: 0,
-      lightingEnergyConsumption: 0,
-    };
-
-    if (spaceUsages) {
-      let totalLightingEnergyUse = 0; // W
-      for (const spaceUsage of spaceUsages) {
-        totalLightingEnergyUse +=
-          EnergyConsumptionFormulas.calculateLightingEnergyUseForSpace(
-            spaceUsage,
-            totalFloorArea,
-            lightingSystems,
-          );
-      }
-      result.lightingEnergyConsumption =
-        (totalLightingEnergyUse * annualTotalOperatingHours) / 1000; //(kWh)
-
-      result.lightingLoad = result.lightingEnergyConsumption / totalFloorArea; //(W/m2)
-    }
-    return result;
-  }
-
-  private static calculateMechanicalVentilationForGeneralSpace(
-    spaceUsages: SpaceUsage[],
-    totalFloorArea: number,
-    annualTotalOperatingHours: number,
-  ): IMechanicalVentilationForGeneralSpace {
-    const result: IMechanicalVentilationForGeneralSpace = {
-      airVolumeFlowRate: 0,
-      annualEnergyUsage: 0,
-    };
-    if (spaceUsages) {
-      for (const spaceUsage of spaceUsages) {
-        if (spaceUsage.climateControlId === 4) {
-          const mechanicalVentilationForGeneralSpace =
-            EnergyConsumptionFormulas.calculateAnnualEnergyUsageForEachMechanicallyVentilatedSpace(
-              spaceUsage,
-              totalFloorArea,
-              annualTotalOperatingHours,
-            );
-          if (mechanicalVentilationForGeneralSpace) {
-            result.airVolumeFlowRate +=
-              mechanicalVentilationForGeneralSpace.airVolumeFlowRate *
-              (spaceUsage.usagePercentage / 100);
-            result.annualEnergyUsage +=
-              mechanicalVentilationForGeneralSpace.annualEnergyUsage;
-          }
-        }
-      }
-    }
-
-    return result;
-  }
-
-  private static getConsumptionBreakdown(
-    coolingLoadConsumption: number,
-    heatingLoadConsumption: number,
-    mechanicalVentilationConsumption: number,
-    lightingLoadConsumption: number,
-    otherConsumption: number,
-  ): IBreakdownConsumption[] {
-    const total =
-      coolingLoadConsumption +
-      heatingLoadConsumption +
-      mechanicalVentilationConsumption +
-      lightingLoadConsumption +
-      otherConsumption;
-
-    // console.log(total);
-
-    const coolingLoadConsumptionPercentage = +(
-      (coolingLoadConsumption * 100) /
-      total
-    ).toFixed(2);
-
-    const heatingLoadConsumptionPercentage = +(
-      (heatingLoadConsumption * 100) /
-      total
-    ).toFixed(2);
-
-    const mechanicalVentilationConsumptionPercentage = +(
-      (mechanicalVentilationConsumption * 100) /
-      total
-    ).toFixed(2);
-
-    const lightingLoadConsumptionPercentage = +(
-      (lightingLoadConsumption * 100) /
-      total
-    ).toFixed(2);
-
-    const otherConsumptionPercentage =
-      100 -
-      (coolingLoadConsumptionPercentage +
-        heatingLoadConsumptionPercentage +
-        mechanicalVentilationConsumptionPercentage +
-        lightingLoadConsumptionPercentage);
-
-    const breakdownConsumptions: IBreakdownConsumption[] = [
-      {
-        id: 'cooling',
-        value: coolingLoadConsumptionPercentage,
-        color: '#636c2e',
-      },
-      {
-        id: 'heating',
-        value: heatingLoadConsumptionPercentage,
-        color: '#87972f',
-      },
-      {
-        id: 'lighting',
-        value: +lightingLoadConsumptionPercentage,
-        color: '#acbf42',
-      },
-      {
-        id: 'mechanical ventilation',
-        value: mechanicalVentilationConsumptionPercentage,
-        color: '#c1cf74',
-      },
-      {
-        id: 'others',
-        value: otherConsumptionPercentage,
-        color: '#d5dfa3',
-      },
-    ];
-
-    return breakdownConsumptions;
+    // console.log(result);
+    return await this.prismaService.$queryRaw`
+        SELECT p."streetAddress", p.photo, p.id, B.name FROM "Property" p
+        INNER JOIN "PropertyUser" PU ON p.id = PU."propertyId"
+        INNER JOIN "Building" B on B.id = p."buildingId"
+        WHERE "statusId" = 2 AND PU."userAuthUID" = ${user.uid} AND "buildingId" is not null
+        ORDER BY p.id DESC`;
   }
 
   async findOne(id: number) {
@@ -733,7 +660,7 @@ export class BuildingsService {
     }
 
     const totalOperatingHours =
-      BuildingsService.calculateTotalOperatingHours(operationHours);
+      EnergyConsumptionFormulas.calculateTotalOperatingHours(operationHours);
 
     const totalFloorArea =
       prop[0].grossInteriorAreaUnit === 'ft2'

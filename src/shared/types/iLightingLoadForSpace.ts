@@ -1,4 +1,4 @@
-export interface ILightingLoadForSpaces {
+export interface ILightingLoadForSpace {
   // W/m2
   lightingLoad: number;
 

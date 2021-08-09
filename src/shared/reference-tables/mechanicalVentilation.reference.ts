@@ -1,13 +1,14 @@
-export interface IMechanicalVentilationSpecificFanPower {
+export interface IMechanicalVentilationSpecificFanPowerReference {
   id: number;
   application: string;
   fanTypeId: number;
   hasHeatRecovery: boolean;
+
   // W/m3/s
   specificFanPower: number;
 }
 
-export const MechanicalVentilationSpecificFanPowers: IMechanicalVentilationSpecificFanPower[] =
+export const MechanicalVentilationSpecificFanPowers: IMechanicalVentilationSpecificFanPowerReference[] =
   [
     {
       id: 1,

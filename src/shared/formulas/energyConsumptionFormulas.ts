@@ -1,12 +1,16 @@
-import { SpaceUsage, LightingSystem } from '@prisma/client';
-import { SpaceUsageActivityDetails } from '../reference-tables/spaceUsageActivityDetails';
-import { CorrespondingEfficiencyRatios } from '../reference-tables/correspondingEfficiencyRatio';
-import { ICoolingLoadForGeneralSpace } from '../types/coolingLoadForGeneralSpace';
-import { IHeatingLoadForGeneralSpace } from '../types/heatingLoadForGeneralSpace';
+import {
+  SpaceUsage,
+  LightingSystem,
+  AverageOperatingHours,
+} from '@prisma/client';
+import { SpaceUsageActivityDetailReference } from '../reference-tables/spaceUsageActivityDetail.reference';
+import { CorrespondingEfficiencyRatios } from '../reference-tables/correspondingEfficiencyRatio.reference';
+import { ICoolingLoadForGeneralSpace } from '../types/iCoolingLoadForGeneralSpace';
+import { IHeatingLoadForGeneralSpace } from '../types/iHeatingLoadForGeneralSpace';
 import { IMechanicalVentilationForGeneralSpace } from '../types/iMechanicalVentilationForGeneralSpace';
-import { MechanicalVentilationSpecificFanPowers } from '../reference-tables/mechanicalVentilation';
+import { MechanicalVentilationSpecificFanPowers } from '../reference-tables/mechanicalVentilation.reference';
 import { LightFittingEfficacyReference } from '../reference-tables/lightFittingEfficacy.reference';
-import { result } from 'lodash';
+import { Utilities } from '../utilities';
 
 export class EnergyConsumptionFormulas {
   // Cooling Load for Space (kWh) = [Space Cooling Load] * [Total Floor Area (Internal)] * [% of Total Floor Area (Internal)]
@@ -49,7 +53,7 @@ export class EnergyConsumptionFormulas {
   // Cooling Load = (OCCUPANCY_DENS * METABOLIC_RATE) + EQUIPMENT_W_M2 + Heat Gain from Lighting + External Heat Gain + OTHER_GAINS_W_M2
   static calculateCoolingLoad(spaceUsage: SpaceUsage): number {
     if (spaceUsage) {
-      const spaceUsageActivityDetail = SpaceUsageActivityDetails.find(
+      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find(
         (x) => x.id === spaceUsage.usageTypeId,
       );
 
@@ -70,7 +74,7 @@ export class EnergyConsumptionFormulas {
   // Heating Load = Heating Load (W/m2)
   static calculateHeatingLoad(spaceUsage: SpaceUsage): number {
     if (spaceUsage) {
-      const spaceUsageActivityDetail = SpaceUsageActivityDetails.find(
+      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find(
         (x) => x.id === spaceUsage.usageTypeId,
       );
 
@@ -137,7 +141,7 @@ export class EnergyConsumptionFormulas {
     totalFloorArea: number,
   ): number {
     if (spaceUsage) {
-      const spaceUsageActivityDetail = SpaceUsageActivityDetails.find(
+      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find(
         (x) => x.id === spaceUsage.usageTypeId,
       );
 
@@ -223,7 +227,7 @@ export class EnergyConsumptionFormulas {
     totalFloorArea,
   ): number {
     if (spaceUsage) {
-      const spaceUsageActivityDetail = SpaceUsageActivityDetails.find(
+      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find(
         (x) => x.id === spaceUsage.usageTypeId,
       );
       if (spaceUsageActivityDetail) {
@@ -249,5 +253,62 @@ export class EnergyConsumptionFormulas {
       );
     }
     return 0;
+  }
+
+  public static calculateTotalOperatingHours(
+    operationHours: AverageOperatingHours,
+  ): number {
+    const mondayHours = Utilities.subtractTime(
+      operationHours.mondayEnd,
+      operationHours.mondayStart,
+    );
+
+    const tuesdayHours = Utilities.subtractTime(
+      operationHours.tuesdayEnd,
+      operationHours.tuesdayStart,
+    );
+
+    const wednesdayHours = Utilities.subtractTime(
+      operationHours.wednesdayEnd,
+      operationHours.wednesdayStart,
+    );
+
+    const thursdayHours = Utilities.subtractTime(
+      operationHours.thursdayEnd,
+      operationHours.thursdayStart,
+    );
+
+    const fridayHours = Utilities.subtractTime(
+      operationHours.fridayEnd,
+      operationHours.fridayStart,
+    );
+
+    const saturdayHours = Utilities.subtractTime(
+      operationHours.saturdayEnd,
+      operationHours.saturdayStart,
+    );
+
+    const sundayHours = Utilities.subtractTime(
+      operationHours.sundayEnd,
+      operationHours.saturdayStart,
+    );
+
+    ///TODO: we will calculate it late
+    // const publicHoliday = this.subtractTime(
+    //   operationHours.publicHolidayEnd,
+    //   operationHours.publicHolidayStart,
+    // );
+
+    return (
+      ((mondayHours +
+        tuesdayHours +
+        wednesdayHours +
+        thursdayHours +
+        fridayHours +
+        saturdayHours +
+        sundayHours) *
+        52.1428571) /
+      60
+    );
   }
 }
