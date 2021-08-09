@@ -262,9 +262,9 @@ model LightingSystem {
   estimatedLightingLoad       Float?
   lightingFittingTypeId       Int?
   percentageOfFittingTypeUsed Float?
-  propertyId                  Int?
+  propId                      Int?
   LightingFittingType         LightingFittingType? @relation(fields: [lightingFittingTypeId], references: [id])
-  Property                    Property?            @relation(fields: [propertyId], references: [id])
+  Property                    Property?            @relation(fields: [propId], references: [id])
 }
 
 model PVSystemType {

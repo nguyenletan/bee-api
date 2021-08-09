@@ -16,7 +16,6 @@ import {
   LightingSystem,
   SolarPanelSystem,
   SpaceUsage,
-  HeatingSystem,
 } from '@prisma/client';
 import * as _ from 'lodash';
 import { EnergyConsumptionFormulas } from '../shared/formulas/energyConsumptionFormulas';
@@ -24,6 +23,8 @@ import { Utilities } from '../shared/utilities';
 import { ICoolingLoadForGeneralSpace } from '../shared/types/coolingLoadForGeneralSpace';
 import { IHeatingLoadForGeneralSpace } from '../shared/types/heatingLoadForGeneralSpace';
 import { IMechanicalVentilationForGeneralSpace } from '../shared/types/iMechanicalVentilationForGeneralSpace';
+import { ILightingLoadForSpaces } from '../shared/types/iLightingLoadForSpaces';
+import { IBreakdownConsumption } from '../shared/types/iBreakdownConsumption';
 
 @Injectable()
 export class BuildingsService {
@@ -311,8 +312,7 @@ export class BuildingsService {
         INNER JOIN "PropertyUser" PU ON p.id = PU."propertyId"
         INNER JOIN "Building" B on B.id = p."buildingId"
         WHERE "statusId" = 2 AND PU."userAuthUID" = ${user.uid} AND "buildingId" is not null
-        ORDER BY p.id DESC
-        `;
+        ORDER BY p.id DESC`;
 
     // return await this.prismaService.property.findMany({
     //   where: {
@@ -397,7 +397,7 @@ export class BuildingsService {
     );
   }
 
-  private static coolingLoadForGeneralSpace(
+  private static calculateCoolingLoadForGeneralSpace(
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
     annualTotalOperatingHours: number,
@@ -433,7 +433,7 @@ export class BuildingsService {
     return result;
   }
 
-  private static heatingLoadForGeneralSpace(
+  private static calculateHeatingLoadForGeneralSpace(
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
     annualTotalOperatingHours: number,
@@ -471,7 +471,36 @@ export class BuildingsService {
     return result;
   }
 
-  private static mechanicalVentilationForGeneralSpace(
+  private static calculateLightingLoadForSpaces(
+    spaceUsages: SpaceUsage[],
+    totalFloorArea: number,
+    annualTotalOperatingHours: number,
+    lightingSystems: LightingSystem[],
+  ): ILightingLoadForSpaces {
+    const result: ILightingLoadForSpaces = {
+      lightingLoad: 0,
+      lightingEnergyConsumption: 0,
+    };
+
+    if (spaceUsages) {
+      let totalLightingEnergyUse = 0; // W
+      for (const spaceUsage of spaceUsages) {
+        totalLightingEnergyUse +=
+          EnergyConsumptionFormulas.calculateLightingEnergyUseForSpace(
+            spaceUsage,
+            totalFloorArea,
+            lightingSystems,
+          );
+      }
+      result.lightingEnergyConsumption =
+        (totalLightingEnergyUse * annualTotalOperatingHours) / 1000; //(kWh)
+
+      result.lightingLoad = result.lightingEnergyConsumption / totalFloorArea; //(W/m2)
+    }
+    return result;
+  }
+
+  private static calculateMechanicalVentilationForGeneralSpace(
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
     annualTotalOperatingHours: number,
@@ -501,6 +530,80 @@ export class BuildingsService {
     }
 
     return result;
+  }
+
+  private static getConsumptionBreakdown(
+    coolingLoadConsumption: number,
+    heatingLoadConsumption: number,
+    mechanicalVentilationConsumption: number,
+    lightingLoadConsumption: number,
+    otherConsumption: number,
+  ): IBreakdownConsumption[] {
+    const total =
+      coolingLoadConsumption +
+      heatingLoadConsumption +
+      mechanicalVentilationConsumption +
+      lightingLoadConsumption +
+      otherConsumption;
+
+    // console.log(total);
+
+    const coolingLoadConsumptionPercentage = +(
+      (coolingLoadConsumption * 100) /
+      total
+    ).toFixed(2);
+
+    const heatingLoadConsumptionPercentage = +(
+      (heatingLoadConsumption * 100) /
+      total
+    ).toFixed(2);
+
+    const mechanicalVentilationConsumptionPercentage = +(
+      (mechanicalVentilationConsumption * 100) /
+      total
+    ).toFixed(2);
+
+    const lightingLoadConsumptionPercentage = +(
+      (lightingLoadConsumption * 100) /
+      total
+    ).toFixed(2);
+
+    const otherConsumptionPercentage =
+      100 -
+      (coolingLoadConsumptionPercentage +
+        heatingLoadConsumptionPercentage +
+        mechanicalVentilationConsumptionPercentage +
+        lightingLoadConsumptionPercentage);
+
+    const breakdownConsumptions: IBreakdownConsumption[] = [
+      {
+        id: 'cooling',
+        value: coolingLoadConsumptionPercentage,
+        color: '#636c2e',
+      },
+      {
+        id: 'heating',
+        value: heatingLoadConsumptionPercentage,
+        color: '#87972f',
+      },
+      {
+        id: 'lighting',
+        value: +lightingLoadConsumptionPercentage,
+        color: '#acbf42',
+      },
+      {
+        id: 'mechanical ventilation',
+        value: mechanicalVentilationConsumptionPercentage,
+        color: '#c1cf74',
+      },
+      {
+        id: 'others',
+        value: otherConsumptionPercentage,
+        color: '#d5dfa3',
+      },
+    ];
+
+    return breakdownConsumptions;
   }
 
   async findOne(id: number) {
@@ -561,7 +664,7 @@ export class BuildingsService {
       },
     });
 
-    console.log(spaceUsages);
+    // console.log(spaceUsages);
 
     const heatingSystem = await this.prismaService.heatingSystem.findFirst({
       where: {
@@ -571,6 +674,17 @@ export class BuildingsService {
       },
       include: {
         Heater: true,
+      },
+    });
+
+    const lightingSystems = await this.prismaService.lightingSystem.findMany({
+      where: {
+        propId: {
+          equals: id,
+        },
+      },
+      orderBy: {
+        id: 'asc',
       },
     });
 
@@ -627,27 +741,52 @@ export class BuildingsService {
         : prop[0].grossInteriorAreaUnit;
 
     // KWh
-    const coolingLoadForSpace = BuildingsService.coolingLoadForGeneralSpace(
-      spaceUsages,
-      totalFloorArea,
-      totalOperatingHours,
-    );
-
-    // KWh
-    const heatingLoadForSpace = BuildingsService.heatingLoadForGeneralSpace(
-      spaceUsages,
-      totalFloorArea,
-      totalOperatingHours,
-      heatingSystem,
-    );
-
-    // kwh
-    const mechanicalVentilationForSpace =
-      BuildingsService.mechanicalVentilationForGeneralSpace(
+    const coolingLoadForSpace =
+      BuildingsService.calculateCoolingLoadForGeneralSpace(
         spaceUsages,
         totalFloorArea,
         totalOperatingHours,
       );
+
+    // KWh
+    const heatingLoadForSpace =
+      BuildingsService.calculateHeatingLoadForGeneralSpace(
+        spaceUsages,
+        totalFloorArea,
+        totalOperatingHours,
+        heatingSystem,
+      );
+
+    // kwh
+    const mechanicalVentilationForSpace =
+      BuildingsService.calculateMechanicalVentilationForGeneralSpace(
+        spaceUsages,
+        totalFloorArea,
+        totalOperatingHours,
+      );
+
+    const lightingLoadForSpaces =
+      BuildingsService.calculateLightingLoadForSpaces(
+        spaceUsages,
+        totalFloorArea,
+        totalOperatingHours,
+        lightingSystems,
+      );
+
+    const otherLoadingForSpace =
+      annualConsumption -
+      (coolingLoadForSpace.coolingLoadForSpace +
+        heatingLoadForSpace.heatingLoadForSpace +
+        mechanicalVentilationForSpace.annualEnergyUsage +
+        lightingLoadForSpaces.lightingEnergyConsumption);
+
+    const breakDownConsumption = BuildingsService.getConsumptionBreakdown(
+      coolingLoadForSpace.coolingLoadForSpace,
+      heatingLoadForSpace.heatingLoadForSpace,
+      mechanicalVentilationForSpace.annualEnergyUsage,
+      lightingLoadForSpaces.lightingEnergyConsumption,
+      otherLoadingForSpace,
+    );
 
     return {
       annualCost: annualCost,
@@ -659,6 +798,9 @@ export class BuildingsService {
       coolingLoadForSpace: coolingLoadForSpace,
       heatingLoadForSpace: heatingLoadForSpace,
       mechanicalVentilationForSpace: mechanicalVentilationForSpace,
+      otherLoadingForSpace: otherLoadingForSpace,
+      lightingLoadForSpaces: lightingLoadForSpaces,
+      breakDownConsumption: breakDownConsumption,
       prop: prop[0],
       electricConsumptions: _.take<ElectricityConsumption>(
         electricConsumptions,

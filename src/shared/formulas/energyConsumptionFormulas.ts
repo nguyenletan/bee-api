@@ -1,10 +1,12 @@
-import { SpaceUsage, HeatingSystem } from '@prisma/client';
+import { SpaceUsage, LightingSystem } from '@prisma/client';
 import { SpaceUsageActivityDetails } from '../reference-tables/spaceUsageActivityDetails';
 import { CorrespondingEfficiencyRatios } from '../reference-tables/correspondingEfficiencyRatio';
 import { ICoolingLoadForGeneralSpace } from '../types/coolingLoadForGeneralSpace';
 import { IHeatingLoadForGeneralSpace } from '../types/heatingLoadForGeneralSpace';
 import { IMechanicalVentilationForGeneralSpace } from '../types/iMechanicalVentilationForGeneralSpace';
 import { MechanicalVentilationSpecificFanPowers } from '../reference-tables/mechanicalVentilation';
+import { LightFittingEfficacyReference } from '../reference-tables/lightFittingEfficacy.reference';
+import { result } from 'lodash';
 
 export class EnergyConsumptionFormulas {
   // Cooling Load for Space (kWh) = [Space Cooling Load] * [Total Floor Area (Internal)] * [% of Total Floor Area (Internal)]
@@ -154,7 +156,7 @@ export class EnergyConsumptionFormulas {
   // Annual Energy Usage for each Mechanically Ventilated Space (kWh) =
   // [Air Volume Flow Rate for each Mechanically Ventilated Space] *
   // [Specific Fan Power of (Fan System Type)] *
-  // [Annual Total Operating Hours] / 1000000
+  // [Annual Total Operating Hours] / 1000
   static calculateAnnualEnergyUsageForEachMechanicallyVentilatedSpace(
     spaceUsage: SpaceUsage,
     totalFloorArea: number,
@@ -180,17 +182,72 @@ export class EnergyConsumptionFormulas {
         airVolumeFlowRate: airVolumeFlowRate,
         annualEnergyUsage:
           (airVolumeFlowRate * specificFanPower * annualTotalOperatingHours) /
-          1000000,
+          1000,
       };
     }
 
     return null;
   }
 
-  // // Annual Energy Usage for Mechanical Ventilation System (kWh) =
-  // // SUM([Annual Energy Usage for each Mechanically Ventilated Space])
-  // static calculateAnnualEnergyUsageForMechanicalVentilationSystem(): number {
-  //
-  //   return 0;
-  // }
+  // Overall Lighting Efficacy (lm/W) = ([%LED Usage] * [LED Efficacy RoT]) +
+  // ([%Compact Fluorescent Tube Usage] * [Compact Fluorescent Tube Efficacy RoT])
+  // + ([%Fluorescent T5 Tube Usage] * [Fluorescent T5 Tube Efficacy RoT]) +
+  // ([%Fluorescent T8 Tube Usage] * [Fluorescent T8 Tube Efficacy RoT]) +
+  // ([%Fluorescent T12 Tube Usage] * [Fluorescent T12 Tube Efficacy RoT])
+  static calculateOverallLightingEfficacy(
+    lightingSystems: LightingSystem[],
+  ): number {
+    let result = 0;
+    if (lightingSystems) {
+      for (const lightingSystem of lightingSystems) {
+        const lightFittingEfficacy = LightFittingEfficacyReference.find(
+          (x) => x.id === lightingSystem.lightingFittingTypeId,
+        );
+        if (lightFittingEfficacy) {
+          //const ledEfficacyRoT = lightFittingEfficacy.efficacy;
+          result +=
+            (lightingSystem.percentageOfFittingTypeUsed / 100) *
+            lightFittingEfficacy.efficacy;
+        }
+      }
+      //const result = lightingSystem.percentageOfFittingTypeUsed;
+    }
+    return result;
+  }
+
+  // Lighting Load = LIGHTING_LUX (lm/m2)
+  // Lighting Load for Space (lm) = [Space Lighting Load RoT] *
+  // [Total Floor Area (Internal)] * [% of Total Floor Area (Internal)]
+  static calculateLightingLoadForSpace(
+    spaceUsage: SpaceUsage,
+    totalFloorArea,
+  ): number {
+    if (spaceUsage) {
+      const spaceUsageActivityDetail = SpaceUsageActivityDetails.find(
+        (x) => x.id === spaceUsage.usageTypeId,
+      );
+      if (spaceUsageActivityDetail) {
+        return (
+          spaceUsageActivityDetail.lightingLux *
+          (totalFloorArea * (spaceUsage.usagePercentage / 100))
+        );
+      }
+    }
+    return 0;
+  }
+
+  // Lighting Energy Use for Space (W) = Lighting Load for Space (lm) / [Overall Lighting Efficacy (lm/W)]
+  static calculateLightingEnergyUseForSpace(
+    spaceUsage: SpaceUsage,
+    totalFloorArea,
+    lightingSystems: LightingSystem[],
+  ): number {
+    if (spaceUsage && lightingSystems) {
+      return (
+        this.calculateLightingLoadForSpace(spaceUsage, totalFloorArea) /
+        this.calculateOverallLightingEfficacy(lightingSystems)
+      );
+    }
+    return 0;
+  }
 }
