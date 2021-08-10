@@ -25,12 +25,14 @@ import { IHeatingLoadForGeneralSpace } from '../shared/types/iHeatingLoadForGene
 import { IMechanicalVentilationForGeneralSpace } from '../shared/types/iMechanicalVentilationForGeneralSpace';
 import { ILightingLoadForSpace } from '../shared/types/iLightingLoadForSpace';
 import { IBreakdownConsumption } from '../shared/types/iBreakdownConsumption';
+import { EnergyCostFormulas } from '../shared/formulas/energyCostFormulas';
+import { IBreakdownCost } from '../shared/types/iBreakdownCost';
 
 @Injectable()
 export class BuildingsService {
   constructor(private prismaService: PrismaService) {}
 
-  private static calculateCoolingLoadForGeneralSpace(
+  private static calculateAnnualConsumptionOfCoolingSystem(
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
     annualTotalOperatingHours: number,
@@ -66,7 +68,7 @@ export class BuildingsService {
     return result;
   }
 
-  private static calculateHeatingLoadForGeneralSpace(
+  private static calculateAnnualConsumptionForHeatingSystem(
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
     annualTotalOperatingHours: number,
@@ -104,7 +106,7 @@ export class BuildingsService {
     return result;
   }
 
-  private static calculateLightingLoadForSpaces(
+  private static calculateAnnualConsumptionForLightingSystem(
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
     annualTotalOperatingHours: number,
@@ -133,7 +135,7 @@ export class BuildingsService {
     return result;
   }
 
-  private static calculateMechanicalVentilationForGeneralSpace(
+  private static calculateAnnualMechanicalVentilationSystem(
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
     annualTotalOperatingHours: number,
@@ -165,7 +167,91 @@ export class BuildingsService {
     return result;
   }
 
-  private static getConsumptionBreakdown(
+  private static calculateCostBreakdown(
+    annualTotalEnergyCost: number,
+    annualTotalEnergyConsumption: number,
+    annualHeatingSystemConsumption: number,
+    annualCoolingSystemConsumption: number,
+    annualLightSystemConsumption: number,
+    annualMechanicalVentilationSystemConsumption: number,
+  ): IBreakdownCost[] {
+    const annualHeatingSystemCost =
+      EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
+        annualTotalEnergyCost,
+        annualTotalEnergyConsumption,
+        annualHeatingSystemConsumption,
+      );
+
+    const annualHeatingSystemCostPercentage =
+      (annualHeatingSystemCost * 100) / annualTotalEnergyCost;
+
+    const annualCoolingSystemCost =
+      EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
+        annualTotalEnergyCost,
+        annualTotalEnergyConsumption,
+        annualCoolingSystemConsumption,
+      );
+
+    const annualCoolingSystemCostPercentage =
+      (annualCoolingSystemCost * 100) / annualTotalEnergyCost;
+
+    const annualLightingSystemConst =
+      EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
+        annualTotalEnergyCost,
+        annualTotalEnergyConsumption,
+        annualLightSystemConsumption,
+      );
+
+    const annualLightingSystemCostPercentage =
+      (annualLightingSystemConst * 100) / annualTotalEnergyCost;
+
+    const annualMechanicalVentilationSystemCost =
+      EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
+        annualTotalEnergyCost,
+        annualTotalEnergyConsumption,
+        annualMechanicalVentilationSystemConsumption,
+      );
+
+    const annualMechanicalVentilationSystemCostPercentage =
+      (annualMechanicalVentilationSystemCost * 100) / annualTotalEnergyCost;
+
+    const annualOtherSystemCostPercentage =
+      100 -
+      (+annualHeatingSystemCostPercentage.toFixed(0) +
+        +annualCoolingSystemCostPercentage.toFixed(0) +
+        +annualLightingSystemCostPercentage.toFixed(0) +
+        +annualMechanicalVentilationSystemCostPercentage.toFixed(0));
+
+    return [
+      {
+        id: 'cooling',
+        value: annualCoolingSystemCostPercentage,
+        color: '#636c2e',
+      },
+      {
+        id: 'heating',
+        value: annualHeatingSystemCostPercentage,
+        color: '#87972f',
+      },
+      {
+        id: 'lighting',
+        value: +annualLightingSystemCostPercentage,
+        color: '#acbf42',
+      },
+      {
+        id: 'mechanical ventilation',
+        value: annualMechanicalVentilationSystemCostPercentage,
+        color: '#c1cf74',
+      },
+      {
+        id: 'others',
+        value: annualOtherSystemCostPercentage,
+        color: '#d5dfa3',
+      },
+    ];
+  }
+
+  private static calculateConsumptionBreakdown(
     coolingLoadConsumption: number,
     heatingLoadConsumption: number,
     mechanicalVentilationConsumption: number,
@@ -184,22 +270,22 @@ export class BuildingsService {
     const coolingLoadConsumptionPercentage = +(
       (coolingLoadConsumption * 100) /
       total
-    ).toFixed(2);
+    ).toFixed(0);
 
     const heatingLoadConsumptionPercentage = +(
       (heatingLoadConsumption * 100) /
       total
-    ).toFixed(2);
+    ).toFixed(0);
 
     const mechanicalVentilationConsumptionPercentage = +(
       (mechanicalVentilationConsumption * 100) /
       total
-    ).toFixed(2);
+    ).toFixed(0);
 
     const lightingLoadConsumptionPercentage = +(
       (lightingLoadConsumption * 100) /
       total
-    ).toFixed(2);
+    ).toFixed(0);
 
     const otherConsumptionPercentage =
       100 -
@@ -668,16 +754,16 @@ export class BuildingsService {
         : prop[0].grossInteriorAreaUnit;
 
     // KWh
-    const coolingLoadForSpace =
-      BuildingsService.calculateCoolingLoadForGeneralSpace(
+    const annualCoolingSystemConsumption =
+      BuildingsService.calculateAnnualConsumptionOfCoolingSystem(
         spaceUsages,
         totalFloorArea,
         totalOperatingHours,
       );
 
     // KWh
-    const heatingLoadForSpace =
-      BuildingsService.calculateHeatingLoadForGeneralSpace(
+    const annualHeatingSystemConsumption =
+      BuildingsService.calculateAnnualConsumptionForHeatingSystem(
         spaceUsages,
         totalFloorArea,
         totalOperatingHours,
@@ -685,34 +771,45 @@ export class BuildingsService {
       );
 
     // kwh
-    const mechanicalVentilationForSpace =
-      BuildingsService.calculateMechanicalVentilationForGeneralSpace(
+    const annualMechanicalVentilationSystemConsumption =
+      BuildingsService.calculateAnnualMechanicalVentilationSystem(
         spaceUsages,
         totalFloorArea,
         totalOperatingHours,
       );
 
-    const lightingLoadForSpaces =
-      BuildingsService.calculateLightingLoadForSpaces(
+    // kwh
+    const annualLightingConsumption =
+      BuildingsService.calculateAnnualConsumptionForLightingSystem(
         spaceUsages,
         totalFloorArea,
         totalOperatingHours,
         lightingSystems,
       );
 
-    const otherLoadingForSpace =
+    // kwh
+    const annualOtherSystemConsumption =
       annualConsumption -
-      (coolingLoadForSpace.coolingLoadForSpace +
-        heatingLoadForSpace.heatingLoadForSpace +
-        mechanicalVentilationForSpace.annualEnergyUsage +
-        lightingLoadForSpaces.lightingEnergyConsumption);
+      (annualCoolingSystemConsumption.coolingLoadForSpace +
+        annualHeatingSystemConsumption.heatingLoadForSpace +
+        annualMechanicalVentilationSystemConsumption.annualEnergyUsage +
+        annualLightingConsumption.lightingEnergyConsumption);
 
-    const breakDownConsumption = BuildingsService.getConsumptionBreakdown(
-      coolingLoadForSpace.coolingLoadForSpace,
-      heatingLoadForSpace.heatingLoadForSpace,
-      mechanicalVentilationForSpace.annualEnergyUsage,
-      lightingLoadForSpaces.lightingEnergyConsumption,
-      otherLoadingForSpace,
+    const breakDownConsumption = BuildingsService.calculateConsumptionBreakdown(
+      annualCoolingSystemConsumption.coolingLoadForSpace,
+      annualHeatingSystemConsumption.heatingLoadForSpace,
+      annualMechanicalVentilationSystemConsumption.annualEnergyUsage,
+      annualLightingConsumption.lightingEnergyConsumption,
+      annualOtherSystemConsumption,
+    );
+
+    const breakdownCost = BuildingsService.calculateCostBreakdown(
+      annualCost,
+      annualConsumption,
+      annualHeatingSystemConsumption.heatingLoadForSpace,
+      annualCoolingSystemConsumption.coolingLoadForSpace,
+      annualLightingConsumption.lightingEnergyConsumption,
+      annualMechanicalVentilationSystemConsumption.annualEnergyUsage,
     );
 
     return {
@@ -722,12 +819,14 @@ export class BuildingsService {
       lastMonthComparison: lastMonthComparison / 1000,
       periodOf12Month: periodOf12Month / 1000,
       totalOperatingHours: totalOperatingHours,
-      coolingLoadForSpace: coolingLoadForSpace,
-      heatingLoadForSpace: heatingLoadForSpace,
-      mechanicalVentilationForSpace: mechanicalVentilationForSpace,
-      otherLoadingForSpace: otherLoadingForSpace,
-      lightingLoadForSpaces: lightingLoadForSpaces,
+      coolingLoadForSpace: annualCoolingSystemConsumption,
+      heatingLoadForSpace: annualHeatingSystemConsumption,
+      mechanicalVentilationForSpace:
+        annualMechanicalVentilationSystemConsumption,
+      otherLoadingForSpace: annualOtherSystemConsumption,
+      lightingLoadForSpaces: annualLightingConsumption,
       breakDownConsumption: breakDownConsumption,
+      breakDownCost: breakDownConsumption,
       prop: prop[0],
       electricConsumptions: _.take<ElectricityConsumption>(
         electricConsumptions,
