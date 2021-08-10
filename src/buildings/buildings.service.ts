@@ -183,7 +183,7 @@ export class BuildingsService {
       );
 
     const annualHeatingSystemCostPercentage =
-      (annualHeatingSystemCost * 100) / annualTotalEnergyCost;
+      +((annualHeatingSystemCost * 100) / annualTotalEnergyCost).toFixed(0);
 
     const annualCoolingSystemCost =
       EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
@@ -193,7 +193,7 @@ export class BuildingsService {
       );
 
     const annualCoolingSystemCostPercentage =
-      (annualCoolingSystemCost * 100) / annualTotalEnergyCost;
+      +((annualCoolingSystemCost * 100) / annualTotalEnergyCost).toFixed(0);
 
     const annualLightingSystemConst =
       EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
@@ -203,7 +203,7 @@ export class BuildingsService {
       );
 
     const annualLightingSystemCostPercentage =
-      (annualLightingSystemConst * 100) / annualTotalEnergyCost;
+      +((annualLightingSystemConst * 100) / annualTotalEnergyCost).toFixed(0);
 
     const annualMechanicalVentilationSystemCost =
       EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
@@ -213,14 +213,14 @@ export class BuildingsService {
       );
 
     const annualMechanicalVentilationSystemCostPercentage =
-      (annualMechanicalVentilationSystemCost * 100) / annualTotalEnergyCost;
+      +((annualMechanicalVentilationSystemCost * 100) / annualTotalEnergyCost).toFixed(0);
 
     const annualOtherSystemCostPercentage =
       100 -
-      (+annualHeatingSystemCostPercentage.toFixed(0) +
-        +annualCoolingSystemCostPercentage.toFixed(0) +
-        +annualLightingSystemCostPercentage.toFixed(0) +
-        +annualMechanicalVentilationSystemCostPercentage.toFixed(0));
+      (annualHeatingSystemCostPercentage +
+        annualCoolingSystemCostPercentage +
+        annualLightingSystemCostPercentage +
+        annualMechanicalVentilationSystemCostPercentage);
 
     return [
       {
@@ -803,7 +803,7 @@ export class BuildingsService {
       annualOtherSystemConsumption,
     );
 
-    const breakdownCost = BuildingsService.calculateCostBreakdown(
+    const breakDownCost = BuildingsService.calculateCostBreakdown(
       annualCost,
       annualConsumption,
       annualHeatingSystemConsumption.heatingLoadForSpace,
@@ -826,7 +826,7 @@ export class BuildingsService {
       otherLoadingForSpace: annualOtherSystemConsumption,
       lightingLoadForSpaces: annualLightingConsumption,
       breakDownConsumption: breakDownConsumption,
-      breakDownCost: breakDownConsumption,
+      breakDownCost: breakDownCost,
       prop: prop[0],
       electricConsumptions: _.take<ElectricityConsumption>(
         electricConsumptions,
