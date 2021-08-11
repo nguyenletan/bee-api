@@ -27,6 +27,8 @@ import { ILightingLoadForSpace } from '../shared/types/iLightingLoadForSpace';
 import { IBreakdownConsumption } from '../shared/types/iBreakdownConsumption';
 import { EnergyCostFormulas } from '../shared/formulas/energyCostFormulas';
 import { IBreakdownCost } from '../shared/types/iBreakdownCost';
+import { ICO2EmissionBreakdown } from '../shared/types/iCO2EmissionBreakdown';
+import { EnergyCO2EmissionFormulas } from '../shared/formulas/energyCO2EmissionFormulas';
 
 @Injectable()
 export class BuildingsService {
@@ -172,7 +174,7 @@ export class BuildingsService {
     annualTotalEnergyConsumption: number,
     annualHeatingSystemConsumption: number,
     annualCoolingSystemConsumption: number,
-    annualLightSystemConsumption: number,
+    annualLightingSystemConsumption: number,
     annualMechanicalVentilationSystemConsumption: number,
   ): IBreakdownCost[] {
     const annualHeatingSystemCost =
@@ -182,8 +184,10 @@ export class BuildingsService {
         annualHeatingSystemConsumption,
       );
 
-    const annualHeatingSystemCostPercentage =
-      +((annualHeatingSystemCost * 100) / annualTotalEnergyCost).toFixed(0);
+    const annualHeatingSystemCostPercentage = +(
+      (annualHeatingSystemCost * 100) /
+      annualTotalEnergyCost
+    ).toFixed(0);
 
     const annualCoolingSystemCost =
       EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
@@ -192,18 +196,22 @@ export class BuildingsService {
         annualCoolingSystemConsumption,
       );
 
-    const annualCoolingSystemCostPercentage =
-      +((annualCoolingSystemCost * 100) / annualTotalEnergyCost).toFixed(0);
+    const annualCoolingSystemCostPercentage = +(
+      (annualCoolingSystemCost * 100) /
+      annualTotalEnergyCost
+    ).toFixed(0);
 
     const annualLightingSystemConst =
       EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
         annualTotalEnergyCost,
         annualTotalEnergyConsumption,
-        annualLightSystemConsumption,
+        annualLightingSystemConsumption,
       );
 
-    const annualLightingSystemCostPercentage =
-      +((annualLightingSystemConst * 100) / annualTotalEnergyCost).toFixed(0);
+    const annualLightingSystemCostPercentage = +(
+      (annualLightingSystemConst * 100) /
+      annualTotalEnergyCost
+    ).toFixed(0);
 
     const annualMechanicalVentilationSystemCost =
       EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
@@ -212,8 +220,10 @@ export class BuildingsService {
         annualMechanicalVentilationSystemConsumption,
       );
 
-    const annualMechanicalVentilationSystemCostPercentage =
-      +((annualMechanicalVentilationSystemCost * 100) / annualTotalEnergyCost).toFixed(0);
+    const annualMechanicalVentilationSystemCostPercentage = +(
+      (annualMechanicalVentilationSystemCost * 100) /
+      annualTotalEnergyCost
+    ).toFixed(0);
 
     const annualOtherSystemCostPercentage =
       100 -
@@ -235,7 +245,7 @@ export class BuildingsService {
       },
       {
         id: 'lighting',
-        value: +annualLightingSystemCostPercentage,
+        value: annualLightingSystemCostPercentage,
         color: '#acbf42',
       },
       {
@@ -307,7 +317,7 @@ export class BuildingsService {
       },
       {
         id: 'lighting',
-        value: +lightingLoadConsumptionPercentage,
+        value: lightingLoadConsumptionPercentage,
         color: '#acbf42',
       },
       {
@@ -318,6 +328,94 @@ export class BuildingsService {
       {
         id: 'others',
         value: otherConsumptionPercentage,
+        color: '#d5dfa3',
+      },
+    ];
+  }
+
+  private static calculateCO2EmissionsBreakdown(
+    countryCode: string,
+    annualTotalCO2Emissions: number,
+    annualHeatingSystemConsumption: number,
+    annualCoolingSystemConsumption: number,
+    annualLightingSystemConsumption: number,
+    annualMechanicalVentilationSystemConsumption: number,
+  ): ICO2EmissionBreakdown[] {
+    const annualHeatingSystemCO2Emissions =
+      EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
+        annualHeatingSystemConsumption,
+        countryCode,
+      );
+
+    const annualHeatingSystemCO2EmissionsPercentage = +(
+      (annualHeatingSystemCO2Emissions * 100) /
+      annualTotalCO2Emissions
+    ).toFixed(0);
+
+    const annualCoolingSystemCO2Emissions =
+      EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
+        annualCoolingSystemConsumption,
+        countryCode,
+      );
+
+    const annualCoolingSystemCO2EmissionsPercentage = +(
+      (annualCoolingSystemCO2Emissions * 100) /
+      annualTotalCO2Emissions
+    ).toFixed(0);
+
+    const annualLightingSystemCO2Emissions =
+      EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
+        annualLightingSystemConsumption,
+        countryCode,
+      );
+
+    const annualLightingSystemCO2EmissionsPercentage = +(
+      (annualLightingSystemCO2Emissions * 100) /
+      annualTotalCO2Emissions
+    ).toFixed(0);
+
+    const annualMechanicalVentilationSystemCO2Emissions =
+      EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
+        annualMechanicalVentilationSystemConsumption,
+        countryCode,
+      );
+
+    const annualMechanicalVentilationSystemCO2EmissionsPercentage = +(
+      (annualMechanicalVentilationSystemCO2Emissions * 100) /
+      annualTotalCO2Emissions
+    ).toFixed(0);
+
+    const annualOtherSystemCO2EmissionsPercentage =
+      100 -
+      (annualHeatingSystemCO2EmissionsPercentage +
+        annualCoolingSystemCO2EmissionsPercentage +
+        annualLightingSystemCO2EmissionsPercentage +
+        annualMechanicalVentilationSystemCO2EmissionsPercentage);
+
+    return [
+      {
+        id: 'cooling',
+        value: annualCoolingSystemCO2EmissionsPercentage,
+        color: '#636c2e',
+      },
+      {
+        id: 'heating',
+        value: annualHeatingSystemCO2EmissionsPercentage,
+        color: '#87972f',
+      },
+      {
+        id: 'lighting',
+        value: annualLightingSystemCO2EmissionsPercentage,
+        color: '#acbf42',
+      },
+      {
+        id: 'mechanical ventilation',
+        value: annualMechanicalVentilationSystemCO2EmissionsPercentage,
+        color: '#c1cf74',
+      },
+      {
+        id: 'others',
+        value: annualOtherSystemCO2EmissionsPercentage,
         color: '#d5dfa3',
       },
     ];
@@ -701,9 +799,6 @@ export class BuildingsService {
       },
     });
 
-    console.log(heatingSystem);
-    console.log(typeof heatingSystem);
-
     const last12MonthConsumptions = _.take<ElectricityConsumption>(
       electricConsumptions,
       12,
@@ -795,7 +890,7 @@ export class BuildingsService {
         annualMechanicalVentilationSystemConsumption.annualEnergyUsage +
         annualLightingConsumption.lightingEnergyConsumption);
 
-    const breakDownConsumption = BuildingsService.calculateConsumptionBreakdown(
+    const consumptionBreakdown = BuildingsService.calculateConsumptionBreakdown(
       annualCoolingSystemConsumption.coolingLoadForSpace,
       annualHeatingSystemConsumption.heatingLoadForSpace,
       annualMechanicalVentilationSystemConsumption.annualEnergyUsage,
@@ -803,7 +898,7 @@ export class BuildingsService {
       annualOtherSystemConsumption,
     );
 
-    const breakDownCost = BuildingsService.calculateCostBreakdown(
+    const costBreakdown = BuildingsService.calculateCostBreakdown(
       annualCost,
       annualConsumption,
       annualHeatingSystemConsumption.heatingLoadForSpace,
@@ -812,6 +907,16 @@ export class BuildingsService {
       annualMechanicalVentilationSystemConsumption.annualEnergyUsage,
     );
 
+    const co2EmissionsBreakdown =
+      BuildingsService.calculateCO2EmissionsBreakdown(
+        prop[0].countryCode,
+        annualCarbonEmissions,
+        annualHeatingSystemConsumption.heatingLoadForSpace,
+        annualCoolingSystemConsumption.coolingLoadForSpace,
+        annualLightingConsumption.lightingEnergyConsumption,
+        annualMechanicalVentilationSystemConsumption.annualEnergyUsage,
+      );
+
     return {
       annualCost: annualCost,
       annualConsumption: annualConsumption / 1000,
@@ -819,14 +924,15 @@ export class BuildingsService {
       lastMonthComparison: lastMonthComparison / 1000,
       periodOf12Month: periodOf12Month / 1000,
       totalOperatingHours: totalOperatingHours,
-      coolingLoadForSpace: annualCoolingSystemConsumption,
-      heatingLoadForSpace: annualHeatingSystemConsumption,
-      mechanicalVentilationForSpace:
+      annualCoolingSystemConsumption: annualCoolingSystemConsumption,
+      annualHeatingSystemConsumption: annualHeatingSystemConsumption,
+      annualLightingConsumption: annualLightingConsumption,
+      annualMechanicalVentilationSystemConsumption:
         annualMechanicalVentilationSystemConsumption,
-      otherLoadingForSpace: annualOtherSystemConsumption,
-      lightingLoadForSpaces: annualLightingConsumption,
-      breakDownConsumption: breakDownConsumption,
-      breakDownCost: breakDownCost,
+      annualOtherSystemConsumption: annualOtherSystemConsumption,
+      consumptionBreakdown: consumptionBreakdown,
+      costBreakdown: costBreakdown,
+      co2EmissionsBreakdown: co2EmissionsBreakdown,
       prop: prop[0],
       electricConsumptions: _.take<ElectricityConsumption>(
         electricConsumptions,
