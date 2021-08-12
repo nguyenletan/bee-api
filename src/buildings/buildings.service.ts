@@ -819,9 +819,19 @@ export class BuildingsService {
             electricConsumptions[i + 12].monthlyValue) /
           1000;
       }
+
+      if (i + 1 < electricConsumptions.length) {
+        /// TODO: will remove it, just use it for debugging
+        const lastMonthValue = electricConsumptions[i + 1].monthlyValue;
+        last12MonthConsumptions[i]['lastMonthValue'] = lastMonthValue / 1000;
+
+        last12MonthConsumptions[i]['lastMonthComparison'] =
+          (last12MonthConsumptions[i].monthlyValue - lastMonthValue) / 1000;
+      }
     }
 
-    //console.log(electricConsumptions);
+    // console.log(last12MonthConsumptions[0]);
+    // console.log(last12MonthConsumptions[1]);
 
     let last24Consumption = 0;
     let periodOf12Month: any = null;
@@ -833,6 +843,7 @@ export class BuildingsService {
     }
 
     const annualCarbonEmissions = annualConsumption * 0.000208;
+
     let lastMonthComparison = 0;
     if (electricConsumptions.length > 2) {
       lastMonthComparison =
