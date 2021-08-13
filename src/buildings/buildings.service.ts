@@ -16,6 +16,7 @@ import {
   LightingSystem,
   SolarPanelSystem,
   SpaceUsage,
+  Property,
 } from '@prisma/client';
 import * as _ from 'lodash';
 import { EnergyConsumptionFormulas } from '../shared/formulas/energyConsumptionFormulas';
@@ -29,10 +30,16 @@ import { EnergyCostFormulas } from '../shared/formulas/energyCostFormulas';
 import { IBreakdownCost } from '../shared/types/iBreakdownCost';
 import { ICO2EmissionBreakdown } from '../shared/types/iCO2EmissionBreakdown';
 import { EnergyCO2EmissionFormulas } from '../shared/formulas/energyCO2EmissionFormulas';
+import { PVGISService } from '../shared/externalAPIs/PVGIS.service';
+import { ISolarPVAnnualEnergyProduction } from '../shared/types/iSolarPVAnnualEnergyProduction';
+import { PVTechChoices } from '../shared/types/iPVTechChoice';
 
 @Injectable()
 export class BuildingsService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private _PVGISService: PVGISService,
+  ) {}
 
   private static calculateAnnualConsumptionOfCoolingSystem(
     spaceUsages: SpaceUsage[],
@@ -421,6 +428,105 @@ export class BuildingsService {
     ];
   }
 
+  private static async calculateAverageDailyEnergyProductionSolarPVSystem(
+    solarPVSystems: SolarPanelSystem[],
+    pvgisService: PVGISService,
+    prop: Property,
+  ): Promise<number> {
+    if (solarPVSystems) {
+      let result = 0;
+      console.log(prop);
+      for (const solarPVSystem of solarPVSystems) {
+        result +=
+          await BuildingsService.calculateAverageDailyEnergyProductionEachSolarPVSystem(
+            solarPVSystem,
+            pvgisService,
+            prop,
+          );
+      }
+      return result;
+    }
+    return 0;
+  }
+
+  private static async calculateAverageDailyEnergyProductionEachSolarPVSystem(
+    solarPVSystem: SolarPanelSystem,
+    pvgisService: PVGISService,
+    prop: Property,
+  ): Promise<number> {
+    const peakPower = solarPVSystem.installedCapacity;
+    const pvTechChoice = PVTechChoices.find(
+      (x) => solarPVSystem.pvTechChoiceId === x.id,
+    )?.shortName;
+
+    const mountingPlace =
+      solarPVSystem.mountingTypeId === 1 ? 'free' : 'building';
+
+    const loss = solarPVSystem.systemLoss;
+    const fixed = solarPVSystem.trackingTypeId === 1 ? 1 : 0;
+    const angle =
+      solarPVSystem.trackingTypeId === 1 ? solarPVSystem.inclineAngle : 0;
+    const aspectValue =
+      solarPVSystem.trackingTypeId === 1 ? solarPVSystem.orientationAngle : 0;
+
+    const aspect: number | string =
+      aspectValue === 0
+        ? 'south'
+        : aspectValue === 90
+        ? 'west'
+        : aspectValue === -90
+        ? 'east'
+        : aspectValue;
+
+    const inclinedAxis = solarPVSystem.inclineAngle ? 1 : 0;
+
+    const inclinedOptimum = solarPVSystem.inclineAngle ?? 0;
+
+    const verticalAxis = solarPVSystem.orientationAngle ? 1 : 0;
+
+    const verticalAxisAngle =
+      solarPVSystem.orientationAngle && solarPVSystem.orientationAngle > 0
+        ? solarPVSystem.orientationAngle
+        : 0;
+
+    const twoAxis =
+      solarPVSystem.inclineAngle && solarPVSystem.orientationAngle ? 1 : 0;
+
+    const pvgisData = await pvgisService.callAPI(
+      prop.latitude,
+      prop.longitude,
+      peakPower,
+      pvTechChoice,
+      mountingPlace,
+      loss,
+      fixed,
+      angle,
+      aspectValue,
+      inclinedAxis,
+      inclinedOptimum,
+      verticalAxis,
+      verticalAxisAngle,
+      twoAxis,
+    );
+    // t.subscribe({
+    //   next(response) {
+    //     console.log(response);
+    //   },
+    //   error(err) {
+    //     console.error('Error: ' + err);
+    //   },
+    //   complete() {
+    //     console.log('Completed');
+    //   },
+    // });
+
+    console.log(pvgisData);
+    if (pvgisData) {
+      return pvgisData.averageMonthlyEnergyProduction;
+    }
+    return 0;
+  }
+
   async create(createBuildingDto: CreateBuildingDto, user: any) {
     //console.log(createBuildingDto);
 
@@ -799,6 +905,17 @@ export class BuildingsService {
       },
     });
 
+    const solarPVSystems = await this.prismaService.solarPanelSystem.findMany({
+      where: {
+        propId: {
+          equals: id,
+        },
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
+
     const last12MonthConsumptions = _.take<ElectricityConsumption>(
       electricConsumptions,
       12,
@@ -928,6 +1045,27 @@ export class BuildingsService {
         annualMechanicalVentilationSystemConsumption.annualEnergyUsage,
       );
 
+    const pvSolarSystemLoad =
+      await BuildingsService.calculateAverageDailyEnergyProductionSolarPVSystem(
+        solarPVSystems,
+        this._PVGISService,
+        prop[0],
+      );
+
+    //const pvgisData = await this._PVGISService.callAPI();
+    // t.subscribe({
+    //   next(response) {
+    //     console.log(response);
+    //   },
+    //   error(err) {
+    //     console.error('Error: ' + err);
+    //   },
+    //   complete() {
+    //     console.log('Completed');
+    //   },
+    // });
+    //console.log(pvgisData);
+
     return {
       annualCost: annualCost,
       annualConsumption: annualConsumption / 1000,
@@ -941,6 +1079,7 @@ export class BuildingsService {
       annualMechanicalVentilationSystemConsumption:
         annualMechanicalVentilationSystemConsumption,
       annualOtherSystemConsumption: annualOtherSystemConsumption,
+      pvSolarSystemLoad: pvSolarSystemLoad,
       consumptionBreakdown: consumptionBreakdown,
       costBreakdown: costBreakdown,
       co2EmissionsBreakdown: co2EmissionsBreakdown,
