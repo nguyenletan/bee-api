@@ -117,6 +117,8 @@ export class EnergyConsumptionFormulas {
           heatingSystem.Heater[0].heaterTypeId === 2 ||
           heatingSystem.Heater[0].heaterTypeId === 6
         ) {
+          console.log(heatingSystem.Heater[0]);
+
           return <IHeatingLoadForGeneralSpace>{
             heatingLoad: spaceHeatingLoad,
             heatingLoadForSpace:

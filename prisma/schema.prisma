@@ -306,7 +306,7 @@ model Property {
   grossInteriorAreaUnit                 String?                     @db.VarChar
   netUsableAreaUnit                     String?                     @db.VarChar
   hasMajorRefurbishmentOrExtensionsDone Boolean?
-  latestYearForRefurbishmentOrExtension Decimal?                    @db.Decimal
+  latestYearForRefurbishmentOrExtension Int?
   statusId                              Int?                        @default(2)
   Building                              Building?                   @relation(fields: [buildingId], references: [id])
   Floor                                 Floor?                      @relation(fields: [floorId], references: [id])

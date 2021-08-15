@@ -15,6 +15,9 @@ export interface ISolarPVAnnualEnergyProduction {
   // E_m
   averageMonthlyEnergyProduction: number;
 
+  // E_y
+  averageYearlyEnergyProduction: number;
+
   //H(i)_d
   averageDailySumOfGlobalIrradiationPerM2: number;
 

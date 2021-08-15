@@ -94,14 +94,16 @@ export class PVGISService {
 
     const data$ = this.httpService.get<any>(apiUrl);
     const response = await lastValueFrom(data$);
-    console.log(response.data);
+    // console.log(response.data);
 
-    if (response?.data?.outputs?.totals?.fixed) {
+    if (response?.data?.outputs?.totals?.vertical_axis) {
       return {
         averageDailyEnergyProduction:
           response?.data?.outputs?.totals?.fixed['E_d'],
         averageMonthlyEnergyProduction:
           response?.data?.outputs?.totals?.fixed['E_m'],
+        averageYearlyEnergyProduction:
+          response?.data?.outputs?.totals?.fixed['E_y'],
         averageDailySumOfGlobalIrradiationPerM2:
           response?.data?.outputs?.totals?.fixed['H(i)_d'],
         averageMonthlySumOfGlobalIrradiationPerM2:

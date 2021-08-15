@@ -17,6 +17,7 @@ import {
   SolarPanelSystem,
   SpaceUsage,
   Property,
+  ExternalEnvelopeSubSystem,
 } from '@prisma/client';
 import * as _ from 'lodash';
 import { EnergyConsumptionFormulas } from '../shared/formulas/energyConsumptionFormulas';
@@ -33,6 +34,12 @@ import { EnergyCO2EmissionFormulas } from '../shared/formulas/energyCO2EmissionF
 import { PVGISService } from '../shared/externalAPIs/PVGIS.service';
 import { ISolarPVAnnualEnergyProduction } from '../shared/types/iSolarPVAnnualEnergyProduction';
 import { PVTechChoices } from '../shared/types/iPVTechChoice';
+import {
+  BuildingEnvelopeUValueReferences,
+  IBuildingEnvelopeUValueReference,
+} from '../shared/reference-tables/buildingEnvelopeUValue.reference';
+import { IBuildingEnvelopeDetail } from '../shared/types/iBuildingEnvelopeDetail';
+import { BuildingWindowUValuesReferences } from '../shared/reference-tables/buildingWindowUValues.reference';
 
 @Injectable()
 export class BuildingsService {
@@ -435,7 +442,7 @@ export class BuildingsService {
   ): Promise<number> {
     if (solarPVSystems) {
       let result = 0;
-      console.log(prop);
+
       for (const solarPVSystem of solarPVSystems) {
         result +=
           await BuildingsService.calculateAverageDailyEnergyProductionEachSolarPVSystem(
@@ -520,11 +527,66 @@ export class BuildingsService {
     //   },
     // });
 
-    console.log(pvgisData);
+    //console.log(pvgisData);
     if (pvgisData) {
       return pvgisData.averageMonthlyEnergyProduction;
     }
     return 0;
+  }
+
+  private static calculateUValue(
+    prop: Property,
+    externalEnvelopeSubSystem: ExternalEnvelopeSubSystem,
+  ): IBuildingEnvelopeDetail {
+    if (prop) {
+      let year = prop.completionYear + 10;
+      if (
+        prop.hasMajorRefurbishmentOrExtensionsDone &&
+        prop.latestYearForRefurbishmentOrExtension &&
+        prop.latestYearForRefurbishmentOrExtension > year
+      ) {
+        year = prop.latestYearForRefurbishmentOrExtension;
+      }
+
+      const uValue = _.findLast(
+        BuildingEnvelopeUValueReferences,
+        (x) => x.year <= year,
+      );
+
+      const buildingWindowUValue = BuildingWindowUValuesReferences.find(
+        (x) =>
+          (x.id = externalEnvelopeSubSystem.externalWindowInsulationTypeId),
+      );
+
+      let windowUValue = null;
+      let wallUValue = null;
+      let floorUValue = null;
+      let roofUValue = null;
+      if (uValue) {
+        wallUValue = uValue.walls;
+        floorUValue = uValue.floors;
+      }
+
+      if (buildingWindowUValue) {
+        windowUValue = buildingWindowUValue.uValue;
+      }
+
+      console.log('externalEnvelopeSubSystem.roofInsulationTypeId: ');
+      console.log(externalEnvelopeSubSystem.roofInsulationTypeId);
+      if (externalEnvelopeSubSystem.roofInsulationTypeId === 1) {
+        roofUValue = uValue.pitchedRoof;
+      } else if (externalEnvelopeSubSystem.roofInsulationTypeId === 2) {
+        roofUValue = uValue.flatRoof;
+      }
+
+      return {
+        wall: wallUValue,
+        floor: floorUValue,
+        openings: windowUValue,
+        roof: roofUValue,
+      };
+    }
+    return null;
   }
 
   async create(createBuildingDto: CreateBuildingDto, user: any) {
@@ -610,7 +672,7 @@ export class BuildingsService {
           mountingTypeId: item.mountingTypeId,
           orientationAngle:
             item.trackingTypeId === 1 || item.trackingTypeId === 3
-              ? item.orientationAngle
+              ? Number(item.orientationAngle)
               : null,
         };
       },
@@ -727,6 +789,8 @@ export class BuildingsService {
             create: {
               externalWindowToWallRatio:
                 createBuildingDto.envelopFacade.externalWindowToWallRatio,
+              externalWindowInsulationTypeId:
+                createBuildingDto.envelopFacade.externalWindowInsulationTypeId,
               roofInsulationTypeId:
                 createBuildingDto.envelopFacade.externalRoofInsulationTypeId,
               externalGroundInsulationTypeId:
@@ -916,6 +980,18 @@ export class BuildingsService {
       },
     });
 
+    const externalEnvelopeSubSystem =
+      await this.prismaService.externalEnvelopeSubSystem.findFirst({
+        where: {
+          propId: {
+            equals: id,
+          },
+        },
+      });
+
+    console.log('externalEnvelopeSubSystem: ');
+    console.log(externalEnvelopeSubSystem);
+
     const last12MonthConsumptions = _.take<ElectricityConsumption>(
       electricConsumptions,
       12,
@@ -974,7 +1050,7 @@ export class BuildingsService {
     const totalFloorArea =
       prop[0].grossInteriorAreaUnit === 'ft2'
         ? Utilities.convertFt2ToM2(prop[0].grossInteriorArea)
-        : prop[0].grossInteriorAreaUnit;
+        : prop[0].grossInteriorArea;
 
     // KWh
     const annualCoolingSystemConsumption =
@@ -1052,6 +1128,11 @@ export class BuildingsService {
         prop[0],
       );
 
+    const incidentalGainsOtherInformation = BuildingsService.calculateUValue(
+      prop[0],
+      externalEnvelopeSubSystem,
+    );
+
     //const pvgisData = await this._PVGISService.callAPI();
     // t.subscribe({
     //   next(response) {
@@ -1083,6 +1164,7 @@ export class BuildingsService {
       consumptionBreakdown: consumptionBreakdown,
       costBreakdown: costBreakdown,
       co2EmissionsBreakdown: co2EmissionsBreakdown,
+      incidentalGainsOtherInformation: incidentalGainsOtherInformation,
       prop: prop[0],
       electricConsumptions: _.take<ElectricityConsumption>(
         electricConsumptions,
