@@ -188,7 +188,7 @@ export class EnergyConsumptionFormulas {
         airVolumeFlowRate: airVolumeFlowRate,
         annualEnergyUsage:
           (airVolumeFlowRate * specificFanPower * annualTotalOperatingHours) /
-          1000,
+          1000000,
       };
     }
 
