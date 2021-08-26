@@ -38,7 +38,8 @@ async function bootstrap() {
       //   callback(new Error('Not allowed by CORS'));
       // }
     },
-    methods: 'GET,PUT,POST,DELETE,UPDATE,OPTIONS',
+
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
 
   const config = new DocumentBuilder()

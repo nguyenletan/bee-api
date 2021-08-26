@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialActions"]
 }
 
 datasource db {
@@ -29,7 +30,7 @@ model AverageOperatingHours {
   sundayEnd          String?   @db.VarChar
   publicHolidayStart String?   @db.VarChar
   publicHolidayEnd   String?   @db.VarChar
-  Property           Property? @relation(fields: [propId], references: [id])
+  Property           Property? @relation(fields: [propId], references: [id], onDelete: Cascade)
 }
 
 model Building {
@@ -61,7 +62,7 @@ model CO2EmissionRate {
   city                             String?                        @db.VarChar
   gridEmissionRate                 Float?
   electricitySupplierInformationId Int
-  ElectricitySupplierInformation   ElectricitySupplierInformation @relation(fields: [electricitySupplierInformationId], references: [id])
+  ElectricitySupplierInformation   ElectricitySupplierInformation @relation(fields: [electricitySupplierInformationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model Chiller {
@@ -74,11 +75,11 @@ model Chiller {
   modelId                   Int?
   chillerEnergySourceTypeId Int?
   coolingSystemId           Int
-  ChillerEnergySource       ChillerEnergySource? @relation(fields: [chillerEnergySourceTypeId], references: [id])
-  ChillerType               ChillerType?         @relation(fields: [chillerTypeId], references: [id])
-  CompressorType            CompressorType?      @relation(fields: [compressorTypeId], references: [id])
-  CoolingSystem             CoolingSystem        @relation(fields: [coolingSystemId], references: [id])
-  RefrigerantType           RefrigerantType?     @relation(fields: [refrigerantTypeId], references: [id])
+  ChillerEnergySource       ChillerEnergySource? @relation(fields: [chillerEnergySourceTypeId], references: [id], onDelete: Cascade)
+  ChillerType               ChillerType?         @relation(fields: [chillerTypeId], references: [id], onDelete: Cascade)
+  CompressorType            CompressorType?      @relation(fields: [compressorTypeId], references: [id], onDelete: Cascade)
+  CoolingSystem             CoolingSystem        @relation(fields: [coolingSystemId], references: [id], onDelete: Cascade)
+  RefrigerantType           RefrigerantType?     @relation(fields: [refrigerantTypeId], references: [id], onDelete: Cascade)
 }
 
 model ChillerEnergySource {
@@ -116,8 +117,8 @@ model CoolingSystem {
   estimatedCoolingLoad             Float?
   percentageCooledFloorArea        Float?
   coolingSystemTypeId              Int?
-  CoolingSystemType                CoolingSystemType? @relation(fields: [coolingSystemTypeId], references: [id])
-  Property                         Property?          @relation(fields: [propId], references: [id])
+  CoolingSystemType                CoolingSystemType? @relation(fields: [coolingSystemTypeId], references: [id], onDelete: Cascade)
+  Property                         Property?          @relation(fields: [propId], references: [id], onDelete: Cascade)
   Chiller                          Chiller[]
 }
 
@@ -136,8 +137,8 @@ model ElectricityConsumption {
   month                          Int
   year                           Int
   propId                         Int?
-  ElectricitySupplierInformation ElectricitySupplierInformation? @relation(fields: [electricitySupplierId], references: [id])
-  Property                       Property?                       @relation(fields: [propId], references: [id])
+  ElectricitySupplierInformation ElectricitySupplierInformation? @relation(fields: [electricitySupplierId], references: [id], onDelete: Cascade)
+  Property                       Property?                       @relation(fields: [propId], references: [id], onDelete: Cascade)
 }
 
 model ElectricitySupplierAPI {
@@ -147,7 +148,7 @@ model ElectricitySupplierAPI {
   apiKey                           String?                        @db.VarChar
   apiFormat                        String?                        @db.VarChar
   electricitySupplierInformationId Int
-  ElectricitySupplierInformation   ElectricitySupplierInformation @relation(fields: [electricitySupplierInformationId], references: [id])
+  ElectricitySupplierInformation   ElectricitySupplierInformation @relation(fields: [electricitySupplierInformationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model ElectricitySupplierAreas {
@@ -157,7 +158,7 @@ model ElectricitySupplierAreas {
   stateService                     String?                        @db.VarChar
   cityService                      String?                        @db.VarChar
   electricitySupplierInformationId Int
-  ElectricitySupplierInformation   ElectricitySupplierInformation @relation(fields: [electricitySupplierInformationId], references: [id])
+  ElectricitySupplierInformation   ElectricitySupplierInformation @relation(fields: [electricitySupplierInformationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model ElectricitySupplierInformation {
@@ -183,12 +184,12 @@ model ExternalEnvelopeSubSystem {
   zoneName                                                                                      String?               @db.VarChar
   propId                                                                                        Int?
   externalGroundInsulationTypeId                                                                Int?
-  GroundInsulationType                                                                          GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id])
-  RoofInsulationType_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType", fields: [externalRoofInsulationTypeId], references: [id])
-  WallInsulationType                                                                            WallInsulationType?   @relation(fields: [externalWallInsulationTypeId], references: [id])
-  WindowInsulationType                                                                          WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id])
-  Property                                                                                      Property?             @relation(fields: [propId], references: [id])
-  RoofType                                                                                      RoofType?             @relation(fields: [roofInsulationTypeId], references: [id])
+  GroundInsulationType                                                                          GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id], onDelete: Cascade)
+  RoofInsulationType_ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType RoofInsulationType?   @relation("ExternalEnvelopeSubSystem_externalRoofInsulationTypeIdToRoofInsulationType", fields: [externalRoofInsulationTypeId], references: [id], onDelete: Cascade)
+  WallInsulationType                                                                            WallInsulationType?   @relation(fields: [externalWallInsulationTypeId], references: [id], onDelete: Cascade)
+  WindowInsulationType                                                                          WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id], onDelete: Cascade)
+  Property                                                                                      Property?             @relation(fields: [propId], references: [id], onDelete: Cascade)
+  RoofType                                                                                      RoofType?             @relation(fields: [roofInsulationTypeId], references: [id], onDelete: Cascade)
 }
 
 model Floor {
@@ -198,7 +199,7 @@ model Floor {
   number     String?    @db.VarChar
   createdAt  DateTime?  @db.Date
   updatedAt  DateTime?  @db.Date
-  Building   Building   @relation(fields: [buildingId], references: [id])
+  Building   Building   @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   Property   Property[]
   Zone       Zone[]
 }
@@ -219,9 +220,9 @@ model Heater {
   modelId              Int?
   heaterEnergySourceId Int?
   heatingSystemId      Int?
-  HeaterEnergySource   HeaterEnergySource? @relation(fields: [heaterEnergySourceId], references: [id])
-  HeaterType           HeaterType?         @relation(fields: [heaterTypeId], references: [id])
-  HeatingSystem        HeatingSystem?      @relation(fields: [heatingSystemId], references: [id])
+  HeaterEnergySource   HeaterEnergySource? @relation(fields: [heaterEnergySourceId], references: [id], onDelete: Cascade)
+  HeaterType           HeaterType?         @relation(fields: [heaterTypeId], references: [id], onDelete: Cascade)
+  HeatingSystem        HeatingSystem?      @relation(fields: [heatingSystemId], references: [id], onDelete: Cascade)
 }
 
 model HeaterType {
@@ -238,8 +239,8 @@ model HeatingSystem {
   estimatedHeatingSystemEfficiency Float?
   estimatedHeatingLoad             Float?
   percentageHeatedFloorArea        Float?
-  HeatingSystemType                HeatingSystemType? @relation(fields: [heatingSystemTypeId], references: [id])
-  Property                         Property?          @relation(fields: [propId], references: [id])
+  HeatingSystemType                HeatingSystemType? @relation(fields: [heatingSystemTypeId], references: [id], onDelete: Cascade)
+  Property                         Property?          @relation(fields: [propId], references: [id], onDelete: Cascade)
   Heater                           Heater[]
 }
 
@@ -263,8 +264,8 @@ model LightingSystem {
   lightingFittingTypeId       Int?
   percentageOfFittingTypeUsed Float?
   propId                      Int?
-  LightingFittingType         LightingFittingType? @relation(fields: [lightingFittingTypeId], references: [id])
-  Property                    Property?            @relation(fields: [propId], references: [id])
+  LightingFittingType         LightingFittingType? @relation(fields: [lightingFittingTypeId], references: [id], onDelete: Cascade)
+  Property                    Property?            @relation(fields: [propId], references: [id], onDelete: Cascade)
 }
 
 model PVSystemType {
@@ -308,14 +309,14 @@ model Property {
   hasMajorRefurbishmentOrExtensionsDone Boolean?
   latestYearForRefurbishmentOrExtension Int?
   statusId                              Int?                        @default(2)
-  Building                              Building?                   @relation(fields: [buildingId], references: [id])
-  Floor                                 Floor?                      @relation(fields: [floorId], references: [id])
-  BuildingMajorOrientation              BuildingMajorOrientation?   @relation(fields: [majorOrientationId], references: [id])
-  Status                                Status?                     @relation(fields: [statusId], references: [id])
-  SustainabilityRating                  SustainabilityRating?       @relation(fields: [sustainabilityRatingId], references: [id])
-  SustainabilityRatingScheme            SustainabilityRatingScheme? @relation(fields: [sustainabilityRatingSchemeId], references: [id])
-  UseType                               UseType?                    @relation(fields: [useTypeId], references: [id])
-  Zone                                  Zone?                       @relation(fields: [zoneId], references: [id])
+  Building                              Building?                   @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  Floor                                 Floor?                      @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  BuildingMajorOrientation              BuildingMajorOrientation?   @relation(fields: [majorOrientationId], references: [id], onDelete: Cascade)
+  Status                                Status?                     @relation(fields: [statusId], references: [id], onDelete: Cascade)
+  SustainabilityRating                  SustainabilityRating?       @relation(fields: [sustainabilityRatingId], references: [id], onDelete: Cascade)
+  SustainabilityRatingScheme            SustainabilityRatingScheme? @relation(fields: [sustainabilityRatingSchemeId], references: [id], onDelete: Cascade)
+  UseType                               UseType?                    @relation(fields: [useTypeId], references: [id], onDelete: Cascade)
+  Zone                                  Zone?                       @relation(fields: [zoneId], references: [id], onDelete: Cascade)
   AverageOperatingHours                 AverageOperatingHours[]
   CoolingSystem                         CoolingSystem[]
   ElectricityConsumption                ElectricityConsumption[]
@@ -332,15 +333,15 @@ model PropertyUser {
   id          Int      @id @default(autoincrement())
   userAuthUID String   @db.VarChar
   propertyId  Int
-  Property    Property @relation(fields: [propertyId], references: [id])
+  Property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 }
 
 model Property_UseType {
   id         Int      @id @default(autoincrement())
   useTypeId  Int
   propertyId Int
-  Property   Property @relation(fields: [propertyId], references: [id])
-  UseType    UseType  @relation(fields: [useTypeId], references: [id])
+  Property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  UseType    UseType  @relation(fields: [useTypeId], references: [id], onDelete: Cascade)
 }
 
 model R_CoolingLoadRuleOfThumb {
@@ -439,11 +440,11 @@ model SolarPanelSystem {
   propId                Int
   mountingTypeId        Int?
   orientationAngle      Float?
-  MountingType          MountingType? @relation(fields: [mountingTypeId], references: [id])
-  Property              Property      @relation(fields: [propId], references: [id])
-  PVSystemType          PVSystemType? @relation(fields: [pvSystemTypeId], references: [id])
-  PVTechChoice          PVTechChoice? @relation(fields: [pvTechChoiceId], references: [id])
-  TrackingType          TrackingType? @relation(fields: [trackingTypeId], references: [id])
+  MountingType          MountingType? @relation(fields: [mountingTypeId], references: [id], onDelete: Cascade)
+  Property              Property      @relation(fields: [propId], references: [id], onDelete: Cascade)
+  PVSystemType          PVSystemType? @relation(fields: [pvSystemTypeId], references: [id], onDelete: Cascade)
+  PVTechChoice          PVTechChoice? @relation(fields: [pvTechChoiceId], references: [id], onDelete: Cascade)
+  TrackingType          TrackingType? @relation(fields: [trackingTypeId], references: [id], onDelete: Cascade)
 }
 
 model SpaceUsage {
@@ -455,10 +456,10 @@ model SpaceUsage {
   title             String?         @db.VarChar
   fanTypeId         Int?
   hasReheatRecovery Boolean?
-  ClimateControl    ClimateControl? @relation(fields: [climateControlId], references: [id])
-  FanType           FanType?        @relation(fields: [fanTypeId], references: [id])
-  Property          Property?       @relation(fields: [propId], references: [id])
-  SpaceUsageType    SpaceUsageType  @relation(fields: [usageTypeId], references: [id])
+  ClimateControl    ClimateControl? @relation(fields: [climateControlId], references: [id], onDelete: NoAction)
+  FanType           FanType?        @relation(fields: [fanTypeId], references: [id], onDelete: Cascade)
+  Property          Property?       @relation(fields: [propId], references: [id], onDelete: Cascade)
+  SpaceUsageType    SpaceUsageType  @relation(fields: [usageTypeId], references: [id], onDelete: Cascade)
 }
 
 model SpaceUsageType {
@@ -495,8 +496,8 @@ model User {
   createdAt  DateTime     @default(now()) @db.Timestamp(6)
   updatedAt  DateTime?    @db.Timestamp(6)
   authTypeId Int?
-  AuthType   AuthType?    @relation(fields: [authTypeId], references: [id])
-  UserType   UserType?    @relation(fields: [userTypeId], references: [id])
+  AuthType   AuthType?    @relation(fields: [authTypeId], references: [id], onDelete: Cascade)
+  UserType   UserType?    @relation(fields: [userTypeId], references: [id], onDelete: Cascade)
   UserDetail UserDetail[]
 }
 
@@ -508,7 +509,7 @@ model UserDetail {
   userId      Int?
   createdAt   DateTime? @db.Timestamp(6)
   updatedAt   DateTime? @db.Timestamp(6)
-  User        User?     @relation(fields: [userId], references: [id])
+  User        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model UserType {
@@ -539,8 +540,8 @@ model Zone {
   name       String?    @db.VarChar
   floorId    Int?
   buildingId Int?
-  Building   Building?  @relation(fields: [buildingId], references: [id])
-  Floor      Floor?     @relation(fields: [floorId], references: [id])
+  Building   Building?  @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  Floor      Floor?     @relation(fields: [floorId], references: [id], onDelete: Cascade)
   Property   Property[]
 }
 
@@ -562,7 +563,7 @@ model SustainabilityRating {
   name                         String                     @db.VarChar
   description                  String?
   SustainabilityRatingSchemaId Int
-  SustainabilityRatingScheme   SustainabilityRatingScheme @relation(fields: [SustainabilityRatingSchemaId], references: [id])
+  SustainabilityRatingScheme   SustainabilityRatingScheme @relation(fields: [SustainabilityRatingSchemaId], references: [id], onDelete: Cascade)
   Property                     Property[]
 }
 

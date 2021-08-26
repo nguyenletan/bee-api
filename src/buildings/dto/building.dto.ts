@@ -6,7 +6,9 @@ interface ILocation {
   lng: number;
 }
 
-interface IGeneralBuildingInformation {
+export interface IGeneralBuildingInformation {
+  id: number | null;
+  propId: number | null;
   buildingName: string;
 
   address: string;
@@ -53,7 +55,9 @@ interface IGeneralBuildingInformation {
   latestYearForRefurbishmentOrExtension: number;
 }
 
-interface IBuildingActivity {
+export interface IBuildingActivity {
+  id: number | null;
+  averageOperatingHoursId: number | null;
   name: string;
   codeName: string;
   startTime: Date;
@@ -62,6 +66,7 @@ interface IBuildingActivity {
 }
 
 export interface ISpaceUsageGFA {
+  id: number | null;
   title: string;
   typeId: number;
   percentage: number;
@@ -71,6 +76,7 @@ export interface ISpaceUsageGFA {
 }
 
 export interface IElectricityConsumption {
+  id: number | null;
   month: number;
   year: number;
   value: number;
@@ -78,6 +84,8 @@ export interface IElectricityConsumption {
 }
 
 export interface ICoolingSystem {
+  id: number | null;
+  chillerId: number | null;
   hasCoolingSystem: boolean;
   coolingSystemTypeId: number;
   compressorTypeId: number;
@@ -86,6 +94,8 @@ export interface ICoolingSystem {
 }
 
 export interface IHeatingSystem {
+  id: number | null;
+  heaterId: number | null;
   hasHeatingSystem: boolean;
   heatingSystemTypeId: number;
   heaterTypeId: number;
@@ -93,12 +103,14 @@ export interface IHeatingSystem {
 }
 
 export interface ILightingSubSystem {
+  id: number | null;
   title: string;
   indoorLightingSystemTypeId: number;
   percentage: number;
 }
 
 export interface IEnvelopFacade {
+  id: number | null;
   externalWindowToWallRatio: number;
   externalRoofInsulationTypeId: number;
   externalWallInsulationTypeId: number;
@@ -107,6 +119,7 @@ export interface IEnvelopFacade {
 }
 
 export interface ISolarPanelSystem {
+  id: number | null;
   title: string;
   installedCapacity: number;
   trackingTypeId: number;
@@ -117,7 +130,27 @@ export interface ISolarPanelSystem {
   mountingTypeId: number;
 }
 
-export class CreateBuildingDto {
+export interface ICreateBuildingDto {
+  generalBuildingInformation: IGeneralBuildingInformation | null;
+
+  buildingActivity: IBuildingActivity[] | null;
+
+  spaceUsageGFAList: ISpaceUsageGFA[] | null;
+
+  electricityConsumptionList: IElectricityConsumption[] | null;
+
+  coolingSystem: ICoolingSystem | null;
+
+  heatingSystem: IHeatingSystem | null;
+
+  lightingSubSystemList: ILightingSubSystem[] | null;
+
+  envelopFacade: IEnvelopFacade | null;
+
+  solarPanelSystemList: ISolarPanelSystem[] | null;
+}
+
+export class BuildingDto implements ICreateBuildingDto {
   @ApiProperty()
   generalBuildingInformation: IGeneralBuildingInformation;
 

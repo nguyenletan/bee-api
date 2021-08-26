@@ -10,7 +10,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { BuildingsService } from './buildings.service';
-import { CreateBuildingDto } from './dto/create-building.dto';
+import { BuildingDto } from './dto/building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
 import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
 
@@ -20,7 +20,7 @@ export class BuildingsController {
 
   @Post()
   @UseGuards(FirebaseAuthGuard)
-  create(@Body() createBuildingDto: CreateBuildingDto, @Req() req: any) {
+  create(@Body() createBuildingDto: BuildingDto, @Req() req: any) {
     console.log('Create building');
     console.log(req.user);
     //console.log(createBuildingDto.generalBuildingInformation);
@@ -36,15 +36,18 @@ export class BuildingsController {
   }
 
   @Get(':id')
+  @UseGuards(FirebaseAuthGuard)
   findOne(@Param('id') id: string) {
     return this.buildingsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateBuildingDto: UpdateBuildingDto,
-  ) {
+  @Get('edit/:id')
+  findOneForEditing(@Param('id') id: string) {
+    return this.buildingsService.findOneForEditing(+id);
+  }
+
+  @Post('edit/:id')
+  update(@Param('id') id: string, @Body() updateBuildingDto: BuildingDto) {
     return this.buildingsService.update(+id, updateBuildingDto);
   }
 
