@@ -12,7 +12,6 @@ import {
   ISolarPanelSystem,
   ISpaceUsageGFA,
 } from './dto/building.dto';
-import { UpdateBuildingDto } from './dto/update-building.dto';
 import { PrismaService } from '../prisma.service';
 import {
   AverageOperatingHours,
@@ -247,31 +246,101 @@ export class BuildingsService {
         annualLightingSystemCostPercentage +
         annualMechanicalVentilationSystemCostPercentage);
 
+    const subOther = [
+      { id: 'other1', value: 15, color: '#FFAA00', subBreakdown: null },
+      { id: 'other2', value: 39, color: '#FFB700', subBreakdown: null },
+      { id: 'other4', value: 28, color: '#FFC300', subBreakdown: null },
+      { id: 'other5', value: 11, color: '#FFD000', subBreakdown: null },
+      { id: 'other6', value: 8, color: '#FFEA00', subBreakdown: null },
+    ];
+
+    const subLighting = [
+      { id: 'lighting1', value: 22, color: '#7251B5', subBreakdown: null },
+      { id: 'lighting2', value: 12, color: '#9163CB', subBreakdown: null },
+      { id: 'lighting3', value: 39, color: '#B185DB', subBreakdown: null },
+      { id: 'lighting4', value: 16, color: '#D2B7E5', subBreakdown: null },
+      { id: 'lighting5', value: 10, color: '#DEC9E9', subBreakdown: null },
+    ];
+
+    const subHeating = [
+      { id: 'heating1', value: 20, color: '#590D22', subBreakdown: null },
+      { id: 'heating2', value: 19, color: '#A4133C', subBreakdown: null },
+      { id: 'heating3', value: 37, color: '#FF4D6D', subBreakdown: null },
+      { id: 'heating4', value: 16, color: '#FF8FA3', subBreakdown: null },
+      { id: 'heating5', value: 9, color: '#FFCCD5', subBreakdown: null },
+    ];
+
+    const subCooling = [
+      { id: 'cooling1', value: 10, color: '#012A4A', subBreakdown: null },
+      { id: 'cooling2', value: 20, color: '#01497C', subBreakdown: null },
+      { id: 'cooling3', value: 36, color: '#2A6F97', subBreakdown: null },
+      { id: 'cooling4', value: 16, color: '#468FAF', subBreakdown: null },
+      { id: 'cooling5', value: 19, color: '#A9D6E5', subBreakdown: null },
+    ];
+
+    const subMechanicalVentilation = [
+      {
+        id: 'mechanical ventilation 1',
+        value: 12,
+        color: '#07BEB8',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 2',
+        value: 22,
+        color: '#3DCCC7',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 3',
+        value: 29,
+        color: '#68D8D6',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 4',
+        value: 26,
+        color: '#9CEAEF',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 5',
+        value: 10,
+        color: '#C4FFF9',
+        subBreakdown: null,
+      },
+    ];
+
     return [
       {
         id: 'cooling',
         value: annualCoolingSystemCostPercentage,
         color: '#636c2e',
+        subBreakdown: subCooling,
       },
       {
         id: 'heating',
         value: annualHeatingSystemCostPercentage,
         color: '#87972f',
+        subBreakdown: subHeating,
       },
       {
         id: 'lighting',
         value: annualLightingSystemCostPercentage,
         color: '#acbf42',
+        subBreakdown: subLighting,
       },
       {
         id: 'mechanical ventilation',
         value: annualMechanicalVentilationSystemCostPercentage,
         color: '#c1cf74',
+        subBreakdown: subMechanicalVentilation,
       },
       {
         id: 'others',
         value: annualOtherSystemCostPercentage,
         color: '#d5dfa3',
+        subBreakdown: subOther,
       },
     ];
   }
@@ -319,31 +388,101 @@ export class BuildingsService {
         mechanicalVentilationConsumptionPercentage +
         lightingLoadConsumptionPercentage);
 
+    const subOther = [
+      { id: 'other1', value: 15, color: '#FFAA00', subBreakdown: null },
+      { id: 'other2', value: 39, color: '#FFB700', subBreakdown: null },
+      { id: 'other4', value: 28, color: '#FFC300', subBreakdown: null },
+      { id: 'other5', value: 11, color: '#FFD000', subBreakdown: null },
+      { id: 'other6', value: 8, color: '#FFEA00', subBreakdown: null },
+    ];
+
+    const subLighting = [
+      { id: 'lighting1', value: 22, color: '#7251B5', subBreakdown: null },
+      { id: 'lighting2', value: 12, color: '#9163CB', subBreakdown: null },
+      { id: 'lighting3', value: 39, color: '#B185DB', subBreakdown: null },
+      { id: 'lighting4', value: 16, color: '#D2B7E5', subBreakdown: null },
+      { id: 'lighting5', value: 10, color: '#DEC9E9', subBreakdown: null },
+    ];
+
+    const subHeating = [
+      { id: 'heating1', value: 20, color: '#590D22', subBreakdown: null },
+      { id: 'heating2', value: 19, color: '#A4133C', subBreakdown: null },
+      { id: 'heating3', value: 37, color: '#FF4D6D', subBreakdown: null },
+      { id: 'heating4', value: 16, color: '#FF8FA3', subBreakdown: null },
+      { id: 'heating5', value: 9, color: '#FFCCD5', subBreakdown: null },
+    ];
+
+    const subCooling = [
+      { id: 'cooling1', value: 10, color: '#012A4A', subBreakdown: null },
+      { id: 'cooling2', value: 20, color: '#01497C', subBreakdown: null },
+      { id: 'cooling3', value: 36, color: '#2A6F97', subBreakdown: null },
+      { id: 'cooling4', value: 16, color: '#468FAF', subBreakdown: null },
+      { id: 'cooling5', value: 19, color: '#A9D6E5', subBreakdown: null },
+    ];
+
+    const subMechanicalVentilation = [
+      {
+        id: 'mechanical ventilation 1',
+        value: 12,
+        color: '#07BEB8',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 2',
+        value: 22,
+        color: '#3DCCC7',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 3',
+        value: 29,
+        color: '#68D8D6',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 4',
+        value: 26,
+        color: '#9CEAEF',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 5',
+        value: 10,
+        color: '#C4FFF9',
+        subBreakdown: null,
+      },
+    ];
+
     return [
       {
         id: 'cooling',
         value: coolingLoadConsumptionPercentage,
         color: '#636c2e',
+        subBreakdown: subCooling,
       },
       {
         id: 'heating',
         value: heatingLoadConsumptionPercentage,
         color: '#87972f',
+        subBreakdown: subHeating,
       },
       {
         id: 'lighting',
         value: lightingLoadConsumptionPercentage,
         color: '#acbf42',
+        subBreakdown: subLighting,
       },
       {
         id: 'mechanical ventilation',
         value: mechanicalVentilationConsumptionPercentage,
         color: '#c1cf74',
+        subBreakdown: subMechanicalVentilation,
       },
       {
         id: 'others',
         value: otherConsumptionPercentage,
         color: '#d5dfa3',
+        subBreakdown: subOther,
       },
     ];
   }
@@ -407,31 +546,101 @@ export class BuildingsService {
         annualLightingSystemCO2EmissionsPercentage +
         annualMechanicalVentilationSystemCO2EmissionsPercentage);
 
+    const subOther = [
+      { id: 'other1', value: 15, color: '#FFAA00', subBreakdown: null },
+      { id: 'other2', value: 39, color: '#FFB700', subBreakdown: null },
+      { id: 'other4', value: 28, color: '#FFC300', subBreakdown: null },
+      { id: 'other5', value: 11, color: '#FFD000', subBreakdown: null },
+      { id: 'other6', value: 8, color: '#FFEA00', subBreakdown: null },
+    ];
+
+    const subLighting = [
+      { id: 'lighting1', value: 22, color: '#7251B5', subBreakdown: null },
+      { id: 'lighting2', value: 12, color: '#9163CB', subBreakdown: null },
+      { id: 'lighting3', value: 39, color: '#B185DB', subBreakdown: null },
+      { id: 'lighting4', value: 16, color: '#D2B7E5', subBreakdown: null },
+      { id: 'lighting5', value: 10, color: '#DEC9E9', subBreakdown: null },
+    ];
+
+    const subHeating = [
+      { id: 'heating1', value: 20, color: '#590D22', subBreakdown: null },
+      { id: 'heating2', value: 19, color: '#A4133C', subBreakdown: null },
+      { id: 'heating3', value: 37, color: '#FF4D6D', subBreakdown: null },
+      { id: 'heating4', value: 16, color: '#FF8FA3', subBreakdown: null },
+      { id: 'heating5', value: 9, color: '#FFCCD5', subBreakdown: null },
+    ];
+
+    const subCooling = [
+      { id: 'cooling1', value: 10, color: '#012A4A', subBreakdown: null },
+      { id: 'cooling2', value: 20, color: '#01497C', subBreakdown: null },
+      { id: 'cooling3', value: 36, color: '#2A6F97', subBreakdown: null },
+      { id: 'cooling4', value: 16, color: '#468FAF', subBreakdown: null },
+      { id: 'cooling5', value: 19, color: '#A9D6E5', subBreakdown: null },
+    ];
+
+    const subMechanicalVentilation = [
+      {
+        id: 'mechanical ventilation 1',
+        value: 12,
+        color: '#07BEB8',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 2',
+        value: 22,
+        color: '#3DCCC7',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 3',
+        value: 29,
+        color: '#68D8D6',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 4',
+        value: 26,
+        color: '#9CEAEF',
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation 5',
+        value: 10,
+        color: '#C4FFF9',
+        subBreakdown: null,
+      },
+    ];
+
     return [
       {
         id: 'cooling',
         value: annualCoolingSystemCO2EmissionsPercentage,
         color: '#636c2e',
+        subBreakdown: subCooling,
       },
       {
         id: 'heating',
         value: annualHeatingSystemCO2EmissionsPercentage,
         color: '#87972f',
+        subBreakdown: subHeating,
       },
       {
         id: 'lighting',
         value: annualLightingSystemCO2EmissionsPercentage,
         color: '#acbf42',
+        subBreakdown: subLighting,
       },
       {
         id: 'mechanical ventilation',
         value: annualMechanicalVentilationSystemCO2EmissionsPercentage,
         color: '#c1cf74',
+        subBreakdown: subMechanicalVentilation,
       },
       {
         id: 'others',
         value: annualOtherSystemCO2EmissionsPercentage,
         color: '#d5dfa3',
+        subBreakdown: subOther,
       },
     ];
   }

@@ -8,4 +8,5 @@ export interface IBreakdownCost {
   id: string;
   value: number;
   color: string;
+  subBreakdown: IBreakdownCost[] | null;
 }

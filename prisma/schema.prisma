@@ -292,7 +292,7 @@ model Property {
   completionYear                        Int?
   majorOrientationId                    Int?
   createdAt                             DateTime?                   @default(now()) @db.Timestamp(6)
-  updatedAt                             DateTime?                   @db.Timestamp(6)
+  updatedAt                             DateTime?                   @updatedAt @db.Timestamp(6)
   buildingId                            Int?
   floorId                               Int?
   zoneId                                Int?

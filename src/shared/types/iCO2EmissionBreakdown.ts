@@ -8,4 +8,5 @@ export interface ICO2EmissionBreakdown {
   id: string;
   value: number;
   color: string;
+  subBreakdown: ICO2EmissionBreakdown[] | null;
 }

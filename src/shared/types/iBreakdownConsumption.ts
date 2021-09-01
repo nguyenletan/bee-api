@@ -8,4 +8,5 @@ export interface IBreakdownConsumption {
   id: string;
   value: number;
   color: string;
+  subBreakdown: IBreakdownConsumption[] | null;
 }
