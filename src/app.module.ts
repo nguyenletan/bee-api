@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CatsController } from './cats/cats.controller';
 import { UsersController } from './users/users.controller';
 import { PrismaService } from './prisma.service';
 import { UsersModule } from './users/users.module';
@@ -10,6 +9,7 @@ import { PropertiesModule } from './properties/properties.module';
 import { FloorsModule } from './floors/floors.module';
 import { ZonesModule } from './zones/zones.module';
 import { FirebaseAuthStrategy } from './firebase/firebase-auth.strategy';
+import { HistorizedPointsModule } from './historized-points/historized-points.module';
 
 @Module({
   imports: [
@@ -18,8 +18,9 @@ import { FirebaseAuthStrategy } from './firebase/firebase-auth.strategy';
     BuildingsModule,
     FloorsModule,
     ZonesModule,
+    HistorizedPointsModule,
   ],
-  controllers: [AppController, CatsController, UsersController],
+  controllers: [AppController, UsersController],
   providers: [AppService, PrismaService, FirebaseAuthStrategy],
 })
 export class AppModule {}

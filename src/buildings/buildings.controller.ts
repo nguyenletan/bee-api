@@ -36,7 +36,7 @@ export class BuildingsController {
   }
 
   @Get(':id')
-  @UseGuards(FirebaseAuthGuard)
+  //@UseGuards(FirebaseAuthGuard)
   findOne(@Param('id') id: string) {
     return this.buildingsService.findOne(+id);
   }

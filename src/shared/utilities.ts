@@ -1,4 +1,4 @@
-import { differenceInMinutes } from "date-fns";
+import { differenceInMinutes } from 'date-fns';
 
 export class Utilities {
   static getMonthName(month: number): string {
