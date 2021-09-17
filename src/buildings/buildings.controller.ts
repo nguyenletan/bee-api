@@ -35,10 +35,17 @@ export class BuildingsController {
     return this.buildingsService.findAll(req.user);
   }
 
-  @Get(':id')
-  //@UseGuards(FirebaseAuthGuard)
-  findOne(@Param('id') id: string) {
-    return this.buildingsService.findOne(+id);
+  @Get(':id/:startday/:endday')
+  @UseGuards(FirebaseAuthGuard)
+  findOne(
+    @Param('id') id: string,
+    @Param('startday') startDay: string,
+    @Param('endday') endDay: string,
+  ) {
+    console.log(startDay);
+    console.log(endDay);
+
+    return this.buildingsService.findOne(+id, startDay, endDay);
   }
 
   @Get('edit/:id')

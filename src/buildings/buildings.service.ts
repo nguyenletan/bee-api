@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { format } from 'date-fns';
+import { format, subYears } from 'date-fns';
 
 import {
   BuildingDto,
@@ -42,6 +42,10 @@ import { BuildingWindowUValuesReferences } from '../shared/reference-tables/buil
 import { AreaMeasureUnit, LengthMeasureUnit } from '../shared/types/unit';
 import { HistorizedPointsService } from '../historized-points/historized-points.service';
 import { IEquipmentGroup } from '../shared/types/iEquipmentGroup';
+import {
+  IElectricConsumptionFromHistorizedLogs,
+  IElectricConsumptionItem,
+} from '../shared/types/IElectricConsumptionFromHistorizedLogs';
 
 @Injectable()
 export class BuildingsService {
@@ -1054,9 +1058,132 @@ export class BuildingsService {
         ORDER BY p.id DESC`;
   }
 
-  async calculateFromBuildingInformation(id: number, prop: any) {
+  private async getListOfElectricConsumptionsFromHistorizedLogs(
+    propId: number,
+    startDay: Date,
+    endDay: Date,
+  ): Promise<IElectricConsumptionFromHistorizedLogs> {
+    const groupByYear =
+      await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByYear(
+        propId,
+        startDay,
+        endDay,
+      );
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const electricConsumptionGroupByYear = groupByYear.map((x) => {
+      return {
+        value: +(x.value / 1000).toFixed(2), // convert to mWh
+        label: x.year,
+        year: x.year,
+      };
+    });
+
+    const groupByQuarter =
+      await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByQuarter(
+        propId,
+        startDay,
+        endDay,
+      );
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const electricConsumptionGroupByQuarter = groupByQuarter.map((x) => {
+      return {
+        value: +(x.value / 1000).toFixed(2), // convert to mWh
+        label: 'Q' + x.quarter + ' ' + x.year,
+        year: x.year,
+        quarter: x.quarter,
+      };
+    });
+
+    const groupByMonth =
+      await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByMonth(
+        propId,
+        startDay,
+        endDay,
+      );
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const electricConsumptionGroupByMonth = groupByMonth.map((x) => {
+      return {
+        value: +(x.value / 1000).toFixed(2), // convert to mWh
+        label: x.month + '/' + x.year,
+        year: x.year,
+        month: x.month,
+      };
+    });
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    const groupByWeek =
+      await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByWeek(
+        propId,
+        startDay,
+        endDay,
+      );
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const electricConsumptionGroupByWeek = groupByWeek.map((x) => {
+      return {
+        value: +(x.value / 1000).toFixed(2), // convert to mWh
+        label: 'W' + x.week + ' ' + x.year,
+        year: x.year,
+        week: x.week,
+      };
+    });
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    const groupByDay =
+      await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByDay(
+        propId,
+        startDay,
+        endDay,
+      );
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const electricConsumptionGroupByDay = groupByDay.map((x) => {
+      return {
+        value: +(x.value / 1000).toFixed(2),
+        label: x.day + '/' + x.month + '/' + x.year,
+        year: x.year,
+        month: x.month,
+        day: x.day,
+      };
+    });
+
+    console.log(electricConsumptionGroupByYear);
+    console.log(electricConsumptionGroupByQuarter);
+    console.log(electricConsumptionGroupByMonth);
+    console.log(electricConsumptionGroupByWeek);
+    console.log(electricConsumptionGroupByDay);
+    return {
+      electricConsumptionGroupByYear: electricConsumptionGroupByYear,
+      electricConsumptionGroupByQuarter: electricConsumptionGroupByQuarter,
+      electricConsumptionGroupByMonth: electricConsumptionGroupByMonth,
+      electricConsumptionGroupByWeek: electricConsumptionGroupByWeek,
+      electricConsumptionGroupByDay: electricConsumptionGroupByDay,
+    };
+  }
+
+  async calculateFromBuildingInformation(
+    id: number,
+    prop: any,
+    startDay: string,
+    endDay: string,
+  ) {
     let annualCost = 0;
     let annualConsumption = 0;
+
+    const electricConsumptionsFromHistorizedLogs =
+      await this.getListOfElectricConsumptionsFromHistorizedLogs(
+        prop[0].propId,
+        new Date(startDay),
+        new Date(endDay),
+      );
 
     const electricConsumptions =
       await this.prismaService.electricityConsumption.findMany({
@@ -1367,6 +1494,8 @@ export class BuildingsService {
       co2EmissionsBreakdown: co2EmissionsBreakdown,
       incidentalGainsOtherInformation: incidentalGainsOtherInformation,
       prop: prop[0],
+      electricConsumptionsFromHistorizedLogs:
+        electricConsumptionsFromHistorizedLogs,
       electricConsumptions: _.take<ElectricityConsumption>(
         electricConsumptions,
         24,
@@ -1374,7 +1503,7 @@ export class BuildingsService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, startDay: string, endDay: string) {
     const prop = await this.prismaService.$queryRaw`
         SELECT p.*, B.*, p.id as "propId", UT.name as "useTypeName",
               SR.name as "sustainabilityRatingName",
@@ -1386,7 +1515,7 @@ export class BuildingsService {
           INNER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
         WHERE "statusId" = 2 AND B.id = ${id}`;
 
-    return this.calculateFromBuildingInformation(id, prop);
+    return this.calculateFromBuildingInformation(id, prop, startDay, endDay);
   }
 
   async findOneForEditing(id: number): Promise<ICreateBuildingDto> {

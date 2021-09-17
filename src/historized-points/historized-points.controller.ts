@@ -124,6 +124,81 @@ export class HistorizedPointsController {
     );
   }
 
+  @Get(
+    'get_overall_historized_points_by_property_id_and_group_by_year/:id/:startDay/:endDay',
+  )
+  getOverallHistorizedPointsByPropertyIdAndGroupByYear(
+    @Param('id') id: string,
+    @Param('startDay') startDay: string,
+    @Param('endDay') endDay: string,
+  ) {
+    return this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByYear(
+      +id,
+      new Date(startDay),
+      new Date(endDay),
+    );
+  }
+
+  @Get(
+    'get_overall_historized_points_by_property_id_and_group_by_quarter/:id/:startDay/:endDay',
+  )
+  getOverallHistorizedPointsByPropertyIdAndGroupByQuarter(
+    @Param('id') id: string,
+    @Param('startDay') startDay: string,
+    @Param('endDay') endDay: string,
+  ) {
+    return this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByQuarter(
+      +id,
+      new Date(startDay),
+      new Date(endDay),
+    );
+  }
+
+  @Get(
+    'get_overall_historized_points_by_property_id_and_group_by_month/:id/:startDay/:endDay',
+  )
+  getOverallHistorizedPointsByPropertyIdAndGroupByMonth(
+    @Param('id') id: string,
+    @Param('startDay') startDay: string,
+    @Param('endDay') endDay: string,
+  ) {
+    return this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByMonth(
+      +id,
+      new Date(startDay),
+      new Date(endDay),
+    );
+  }
+
+  @Get(
+    'get_overall_historized_points_by_property_id_and_group_by_week/:id/:startDay/:endDay',
+  )
+  getOverallHistorizedPointsByPropertyIdAndGroupByWeek(
+    @Param('id') id: string,
+    @Param('startDay') startDay: string,
+    @Param('endDay') endDay: string,
+  ) {
+    return this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByWeek(
+      +id,
+      new Date(startDay),
+      new Date(endDay),
+    );
+  }
+
+  @Get(
+    'get_overall_historized_points_by_property_id_and_group_by_day/:id/:startDay/:endDay',
+  )
+  getOverallHistorizedPointsByPropertyIdAndGroupByDay(
+    @Param('id') id: string,
+    @Param('startDay') startDay: string,
+    @Param('endDay') endDay: string,
+  ) {
+    return this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByDay(
+      +id,
+      new Date(startDay),
+      new Date(endDay),
+    );
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.historizedPointsService.findOne(+id);
