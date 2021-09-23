@@ -6,10 +6,16 @@ export interface IElectricConsumptionItem {
   day: number | null | undefined;
 }
 
-export interface IElectricConsumptionFromHistorizedLogs {
+export interface IElectricConsumptionFromHistorizedLogsSubSystem {
   electricConsumptionGroupByYear: IElectricConsumptionItem[];
   electricConsumptionGroupByQuarter: IElectricConsumptionItem[];
   electricConsumptionGroupByMonth: IElectricConsumptionItem[];
   electricConsumptionGroupByWeek: IElectricConsumptionItem[];
   electricConsumptionGroupByDay: IElectricConsumptionItem[];
+}
+
+export interface IElectricConsumptionFromHistorizedLogs {
+  overall: IElectricConsumptionFromHistorizedLogsSubSystem;
+
+  coolingSystem: IElectricConsumptionFromHistorizedLogsSubSystem;
 }

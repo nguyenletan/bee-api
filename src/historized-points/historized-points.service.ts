@@ -109,6 +109,71 @@ export class HistorizedPointsService {
         order by "year" asc, "month", "day" asc`;
   }
 
+  async getCoolingHistorizedPointsByPropertyIdAndGroupByYear(
+    propId: number,
+    startDay: Date,
+    endDay: Date,
+  ) {
+    return await this.prismaService.$queryRaw`
+        select sum(value) as value, extract(year from "createdAt") as year
+        from "CoolingHistorizedPoint" c
+        where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
+        group by "year"
+        order by "year"`;
+  }
+
+  async getCoolingHistorizedPointsByPropertyIdAndGroupByQuarter(
+    propId: number,
+    startDay: Date,
+    endDay: Date,
+  ) {
+    return await this.prismaService.$queryRaw`
+        select sum(value) as value, extract(quarter from "createdAt") as quarter, extract(year from "createdAt") as year
+        from "CoolingHistorizedPoint" c
+        where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
+        group by "year", "quarter"
+        order by "year" , "quarter"`;
+  }
+
+  async getCoolingHistorizedPointsByPropertyIdAndGroupByMonth(
+    propId: number,
+    startDay: Date,
+    endDay: Date,
+  ) {
+    return await this.prismaService.$queryRaw`
+        select sum(value) as value, extract(year from "createdAt") as year, extract(month from "createdAt") as month
+        from "CoolingHistorizedPoint" c
+        where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
+        group by "year", "month"
+        order by "year" asc, "month" asc`;
+  }
+
+  async getCoolingHistorizedPointsByPropertyIdAndGroupByWeek(
+    propId: number,
+    startDay: Date,
+    endDay: Date,
+  ) {
+    return await this.prismaService.$queryRaw`
+        select sum(value) as value, extract(year from "createdAt") as year, extract(week from "createdAt") as week
+        from "CoolingHistorizedPoint" c
+        where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
+        group by "year", "week"
+        order by "year" asc, "week" asc;`;
+  }
+
+  async getCoolingHistorizedPointsByPropertyIdAndGroupByDay(
+    propId: number,
+    startDay: Date,
+    endDay: Date,
+  ) {
+    return await this.prismaService.$queryRaw`
+        select sum(value) as value, extract(year from "createdAt") as year, extract(month from "createdAt") as month, extract(day from "createdAt") as day
+        from "CoolingHistorizedPoint" c
+        where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
+        group by "year", "day", "month"
+        order by "year" asc, "month", "day" asc`;
+  }
+
   async sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
     propId: number,
     startDay: Date,
