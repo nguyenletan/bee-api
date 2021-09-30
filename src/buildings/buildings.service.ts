@@ -30,10 +30,10 @@ import { IHeatingLoadForGeneralSpace } from '../shared/types/iHeatingLoadForGene
 import { IMechanicalVentilationForGeneralSpace } from '../shared/types/iMechanicalVentilationForGeneralSpace';
 import { ILightingLoadForSpace } from '../shared/types/iLightingLoadForSpace';
 import { IBreakdownConsumption } from '../shared/types/iBreakdownConsumption';
-import { EnergyCostFormulas } from '../shared/formulas/energyCostFormulas';
-import { IBreakdownCost } from '../shared/types/iBreakdownCost';
-import { ICO2EmissionBreakdown } from '../shared/types/iCO2EmissionBreakdown';
-import { EnergyCO2EmissionFormulas } from '../shared/formulas/energyCO2EmissionFormulas';
+// import { EnergyCostFormulas } from '../shared/formulas/energyCostFormulas';
+// import { IBreakdownCost } from '../shared/types/iBreakdownCost';
+// import { ICO2EmissionBreakdown } from '../shared/types/iCO2EmissionBreakdown';
+// import { EnergyCO2EmissionFormulas } from '../shared/formulas/energyCO2EmissionFormulas';
 import { PVGISService } from '../shared/externalAPIs/PVGIS.service';
 import { PVTechChoices } from '../shared/types/iPVTechChoice';
 import { BuildingEnvelopeUValueReferences } from '../shared/reference-tables/buildingEnvelopeUValue.reference';
@@ -47,6 +47,7 @@ import {
   IElectricConsumptionFromHistorizedLogsSubSystem,
 } from '../shared/types/IElectricConsumptionFromHistorizedLogs';
 import { IOverallEnergyConsumptionInformation } from '../shared/types/iOverallEnergyConsumptionInformation';
+// import { IEquipmentTypeGroup } from '../shared/types/iEquipmentTypeGroup';
 
 @Injectable()
 export class BuildingsService {
@@ -55,71 +56,6 @@ export class BuildingsService {
     private _PVGISService: PVGISService,
     private historizedPointsService: HistorizedPointsService,
   ) {}
-
-  static subOther = [
-    { id: 'other1', value: 15, color: '#FF7B00', subBreakdown: null },
-    { id: 'other2', value: 39, color: '#FF9500', subBreakdown: null },
-    { id: 'other4', value: 25, color: '#FFAA00', subBreakdown: null },
-    { id: 'other5', value: 11, color: '#FFC300', subBreakdown: null },
-    { id: 'other6', value: 11, color: '#FFDD00', subBreakdown: null },
-  ];
-
-  static subLighting = [
-    { id: 'lighting1', value: 22, color: '#7251B5', subBreakdown: null },
-    { id: 'lighting2', value: 12, color: '#9163CB', subBreakdown: null },
-    { id: 'lighting3', value: 39, color: '#B185DB', subBreakdown: null },
-    { id: 'lighting4', value: 16, color: '#D2B7E5', subBreakdown: null },
-    { id: 'lighting5', value: 10, color: '#DEC9E9', subBreakdown: null },
-  ];
-
-  static subHeating = [
-    { id: 'heating1', value: 20, color: '#ff5d8f', subBreakdown: null },
-    { id: 'heating2', value: 19, color: '#ff87ab', subBreakdown: null },
-    { id: 'heating3', value: 34, color: '#ffa6c1', subBreakdown: null },
-    { id: 'heating4', value: 16, color: '#ffacc5', subBreakdown: null },
-    { id: 'heating5', value: 12, color: '#ffc4d6', subBreakdown: null },
-  ];
-
-  static subCooling = [
-    { id: 'cooling1', value: 10, color: '#2196f3', subBreakdown: null },
-    { id: 'cooling2', value: 20, color: '#42a5f5', subBreakdown: null },
-    { id: 'cooling3', value: 36, color: '#64b5f6', subBreakdown: null },
-    { id: 'cooling4', value: 16, color: '#90caf9', subBreakdown: null },
-    { id: 'cooling5', value: 19, color: '#bbdefb', subBreakdown: null },
-  ];
-
-  static subMechanicalVentilation = [
-    {
-      id: 'mechanical ventilation 1',
-      value: 12,
-      color: '#358f80',
-      subBreakdown: null,
-    },
-    {
-      id: 'mechanical ventilation 2',
-      value: 22,
-      color: '#469d89',
-      subBreakdown: null,
-    },
-    {
-      id: 'mechanical ventilation 3',
-      value: 29,
-      color: '#67b99a',
-      subBreakdown: null,
-    },
-    {
-      id: 'mechanical ventilation 4',
-      value: 26,
-      color: '#78c6a3',
-      subBreakdown: null,
-    },
-    {
-      id: 'mechanical ventilation 5',
-      value: 10,
-      color: '#99e2b4',
-      subBreakdown: null,
-    },
-  ];
 
   private static calculateAnnualConsumptionOfCoolingSystem(
     spaceUsages: SpaceUsage[],
@@ -260,103 +196,6 @@ export class BuildingsService {
     return result;
   }
 
-  private static calculateCostBreakdown(
-    annualTotalEnergyCost: number,
-    annualTotalEnergyConsumption: number,
-    annualHeatingSystemConsumption: number,
-    annualCoolingSystemConsumption: number,
-    annualLightingSystemConsumption: number,
-    annualMechanicalVentilationSystemConsumption: number,
-  ): IBreakdownCost[] {
-    const annualHeatingSystemCost =
-      EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
-        annualTotalEnergyCost,
-        annualTotalEnergyConsumption,
-        annualHeatingSystemConsumption,
-      );
-
-    const annualHeatingSystemCostPercentage = +(
-      (annualHeatingSystemCost * 100) /
-      annualTotalEnergyCost
-    ).toFixed(0);
-
-    const annualCoolingSystemCost =
-      EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
-        annualTotalEnergyCost,
-        annualTotalEnergyConsumption,
-        annualCoolingSystemConsumption,
-      );
-
-    const annualCoolingSystemCostPercentage = +(
-      (annualCoolingSystemCost * 100) /
-      annualTotalEnergyCost
-    ).toFixed(0);
-
-    const annualLightingSystemConst =
-      EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
-        annualTotalEnergyCost,
-        annualTotalEnergyConsumption,
-        annualLightingSystemConsumption,
-      );
-
-    const annualLightingSystemCostPercentage = +(
-      (annualLightingSystemConst * 100) /
-      annualTotalEnergyCost
-    ).toFixed(0);
-
-    const annualMechanicalVentilationSystemCost =
-      EnergyCostFormulas.calculateEnergyCostForEachSubSystem(
-        annualTotalEnergyCost,
-        annualTotalEnergyConsumption,
-        annualMechanicalVentilationSystemConsumption,
-      );
-
-    const annualMechanicalVentilationSystemCostPercentage = +(
-      (annualMechanicalVentilationSystemCost * 100) /
-      annualTotalEnergyCost
-    ).toFixed(0);
-
-    const annualOtherSystemCostPercentage =
-      100 -
-      (annualHeatingSystemCostPercentage +
-        annualCoolingSystemCostPercentage +
-        annualLightingSystemCostPercentage +
-        annualMechanicalVentilationSystemCostPercentage);
-
-    return [
-      {
-        id: 'cooling',
-        value: annualCoolingSystemCostPercentage,
-        color: '#636c2e',
-        subBreakdown: BuildingsService.subCooling,
-      },
-      {
-        id: 'heating',
-        value: annualHeatingSystemCostPercentage,
-        color: '#87972f',
-        subBreakdown: BuildingsService.subHeating,
-      },
-      {
-        id: 'lighting',
-        value: annualLightingSystemCostPercentage,
-        color: '#acbf42',
-        subBreakdown: BuildingsService.subLighting,
-      },
-      {
-        id: 'mechanical ventilation',
-        value: annualMechanicalVentilationSystemCostPercentage,
-        color: '#c1cf74',
-        subBreakdown: BuildingsService.subMechanicalVentilation,
-      },
-      {
-        id: 'others',
-        value: annualOtherSystemCostPercentage,
-        color: '#d5dfa3',
-        subBreakdown: BuildingsService.subOther,
-      },
-    ];
-  }
-
   private static calculateSubBreakdownForSubSystem(
     total: number,
     equipmentGroups: IEquipmentGroup[],
@@ -446,8 +285,6 @@ export class BuildingsService {
       lightingLoadConsumption.lightingEnergyConsumption +
       otherConsumption;
 
-    // console.log(total);
-
     const coolingLoadConsumptionPercentage = +(
       (coolingLoadConsumption.coolingLoadForSpace * 100) /
       total
@@ -474,6 +311,10 @@ export class BuildingsService {
         heatingLoadConsumptionPercentage +
         mechanicalVentilationConsumptionPercentage +
         lightingLoadConsumptionPercentage);
+
+    console.log('coolingLoadConsumption');
+    console.log(coolingLoadConsumption);
+    console.log(coolingLoadConsumptionPercentage);
 
     return [
       {
@@ -517,99 +358,6 @@ export class BuildingsService {
         consumption: otherConsumption,
         color: '#d5dfa3',
         subBreakdown: null,
-      },
-    ];
-  }
-
-  private static calculateCO2EmissionsBreakdown(
-    countryCode: string,
-    annualTotalCO2Emissions: number,
-    annualHeatingSystemConsumption: number,
-    annualCoolingSystemConsumption: number,
-    annualLightingSystemConsumption: number,
-    annualMechanicalVentilationSystemConsumption: number,
-  ): ICO2EmissionBreakdown[] {
-    const annualHeatingSystemCO2Emissions =
-      EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
-        annualHeatingSystemConsumption,
-        countryCode,
-      );
-
-    const annualHeatingSystemCO2EmissionsPercentage = +(
-      (annualHeatingSystemCO2Emissions * 100) /
-      annualTotalCO2Emissions
-    ).toFixed(0);
-
-    const annualCoolingSystemCO2Emissions =
-      EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
-        annualCoolingSystemConsumption,
-        countryCode,
-      );
-
-    const annualCoolingSystemCO2EmissionsPercentage = +(
-      (annualCoolingSystemCO2Emissions * 100) /
-      annualTotalCO2Emissions
-    ).toFixed(0);
-
-    const annualLightingSystemCO2Emissions =
-      EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
-        annualLightingSystemConsumption,
-        countryCode,
-      );
-
-    const annualLightingSystemCO2EmissionsPercentage = +(
-      (annualLightingSystemCO2Emissions * 100) /
-      annualTotalCO2Emissions
-    ).toFixed(0);
-
-    const annualMechanicalVentilationSystemCO2Emissions =
-      EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
-        annualMechanicalVentilationSystemConsumption,
-        countryCode,
-      );
-
-    const annualMechanicalVentilationSystemCO2EmissionsPercentage = +(
-      (annualMechanicalVentilationSystemCO2Emissions * 100) /
-      annualTotalCO2Emissions
-    ).toFixed(0);
-
-    const annualOtherSystemCO2EmissionsPercentage =
-      100 -
-      (annualHeatingSystemCO2EmissionsPercentage +
-        annualCoolingSystemCO2EmissionsPercentage +
-        annualLightingSystemCO2EmissionsPercentage +
-        annualMechanicalVentilationSystemCO2EmissionsPercentage);
-
-    return [
-      {
-        id: 'cooling',
-        value: annualCoolingSystemCO2EmissionsPercentage,
-        color: '#636c2e',
-        subBreakdown: BuildingsService.subCooling,
-      },
-      {
-        id: 'heating',
-        value: annualHeatingSystemCO2EmissionsPercentage,
-        color: '#87972f',
-        subBreakdown: BuildingsService.subHeating,
-      },
-      {
-        id: 'lighting',
-        value: annualLightingSystemCO2EmissionsPercentage,
-        color: '#acbf42',
-        subBreakdown: BuildingsService.subLighting,
-      },
-      {
-        id: 'mechanical ventilation',
-        value: annualMechanicalVentilationSystemCO2EmissionsPercentage,
-        color: '#c1cf74',
-        subBreakdown: BuildingsService.subMechanicalVentilation,
-      },
-      {
-        id: 'others',
-        value: annualOtherSystemCO2EmissionsPercentage,
-        color: '#d5dfa3',
-        subBreakdown: BuildingsService.subOther,
       },
     ];
   }
@@ -750,8 +498,8 @@ export class BuildingsService {
         windowUValue = buildingWindowUValue.uValue;
       }
 
-      console.log('externalEnvelopeSubSystem.roofInsulationTypeId: ');
-      console.log(externalEnvelopeSubSystem.roofInsulationTypeId);
+      // console.log('externalEnvelopeSubSystem.roofInsulationTypeId: ');
+      // console.log(externalEnvelopeSubSystem.roofInsulationTypeId);
       if (externalEnvelopeSubSystem.roofInsulationTypeId === 1) {
         roofUValue = uValue.pitchedRoof;
       } else if (externalEnvelopeSubSystem.roofInsulationTypeId === 2) {
@@ -838,6 +586,7 @@ export class BuildingsService {
       electricConsumptionGroupByDay: electricConsumptionGroupByDay,
     };
   }
+
   private async getListOfElectricConsumptionsFromHistorizedLogs(
     propId: number,
     startDay: Date,
@@ -1243,7 +992,6 @@ export class BuildingsService {
         electricConsumptionsFromHistorizedLogs.overall
           .electricConsumptionGroupByYear,
         function (sum, n) {
-          console.log(n.value);
           return sum + n.value;
         },
         0,
@@ -1529,25 +1277,6 @@ export class BuildingsService {
       annualOtherSystemConsumption,
     );
 
-    const costBreakdown = BuildingsService.calculateCostBreakdown(
-      annualCost,
-      annualConsumption,
-      annualHeatingSystemConsumption.heatingLoadForSpace,
-      annualCoolingSystemConsumption.coolingLoadForSpace,
-      annualLightingConsumption.lightingEnergyConsumption,
-      annualMechanicalVentilationSystemConsumption.annualEnergyUsage,
-    );
-
-    const co2EmissionsBreakdown =
-      BuildingsService.calculateCO2EmissionsBreakdown(
-        prop[0].countryCode,
-        annualCarbonEmissions,
-        annualHeatingSystemConsumption.heatingLoadForSpace,
-        annualCoolingSystemConsumption.coolingLoadForSpace,
-        annualLightingConsumption.lightingEnergyConsumption,
-        annualMechanicalVentilationSystemConsumption.annualEnergyUsage,
-      );
-
     const solarPVSystems = await this.prismaService.solarPanelSystem.findMany({
       where: {
         propId: {
@@ -1608,8 +1337,6 @@ export class BuildingsService {
       annualOtherSystemConsumption: annualOtherSystemConsumption,
       pvSolarSystemLoad: pvSolarSystemLoad,
       consumptionBreakdown: consumptionBreakdown,
-      costBreakdown: costBreakdown,
-      co2EmissionsBreakdown: co2EmissionsBreakdown,
       incidentalGainsOtherInformation: incidentalGainsOtherInformation,
       prop: prop[0],
       electricConsumptionsFromHistorizedLogs:
@@ -1623,6 +1350,263 @@ export class BuildingsService {
         24,
       ),
     };
+  }
+
+  public async calculateBreakdownByTime(
+    id: number,
+    startDay: string,
+    endDay: string,
+  ) {
+    console.log('calculateBreakdownByTime');
+    console.log(startDay);
+    console.log(endDay);
+    const prop = await this.prismaService.$queryRaw`
+        SELECT p.*, B.*, p.id as "propId"
+        FROM "Property" p
+          INNER JOIN "Building" B on B.id = p."buildingId"
+        WHERE "statusId" = 2 AND B.id = ${id}`;
+
+    const coolingSystemConsumption: ICoolingLoadForGeneralSpace = {
+      coolingLoad: 0,
+      coolingLoadForSpace: 0,
+      equipmentTypeGroups: null,
+    };
+
+    const sumOfCoolingSystemConsumption =
+      await this.historizedPointsService.sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
+        prop[0].propId as number,
+        new Date(startDay),
+        new Date(endDay),
+      );
+    if (sumOfCoolingSystemConsumption[0].sum) {
+      coolingSystemConsumption.coolingLoadForSpace =
+        sumOfCoolingSystemConsumption[0].sum;
+    }
+    coolingSystemConsumption.equipmentTypeGroups =
+      await this.historizedPointsService.getAllEquipmentTypeOfCoolingHistorizedPointsByPropertyIdAndDateRange(
+        prop[0].propId as number,
+        new Date(startDay),
+        new Date(endDay),
+      );
+
+    const heatingSystemConsumption: IHeatingLoadForGeneralSpace = {
+      heatingLoad: 0,
+      heatingLoadForSpace: 0,
+      equipmentTypeGroups: null,
+    };
+    const sumOfHeatingSystemConsumption =
+      await this.historizedPointsService.sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(
+        prop[0].propId as number,
+        new Date(startDay),
+        new Date(endDay),
+      );
+    if (sumOfHeatingSystemConsumption[0].sum) {
+      heatingSystemConsumption.heatingLoadForSpace =
+        sumOfHeatingSystemConsumption[0].sum;
+    }
+    heatingSystemConsumption.equipmentTypeGroups =
+      await this.historizedPointsService.getAllEquipmentTypeOfHeatingHistorizedPointsByPropertyIdAndDateRange(
+        prop[0].propId as number,
+        new Date(startDay),
+        new Date(endDay),
+      );
+
+    const mechanicalVentilationSystemConsumption: IMechanicalVentilationForGeneralSpace =
+      {
+        airVolumeFlowRate: 0,
+        annualEnergyUsage: 0,
+        equipmentTypeGroups: null,
+      };
+    const sumOfMechanicalVentilationSystemConsumption =
+      await this.historizedPointsService.sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
+        prop[0].propId as number,
+        new Date(startDay),
+        new Date(endDay),
+      );
+    if (sumOfMechanicalVentilationSystemConsumption[0].sum) {
+      mechanicalVentilationSystemConsumption.annualEnergyUsage =
+        sumOfMechanicalVentilationSystemConsumption[0].sum;
+    }
+    mechanicalVentilationSystemConsumption.equipmentTypeGroups =
+      await this.historizedPointsService.getAllEquipmentTypeOfMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
+        prop[0].propId as number,
+        new Date(startDay),
+        new Date(endDay),
+      );
+
+    const lightingConsumption: ILightingLoadForSpace = {
+      lightingLoad: 0,
+      lightingEnergyConsumption: 0,
+      equipmentTypeGroups: null,
+    };
+
+    const sumOfLightingSystemConsumption =
+      await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
+        prop[0].propId as number,
+        new Date(startDay),
+        new Date(endDay),
+      );
+    if (sumOfLightingSystemConsumption[0].sum) {
+      lightingConsumption.lightingEnergyConsumption =
+        sumOfLightingSystemConsumption[0].sum;
+    }
+
+    const tmp =
+      await this.historizedPointsService.sumAllOverallHistorizedPointsByPropertyIdAndDateRange(
+        prop[0].propId,
+        new Date(startDay),
+        new Date(endDay),
+      );
+
+    const overallElectricConsumption = tmp[0].sum;
+
+    console.log('overallElectricConsumption');
+    console.log(overallElectricConsumption);
+
+    const overallOtherSystemConsumption =
+      overallElectricConsumption -
+      (coolingSystemConsumption.coolingLoadForSpace +
+        heatingSystemConsumption.heatingLoadForSpace +
+        mechanicalVentilationSystemConsumption.annualEnergyUsage +
+        lightingConsumption.lightingEnergyConsumption);
+
+    const consumptionBreakdown = BuildingsService.calculateConsumptionBreakdown(
+      coolingSystemConsumption,
+      heatingSystemConsumption,
+      mechanicalVentilationSystemConsumption,
+      lightingConsumption,
+      overallOtherSystemConsumption,
+    );
+
+    // const overallCost = overallElectricConsumption * 0.23;
+    // const overallCarbonEmissions = overallElectricConsumption * 0.000208;
+
+    return {
+      consumptionBreakdown: consumptionBreakdown,
+      overallOtherSystemConsumption: overallOtherSystemConsumption,
+      heatingSystemConsumption: heatingSystemConsumption,
+      coolingSystemConsumption: coolingSystemConsumption,
+      lightingConsumption: lightingConsumption,
+      mechanicalVentilationSystemConsumption:
+        mechanicalVentilationSystemConsumption,
+    };
+  }
+
+  private async findOneByTime(
+    id: number,
+    prop: any,
+    groupBy: string,
+    startDay: string,
+    endDay: string,
+  ): Promise<IBreakdownConsumption[]> {
+    let overallElectricConsumption,
+      coolingElectricConsumption,
+      heatingElectricConsumption,
+      lightingElectricConsumption,
+      mechanicalVentilationElectricConsumption = 0;
+
+    switch (groupBy) {
+      case 'month':
+      default:
+        overallElectricConsumption =
+          await this.historizedPointsService.sumAllOverallHistorizedPointsByPropertyIdAndDateRange(
+            prop.propId,
+            new Date(startDay),
+            new Date(endDay),
+          );
+
+        coolingElectricConsumption =
+          await this.historizedPointsService.sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
+            prop.propId,
+            new Date(startDay),
+            new Date(endDay),
+          );
+
+        heatingElectricConsumption =
+          await this.historizedPointsService.sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(
+            prop.propId,
+            new Date(startDay),
+            new Date(endDay),
+          );
+
+        lightingElectricConsumption =
+          await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
+            prop.propId,
+            new Date(startDay),
+            new Date(endDay),
+          );
+
+        mechanicalVentilationElectricConsumption =
+          await this.historizedPointsService.sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
+            prop.propId,
+            new Date(startDay),
+            new Date(endDay),
+          );
+
+        break;
+    }
+
+    // const otherElectricConsumption =
+    //   overallElectricConsumption -
+    //   (coolingElectricConsumption +
+    //     heatingElectricConsumption +
+    //     lightingElectricConsumption +
+    //     mechanicalVentilationElectricConsumption);
+
+    const percentageOfCoolingElectricConsumption = +(
+      (coolingElectricConsumption * 100) /
+      overallElectricConsumption
+    ).toFixed(0);
+    const percentageOfHeatingElectricConsumption = +(
+      (coolingElectricConsumption * 100) /
+      overallElectricConsumption
+    ).toFixed(0);
+    const percentageOfLightingElectricConsumption =
+      +(lightingElectricConsumption * 100) /
+      overallElectricConsumption.toFixed(0);
+    const percentageOfMechanicalVenlitlationElectricConsumption = +(
+      (mechanicalVentilationElectricConsumption * 100) /
+      overallElectricConsumption
+    ).toFixed(0);
+    // const percentageOfOtherElectricConsumption =
+    //   100 -
+    //   percentageOfCoolingElectricConsumption +
+    //   percentageOfHeatingElectricConsumption +
+    //   percentageOfMechanicalVenlitlationElectricConsumption +
+    //   percentageOfLightingElectricConsumption;
+
+    return [
+      {
+        id: 'cooling',
+        value: percentageOfCoolingElectricConsumption,
+        consumption: coolingElectricConsumption,
+        color: null,
+        subBreakdown: BuildingsService.calculateCoolingConsumptionBreakdown(
+          coolingElectricConsumption,
+        ),
+      },
+      {
+        id: 'heating',
+        value: percentageOfHeatingElectricConsumption,
+        consumption: heatingElectricConsumption,
+        color: null,
+        subBreakdown: null,
+      },
+      {
+        id: 'lighting',
+        value: percentageOfLightingElectricConsumption,
+        consumption: lightingElectricConsumption,
+        color: null,
+        subBreakdown: null,
+      },
+      {
+        id: 'mechanical ventilation',
+        value: percentageOfMechanicalVenlitlationElectricConsumption,
+        consumption: mechanicalVentilationElectricConsumption,
+        color: null,
+        subBreakdown: null,
+      },
+    ];
   }
 
   async findOne(id: number, startDay: string, endDay: string) {
