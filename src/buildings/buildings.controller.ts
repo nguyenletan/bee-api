@@ -69,10 +69,9 @@ export class BuildingsController {
   ) {
     let startDay: Date;
     let endDay: Date;
-    console.log(firstDayParam);
-    console.log(type);
+
     switch (type) {
-      case 'date':
+      case 'day':
         startDay = endDay = new Date(
           firstDayParam + '-' + secondDayParam + '-' + thirdDayParam,
         );
@@ -101,10 +100,14 @@ export class BuildingsController {
         endDay = lastDayOfMonth(
           new Date(firstDayParam + '-' + secondDayParam + '-' + '01'),
         );
-        console.log(firstDayParam);
-        console.log(endDay);
         break;
     }
+
+    console.log('startDay');
+    console.log(startDay);
+
+    console.log('endDay');
+    console.log(endDay);
 
     return this.buildingsService.calculateBreakdownByTime(
       +id,
