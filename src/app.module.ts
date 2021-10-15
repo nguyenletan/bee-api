@@ -10,6 +10,7 @@ import { FloorsModule } from './floors/floors.module';
 import { ZonesModule } from './zones/zones.module';
 import { FirebaseAuthStrategy } from './firebase/firebase-auth.strategy';
 import { HistorizedPointsModule } from './historized-points/historized-points.module';
+import { EquipmentsModule } from './equipments/equipments.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { HistorizedPointsModule } from './historized-points/historized-points.mo
     FloorsModule,
     ZonesModule,
     HistorizedPointsModule,
+    EquipmentsModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, PrismaService, FirebaseAuthStrategy],

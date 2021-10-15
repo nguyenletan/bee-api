@@ -9,5 +9,6 @@ export interface IBreakdownConsumption {
   value: number;
   consumption: number;
   color: string;
+  equipId?: number;
   subBreakdown: IBreakdownConsumption[] | null;
 }

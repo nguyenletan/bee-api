@@ -179,6 +179,8 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ): Promise<number> {
+    // console.log('propId:');
+    // console.log(propId);
     return await this.prismaService.$queryRaw`
         select sum(value) from "CoolingHistorizedPoint"
          where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
@@ -201,7 +203,7 @@ export class HistorizedPointsService {
 
     const equipmentQueryResult: IEquipmentGroup[] = await this.prismaService
       .$queryRaw`
-      select et."id" as "typeId", et.name as "typeName", E.id, E."equipId", E.dis as name, "propId", sum(c.value)
+      select et."id" as "typeId", et.name as "typeName", E."equipId", E.id as id, E.dis as name, "propId", sum(c.value)
       from "CoolingHistorizedPoint" c
         inner join "Points" P on P.id = c."pointId"
         inner join "Equipments" E on E.id = P."equipId"
@@ -216,8 +218,9 @@ export class HistorizedPointsService {
       ]);
     }
 
-    // console.log(equipmentTypeQueryResult);
-    // console.log(equipmentQueryResult);
+    //console.log(equipmentTypeQueryResult);
+    console.log('equipmentQueryResult: ');
+    console.log(equipmentQueryResult);
     return equipmentTypeQueryResult;
   }
 
@@ -249,7 +252,7 @@ export class HistorizedPointsService {
 
     const equipmentQueryResult: IEquipmentGroup[] = await this.prismaService
       .$queryRaw`
-      select et."id" as "typeId", et.name as "typeName", E.id, E."equipId", E.dis as name, "propId", sum(c.value)
+      select et."id" as "typeId", et.name as "typeName", E.id, E."equipId", E.id as id, E.dis as name, "propId", sum(c.value)
       from "HeatingHistorizedPoint" c
         inner join "Points" P on P.id = c."pointId"
         inner join "Equipments" E on E.id = P."equipId"
@@ -265,7 +268,7 @@ export class HistorizedPointsService {
     }
 
     // console.log(equipmentTypeQueryResult);
-    console.log(equipmentQueryResult);
+    // console.log(equipmentQueryResult);
     return equipmentTypeQueryResult;
   }
 
@@ -316,7 +319,7 @@ export class HistorizedPointsService {
 
     const equipmentQueryResult: IEquipmentGroup[] = await this.prismaService
       .$queryRaw`
-      select et."id" as "typeId", et.name as "typeName", E.id, E."equipId", E.dis as name, "propId", sum(c.value)
+      select et."id" as "typeId", et.name as "typeName", E."equipId", E.id as EquipmentId, E.dis as name, "propId", sum(c.value)
       from "MechanicalVentilationHistorizedPoint" c
         inner join "Points" P on P.id = c."pointId"
         inner join "Equipments" E on E.id = P."equipId"

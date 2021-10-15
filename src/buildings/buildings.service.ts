@@ -206,6 +206,7 @@ export class BuildingsService {
         consumption: e.sum,
         value: +((e.sum * 100) / total).toFixed(0),
         subBreakdown: null,
+        equipmentId: e.id,
         color: null,
       };
     });
@@ -215,6 +216,8 @@ export class BuildingsService {
     coolingLoadConsumption: ICoolingLoadForGeneralSpace,
   ): IBreakdownConsumption[] {
     return coolingLoadConsumption.equipmentTypeGroups.map((c) => {
+      console.log('c');
+      console.log(c);
       return {
         id: c.name,
         consumption: c.sum,
@@ -979,7 +982,7 @@ export class BuildingsService {
         ORDER BY p.id DESC`;
   }
 
-  private calculateOverallEnergyConsumptionInformation(
+  private static calculateOverallEnergyConsumptionInformation(
     electricConsumptionsFromHistorizedLogs: IElectricConsumptionFromHistorizedLogs,
   ): IOverallEnergyConsumptionInformation {
     let totalEnergyConsumption = 0;
@@ -1007,7 +1010,6 @@ export class BuildingsService {
   }
 
   private async calculateFromBuildingInformation(
-    id: number,
     prop: any,
     startDay: string,
     endDay: string,
@@ -1025,8 +1027,8 @@ export class BuildingsService {
     const prev12MonthsEndDay = subDays(new Date(startDay), 1);
     const prev12MonthsStartDay = subYears(new Date(startDay), 1);
 
-    console.log(prev12MonthsStartDay);
-    console.log(prev12MonthsEndDay);
+    // console.log(prev12MonthsStartDay);
+    // console.log(prev12MonthsEndDay);
 
     const prev12MonthsElectricityConsumptionsFromHistorizedLogs =
       await this.getListOfElectricConsumptionsFromHistorizedLogs(
@@ -1046,7 +1048,7 @@ export class BuildingsService {
       );
 
     const overallEnergyConsumptionInformation =
-      this.calculateOverallEnergyConsumptionInformation(
+      BuildingsService.calculateOverallEnergyConsumptionInformation(
         electricConsumptionsFromHistorizedLogs,
       );
 
@@ -1159,9 +1161,13 @@ export class BuildingsService {
     const sumOfAnnualCoolingSystemConsumption =
       await this.historizedPointsService.sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
-        new Date('2020-09-12'),
-        new Date('2021-09-12'),
+        new Date(startDay),
+        new Date(endDay),
       );
+
+    console.log('sumOfAnnualCoolingSystemConsumption: ');
+    console.log(sumOfAnnualCoolingSystemConsumption);
+
     if (sumOfAnnualCoolingSystemConsumption[0].sum) {
       annualCoolingSystemConsumption.coolingLoadForSpace =
         sumOfAnnualCoolingSystemConsumption[0].sum;
@@ -1169,9 +1175,12 @@ export class BuildingsService {
     annualCoolingSystemConsumption.equipmentTypeGroups =
       await this.historizedPointsService.getAllEquipmentTypeOfCoolingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
-        new Date('2020-09-12'),
-        new Date('2021-09-12'),
+        new Date(startDay),
+        new Date(endDay),
       );
+
+    console.log('annualCoolingSystemConsumption.equipmentTypeGroups');
+    console.log(annualCoolingSystemConsumption.equipmentTypeGroups);
 
     const heatingSystem = await this.prismaService.heatingSystem.findFirst({
       where: {
@@ -1194,8 +1203,8 @@ export class BuildingsService {
     const sumOfAnnualHeatingSystemConsumption =
       await this.historizedPointsService.sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
-        new Date('2020-09-12'),
-        new Date('2021-09-12'),
+        new Date(startDay),
+        new Date(endDay),
       );
     if (sumOfAnnualHeatingSystemConsumption[0].sum) {
       annualHeatingSystemConsumption.heatingLoadForSpace =
@@ -1204,8 +1213,8 @@ export class BuildingsService {
     annualHeatingSystemConsumption.equipmentTypeGroups =
       await this.historizedPointsService.getAllEquipmentTypeOfHeatingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
-        new Date('2020-09-12'),
-        new Date('2021-09-12'),
+        new Date(startDay),
+        new Date(endDay),
       );
 
     // kwh
@@ -1218,8 +1227,8 @@ export class BuildingsService {
     const sumOfAnnualMechanicalVentilationSystemConsumption =
       await this.historizedPointsService.sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
-        new Date('2020-09-12'),
-        new Date('2021-09-12'),
+        new Date(startDay),
+        new Date(endDay),
       );
     if (sumOfAnnualMechanicalVentilationSystemConsumption[0].sum) {
       annualMechanicalVentilationSystemConsumption.annualEnergyUsage =
@@ -1228,8 +1237,8 @@ export class BuildingsService {
     annualMechanicalVentilationSystemConsumption.equipmentTypeGroups =
       await this.historizedPointsService.getAllEquipmentTypeOfMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
-        new Date('2020-09-12'),
-        new Date('2021-09-12'),
+        new Date(startDay),
+        new Date(endDay),
       );
 
     const lightingSystems = await this.prismaService.lightingSystem.findMany({
@@ -1250,12 +1259,14 @@ export class BuildingsService {
         totalOperatingHours,
         lightingSystems,
       );
+
     const sumOfAnnualLightingSystemConsumption =
       await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
-        new Date('2020-09-12'),
-        new Date('2021-09-12'),
+        new Date(startDay),
+        new Date(endDay),
       );
+
     if (sumOfAnnualLightingSystemConsumption[0].sum) {
       annualLightingConsumption.lightingEnergyConsumption =
         sumOfAnnualLightingSystemConsumption[0].sum;
@@ -1268,6 +1279,9 @@ export class BuildingsService {
         annualHeatingSystemConsumption.heatingLoadForSpace +
         annualMechanicalVentilationSystemConsumption.annualEnergyUsage +
         annualLightingConsumption.lightingEnergyConsumption);
+
+    console.log('annualCoolingSystemConsumption');
+    console.log(annualCoolingSystemConsumption);
 
     const consumptionBreakdown = BuildingsService.calculateConsumptionBreakdown(
       annualCoolingSystemConsumption,
@@ -1621,7 +1635,7 @@ export class BuildingsService {
           INNER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
         WHERE "statusId" = 2 AND B.id = ${id}`;
 
-    return this.calculateFromBuildingInformation(id, prop, startDay, endDay);
+    return this.calculateFromBuildingInformation(prop, startDay, endDay);
   }
 
   async findOneForEditing(id: number): Promise<ICreateBuildingDto> {

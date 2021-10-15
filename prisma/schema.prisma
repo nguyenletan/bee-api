@@ -198,6 +198,7 @@ model Equipments {
   MechanicalVentilationSystem   MechanicalVentilationSystem? @relation(fields: [mechanicalVentilationSystemId], references: [id], onDelete: Cascade, map: "equipments_mechanicalventilation_id_fk")
   Property                      Property?                    @relation(fields: [propertyId], references: [id], onDelete: Cascade, map: "equipments_property_id_fk")
   SpaceUsage                    SpaceUsage?                  @relation(fields: [spaceUsageId], references: [id], onUpdate: SetNull, map: "equipments_spaceusage_id_fk")
+  EquipmentDetail               EquipmentDetail[]
   Points                        Points[]
 }
 
@@ -518,10 +519,11 @@ model R_WindowTypeUValue {
 }
 
 model RefrigerantType {
-  id          Int       @id(map: "refrigeranttype_pk") @default(autoincrement())
-  name        String    @db.VarChar
-  description String?
-  Chiller     Chiller[]
+  id              Int               @id(map: "refrigeranttype_pk") @default(autoincrement())
+  name            String            @db.VarChar
+  description     String?
+  Chiller         Chiller[]
+  EquipmentDetail EquipmentDetail[]
 }
 
 model RoofInsulationType {
@@ -735,4 +737,42 @@ model MechanicalVentilationHistorizedPoint {
   propId    Int?
   Points    Points?   @relation(fields: [pointId], references: [id], onUpdate: SetNull, map: "mechanicalventilationhistorizedpoint_points_id_fk")
   Property  Property? @relation(fields: [propId], references: [id], onUpdate: SetNull, map: "mechanicalventilationhistorizedpoint_property_id_fk")
+}
+
+model EquipmentDetail {
+  id                              Int              @id(map: "equipmentdetail_pk") @default(autoincrement())
+  equipmentId                     Int
+  manufacturer                    String           @db.VarChar
+  model                           String           @db.VarChar
+  capacity                        Float?
+  installDate                     DateTime         @db.Date
+  commissioned                    DateTime         @db.Date
+  depreciationMode                String           @db.VarChar
+  estimatedUsefulLife             Int?
+  initialAssetCost                Float
+  refrigerantTypeId_              Int?             @map("refrigerantTypeId ")
+  flowTypeId                      Int?
+  maxHead                         Float?
+  maxFlowRate                     Float?
+  maxPower                        Float?
+  ratedCapacity                   Float?
+  standardAirFlowCoilFaceVelocity Float?
+  requiredFlowRate                Float?
+  nominalRPM                      Float?
+  maxStaticPressure               Float?
+  flowRateAtMinStaticPressure     Float?
+  sonesAtMinStaticPressure        Float?
+  maxStaticPressure2              Float?
+  flowRateAtMinStaticPressure2    Float?
+  sonesAtMinStaticPressure2       Float?
+  Equipments                      Equipments       @relation(fields: [equipmentId], references: [id], onDelete: Cascade, map: "equipmentdetail_equipments_id_fk")
+  R_FlowType                      R_FlowType?      @relation(fields: [flowTypeId], references: [id], onUpdate: SetNull, map: "equipmentdetail_r_flowtype_id_fk")
+  RefrigerantType                 RefrigerantType? @relation(fields: [refrigerantTypeId_], references: [id], onUpdate: SetNull, map: "equipmentdetail_refrigeranttype_id_fk")
+}
+
+model R_FlowType {
+  id              Int               @id(map: "r_flowtype_pk") @default(autoincrement())
+  name            String            @db.VarChar
+  description     String?
+  EquipmentDetail EquipmentDetail[]
 }
