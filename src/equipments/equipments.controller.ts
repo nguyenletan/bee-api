@@ -1,11 +1,11 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
 } from '@nestjs/common';
 import { EquipmentsService } from './equipments.service';
 import { CreateEquipmentDto } from './dto/create-equipment.dto';
@@ -28,6 +28,40 @@ export class EquipmentsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.equipmentsService.findOne(+id);
+  }
+
+  @Get('getEnergyConsumption/:id/:startDate/:endDate')
+  getEnergyConsumption(
+    @Param('id') id: string,
+    @Param('startDate') startDate: string,
+    @Param('endDate') endDate: string,
+  ) {
+    return this.equipmentsService.getEnergyConsumption(
+      +id,
+      new Date(startDate + 'T23:00:00'),
+      new Date(endDate + 'T23:00:00'),
+    );
+  }
+
+  @Get(
+    'getEnergyConsumptionPercentage/:equipmentId/:equipmentTypeId/:subSystemId/:buildingId/:startDate/:endDate',
+  )
+  getEnergyConsumptionPercentage(
+    @Param('equipmentId') equipmentId: string,
+    @Param('equipmentTypeId') equipmentTypeId: string,
+    @Param('subSystemId') subSystemId: string,
+    @Param('buildingId') buildingId: string,
+    @Param('startDate') startDate: string,
+    @Param('endDate') endDate: string,
+  ) {
+    return this.equipmentsService.getEnergyConsumptionPercentage(
+      +equipmentId,
+      +equipmentTypeId,
+      +subSystemId,
+      +buildingId,
+      new Date(startDate + 'T23:00:00'),
+      new Date(endDate + 'T23:00:00'),
+    );
   }
 
   @Patch(':id')
