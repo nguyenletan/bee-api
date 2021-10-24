@@ -765,6 +765,8 @@ model EquipmentDetail {
   maxStaticPressure2              Float?
   flowRateAtMinStaticPressure2    Float?
   sonesAtMinStaticPressure2       Float?
+  location                        String?          @db.VarChar
+  imageUrl                        String?          @db.VarChar
   Equipments                      Equipments       @relation(fields: [equipmentId], references: [id], onDelete: Cascade, map: "equipmentdetail_equipments_id_fk")
   R_FlowType                      R_FlowType?      @relation(fields: [flowTypeId], references: [id], onUpdate: SetNull, map: "equipmentdetail_r_flowtype_id_fk")
   RefrigerantType                 RefrigerantType? @relation(fields: [refrigerantTypeId_], references: [id], onUpdate: SetNull, map: "equipmentdetail_refrigeranttype_id_fk")
