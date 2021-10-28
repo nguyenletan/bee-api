@@ -27,8 +27,8 @@ export class BuildingsController {
   @Post()
   @UseGuards(FirebaseAuthGuard)
   create(@Body() createBuildingDto: BuildingDto, @Req() req: any) {
-    console.log('Create building');
-    console.log(req.user);
+    // console.log('Create building');
+    // console.log(req.user);
     //console.log(createBuildingDto.generalBuildingInformation);
 
     return this.buildingsService.create(createBuildingDto, req.user);
@@ -37,7 +37,7 @@ export class BuildingsController {
   @Get()
   @UseGuards(FirebaseAuthGuard)
   findAll(@Req() req: any) {
-    console.log(req.user);
+    // console.log(req.user);
     return this.buildingsService.findAll(req.user);
   }
 
@@ -48,8 +48,8 @@ export class BuildingsController {
     @Param('startday') startDay: string,
     @Param('endday') endDay: string,
   ) {
-    console.log(startDay);
-    console.log(endDay);
+    // console.log(startDay);
+    // console.log(endDay);
 
     return this.buildingsService.findOne(+id, startDay, endDay);
   }
@@ -102,12 +102,6 @@ export class BuildingsController {
         );
         break;
     }
-
-    console.log('startDay');
-    console.log(startDay);
-
-    console.log('endDay');
-    console.log(endDay);
 
     return this.buildingsService.calculateBreakdownByTime(
       +id,

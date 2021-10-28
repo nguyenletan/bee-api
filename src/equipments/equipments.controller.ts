@@ -30,6 +30,14 @@ export class EquipmentsController {
     return this.equipmentsService.findOne(+id);
   }
 
+  @Get('getProjectPeakDemand/:id/:numberOfNextDays')
+  getProjectPeakDemand(
+    @Param('id') id: string,
+    @Param('numberOfNextDays') numberOfNextDays: string,
+  ) {
+    return this.equipmentsService.getProjectPeakDemand(+id, +numberOfNextDays);
+  }
+
   @Get('getEnergyConsumption/:id/:startDate/:endDate')
   getEnergyConsumption(
     @Param('id') id: string,
@@ -41,6 +49,11 @@ export class EquipmentsController {
       new Date(startDate + 'T23:00:00'),
       new Date(endDate + 'T23:00:00'),
     );
+  }
+
+  @Get('getEnergyConsumptionByIdAndGroupByYear/:id')
+  getEnergyConsumptionByIdAndGroupByYear(@Param('id') id: string) {
+    return this.equipmentsService.getEnergyConsumptionByIdAndGroupByYear(+id);
   }
 
   @Get(

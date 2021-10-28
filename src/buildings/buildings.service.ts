@@ -201,6 +201,8 @@ export class BuildingsService {
     equipmentGroups: IEquipmentGroup[],
   ) {
     return equipmentGroups.map((e) => {
+      console.log('equipmentId: ');
+      console.log(e);
       return {
         id: e.name,
         consumption: e.sum,
@@ -314,10 +316,6 @@ export class BuildingsService {
         heatingLoadConsumptionPercentage +
         mechanicalVentilationConsumptionPercentage +
         lightingLoadConsumptionPercentage);
-
-    console.log('coolingLoadConsumption');
-    console.log(coolingLoadConsumption);
-    console.log(coolingLoadConsumptionPercentage);
 
     return [
       {
@@ -1179,8 +1177,8 @@ export class BuildingsService {
         new Date(endDay),
       );
 
-    console.log('annualCoolingSystemConsumption.equipmentTypeGroups');
-    console.log(annualCoolingSystemConsumption.equipmentTypeGroups);
+    // console.log('annualCoolingSystemConsumption.equipmentTypeGroups');
+    // console.log(annualCoolingSystemConsumption.equipmentTypeGroups);
 
     const heatingSystem = await this.prismaService.heatingSystem.findFirst({
       where: {

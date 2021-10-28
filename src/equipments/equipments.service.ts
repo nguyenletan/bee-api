@@ -15,6 +15,100 @@ export class EquipmentsService {
     return `This action returns all equipments`;
   }
 
+  async getProjectPeakDemand(id: number, numberOfNextDays: number) {
+    const equipment = await this.prismaService.equipments.findFirst({
+      where: {
+        id: {
+          equals: id,
+        },
+      },
+    });
+
+    const historizedPoint = equipment.coolingSystemId
+      ? '"CoolingHistorizedPoint"'
+      : equipment.heatingSystemId
+      ? '"HeatingHistorizedPoint"'
+      : equipment.mechanicalVentilationSystemId
+      ? '"MechanicalVentilationHistorizedPoint"'
+      : '';
+
+    return this.prismaService.$queryRawUnsafe(
+      `
+      SELECT avg("maxValue") average, day, month, "createdDate"
+      FROM(
+          (SELECT "Equipments".id, "Equipments".dis, max(CHP.value) "maxValue", 
+                    date_trunc('day', CHP."createdAt") "createdDate",
+                    extract(day from CHP."createdAt") as day, extract(month from CHP."createdAt") "month", extract(year from CHP."createdAt") "year"
+              from "Equipments"
+                   inner join "Points" p on p."equipId" = "Equipments".id
+                   INNER JOIN "R_EquipmentTypes" RET on RET.id = "Equipments"."equipTypeId"
+                   inner join ${historizedPoint} CHP on p.id = CHP."pointId"
+              WHERE "Equipments".id = 38 and extract(year from CHP."createdAt") = 2016
+              GROUP BY "Equipments".id, "Equipments".dis, "day", "month", "year",  date_trunc('day', CHP."createdAt")
+              ORDER BY "year", "month", "day")
+          UNION
+          (SELECT "Equipments".id, "Equipments".dis, max(CHP.value) "maxValue", 
+                 date_trunc('day', CHP."createdAt") "createdDate",
+                extract(day from CHP."createdAt") as day, extract(month from CHP."createdAt") "month",extract(year from CHP."createdAt") "year"
+          from "Equipments"
+                   inner join "Points" p on p."equipId" = "Equipments".id
+                   INNER JOIN "R_EquipmentTypes" RET on RET.id = "Equipments"."equipTypeId"
+                   inner join ${historizedPoint} CHP on p.id = CHP."pointId"
+          WHERE "Equipments".id = $1 and extract(year from CHP."createdAt") = 2017
+          GROUP BY "Equipments".id, "Equipments".dis, "day", "month", "year",  date_trunc('day', CHP."createdAt")
+          ORDER BY "year", "month", "day")
+          UNION
+          (SELECT "Equipments".id, "Equipments".dis, max(CHP.value) "maxValue", 
+                 date_trunc('day', CHP."createdAt") "createdDate",
+                extract(day from CHP."createdAt") as day, extract(month from CHP."createdAt") "month",extract(year from CHP."createdAt") "year"
+          from "Equipments"
+                   inner join "Points" p on p."equipId" = "Equipments".id
+                   INNER JOIN "R_EquipmentTypes" RET on RET.id = "Equipments"."equipTypeId"
+                   inner join ${historizedPoint} CHP on p.id = CHP."pointId"
+          WHERE "Equipments".id = $1 and extract(year from CHP."createdAt") = 2018
+          GROUP BY "Equipments".id, "Equipments".dis, "day", "month", "year",  date_trunc('day', CHP."createdAt")
+          ORDER BY "year", "month", "day")
+          UNION
+          (SELECT "Equipments".id, "Equipments".dis, max(CHP.value) "maxValue", 
+                 date_trunc('day', CHP."createdAt") "createdDate",
+                extract(day from CHP."createdAt") as day, extract(month from CHP."createdAt") "month",extract(year from CHP."createdAt") "year"
+          from "Equipments"
+                   inner join "Points" p on p."equipId" = "Equipments".id
+                   INNER JOIN "R_EquipmentTypes" RET on RET.id = "Equipments"."equipTypeId"
+                   inner join ${historizedPoint} CHP on p.id = CHP."pointId"
+          WHERE "Equipments".id = $1 and extract(year from CHP."createdAt") = 2019
+          GROUP BY "Equipments".id, "Equipments".dis, "day", "month", "year", date_trunc('day', CHP."createdAt")
+          ORDER BY "year", "month", "day")
+          UNION
+          (SELECT "Equipments".id, "Equipments".dis, max(CHP.value) "maxValue", 
+                date_trunc('day', CHP."createdAt") "createdDate",
+                extract(day from CHP."createdAt") as day, extract(month from CHP."createdAt") "month",extract(year from CHP."createdAt") "year"
+          from "Equipments"
+                   inner join "Points" p on p."equipId" = "Equipments".id
+                   INNER JOIN "R_EquipmentTypes" RET on RET.id = "Equipments"."equipTypeId"
+                   inner join ${historizedPoint} CHP on p.id = CHP."pointId"
+          WHERE "Equipments".id = $1 and extract(year from CHP."createdAt") = 2020
+          GROUP BY "Equipments".id, "Equipments".dis, "day", "month", "year",  date_trunc('day', CHP."createdAt")
+          ORDER BY "year", "month", "day")
+          UNION
+          (SELECT "Equipments".id, "Equipments".dis, max(CHP.value) "maxValue", 
+                 date_trunc('day', CHP."createdAt") "createdDate",
+                extract(day from CHP."createdAt") as day, extract(month from CHP."createdAt") "month",extract(year from CHP."createdAt") "year"
+          from "Equipments"
+                   inner join "Points" p on p."equipId" = "Equipments".id
+                   INNER JOIN "R_EquipmentTypes" RET on RET.id = "Equipments"."equipTypeId"
+                   inner join ${historizedPoint} CHP on p.id = CHP."pointId"
+          WHERE "Equipments".id = $1 and extract(year from CHP."createdAt") = 2021
+          GROUP BY "Equipments".id, "Equipments".dis, "day", "month", "year",  date_trunc('day', CHP."createdAt")
+          ORDER BY "year", "month", "day")) as A
+      WHERE "createdDate" >= CURRENT_DATE AND "createdDate" <= CURRENT_DATE + '${numberOfNextDays} day'::INTERVAL
+      GROUP BY month, day, "createdDate"
+      ORDER BY month, day asc
+    `,
+      id,
+    );
+  }
+
   findOne(id: number) {
     return this.prismaService.equipments.findFirst({
       where: {
@@ -33,7 +127,7 @@ export class EquipmentsService {
     });
   }
 
-  getEnergyConsumptionPercentage(
+  async getEnergyConsumptionPercentage(
     equipmentId: number,
     equipmentType: number,
     subSystemId: number,
@@ -41,10 +135,44 @@ export class EquipmentsService {
     startDate: Date,
     endDate: Date,
   ) {
-    console.log('startDate: ');
-    console.log(startDate);
-    console.log('endDate: ');
-    console.log(endDate);
+    const equipment = await this.prismaService.equipments.findFirst({
+      where: {
+        id: {
+          equals: equipmentId,
+        },
+      },
+    });
+
+    console.log('equipment:');
+    console.log(equipment);
+
+    const historizedPoint = equipment.coolingSystemId
+      ? '"CoolingHistorizedPoint"'
+      : equipment.heatingSystemId
+      ? '"HeatingHistorizedPoint"'
+      : equipment.mechanicalVentilationSystemId
+      ? '"MechanicalVentilationHistorizedPoint"'
+      : '';
+
+    const subsystemName = equipment.coolingSystemId
+      ? '"CoolingSystem"'
+      : equipment.heatingSystemId
+      ? '"HeatingSystem"'
+      : equipment.mechanicalVentilationSystemId
+      ? '"MechanicalVentilationSystem"'
+      : '';
+
+    const subsystemId = equipment.coolingSystemId
+      ? '"coolingSystemId"'
+      : equipment.heatingSystemId
+      ? '"heatingSystemId"'
+      : equipment.mechanicalVentilationSystemId
+      ? '"mechanicalVentilationSystemId"'
+      : '';
+
+    if (historizedPoint === '') {
+      return [];
+    }
 
     return this.prismaService.$queryRawUnsafe(
       `
@@ -59,7 +187,7 @@ export class EquipmentsService {
          SELECT sum(HP.value) / 1000 as "equipmentConsumption"
          FROM "Equipments" E
                   INNER JOIN "Points" P on E.id = P."equipId"
-                  INNER JOIN "CoolingHistorizedPoint" HP on P.id = HP."pointId"
+                  INNER JOIN ${historizedPoint} HP on P.id = HP."pointId"
          WHERE E.id = $1
            and HP."createdAt" >= $5
            and HP."createdAt" <= $6) as EC,
@@ -73,15 +201,15 @@ export class EquipmentsService {
             and HP."createdAt" <= $6) as BC,
          --equipmentTypeConsumption
          (SELECT (sum(HP.value) / 1000) as "subSystemConsumption"
-          FROM "CoolingHistorizedPoint" HP
+          FROM ${historizedPoint} HP
                    INNER JOIN "Points" P on P.id = HP."pointId"
                    INNER JOIN "Equipments" E on E.id = P."equipId"
-                   INNER JOIN "CoolingSystem" CS on CS.id = E."coolingSystemId"
-          WHERE "coolingSystemId" = $3
+                   INNER JOIN ${subsystemName} CS on CS.id = E.${subsystemId}
+          WHERE ${subsystemId} = $3
             and HP."createdAt" >= $5
             and HP."createdAt" <= $6) as ssc,
          (SELECT (sum(HP.value) / 1000) as "equipmentTypeConsumption"
-          FROM "CoolingHistorizedPoint" HP
+          FROM ${historizedPoint} HP
                    INNER JOIN "Points" P on P.id = HP."pointId"
                    INNER JOIN "Equipments" E on E.id = P."equipId"
                    INNER JOIN "Property" P2 on P2.id = E."propertyId"
@@ -100,6 +228,46 @@ export class EquipmentsService {
     );
   }
 
+  async getEnergyConsumptionByIdAndGroupByYear(id: number) {
+    const equipment = await this.prismaService.equipments.findFirst({
+      where: {
+        id: {
+          equals: id,
+        },
+      },
+    });
+
+    if (equipment) {
+      const historizedPoint = equipment.coolingSystemId
+        ? '"CoolingHistorizedPoint"'
+        : equipment.heatingSystemId
+        ? '"HeatingHistorizedPoint"'
+        : equipment.mechanicalVentilationSystemId
+        ? '"MechanicalVentilationHistorizedPoint"'
+        : '';
+      if (historizedPoint === '') {
+        return [];
+      }
+
+      return this.prismaService.$queryRawUnsafe(
+        `
+            SELECT "Equipments".id,
+              "Equipments".dis,
+              sum(CHP.value),
+              extract(year from CHP."createdAt") as "year"
+            from "Equipments"
+              inner join "Points" p on p."equipId" = "Equipments".id
+              INNER JOIN "R_EquipmentTypes" RET on RET.id = "Equipments"."equipTypeId"
+              inner join ${historizedPoint} CHP on p.id = CHP."pointId"
+            WHERE "Equipments".id = $1
+            GROUP BY "Equipments".id, "Equipments".dis, "year"
+            ORDER BY "year" asc`,
+        id,
+      );
+    }
+    return null;
+  }
+
   async getEnergyConsumption(id: number, startDate: Date, endDate: Date) {
     const equipment = await this.prismaService.equipments.findFirst({
       where: {
@@ -109,27 +277,17 @@ export class EquipmentsService {
       },
     });
 
-    console.log('startDate');
-    console.log(startDate);
-
-    console.log('endDate');
-    console.log(endDate);
     if (equipment) {
-      // const differenceDays = differenceInCalendarDays(endDate, startDate);
-      // console.log(differenceDays);
-
       const historizedPoint = equipment.coolingSystemId
         ? '"CoolingHistorizedPoint"'
         : equipment.heatingSystemId
         ? '"HeatingHistorizedPoint"'
         : equipment.mechanicalVentilationSystemId
-        ? '"mechanicalVentilationSystemId"'
+        ? '"MechanicalVentilationHistorizedPoint"'
         : '';
       if (historizedPoint === '') {
         return [];
       }
-
-      console.log(historizedPoint);
 
       return this.prismaService.$queryRawUnsafe(
         `
@@ -148,18 +306,6 @@ export class EquipmentsService {
         endDate,
         id,
       );
-
-      // return this.prismaService.$queryRaw`
-      //       SELECT "Equipments".id,
-      //         "Equipments".dis,
-      //         sum(CHP.value),
-      //         extract(year from CHP."createdAt") as year
-      //       from "Equipments"
-      //         inner join "Points" p on p."equipId" = "Equipments".id
-      //         INNER JOIN "R_EquipmentTypes" RET on RET.id = "Equipments"."equipTypeId"
-      //         inner join "CoolingHistorizedPoint" CHP on p.id = CHP."pointId"
-      //       WHERE CHP."createdAt" >= ${startDate} and CHP."createdAt" <= ${endDate} and "Equipments".id = ${id}
-      //       GROUP BY "Equipments".id, "Equipments".dis, "year"`;
     }
     return null;
   }
