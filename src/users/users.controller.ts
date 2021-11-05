@@ -84,6 +84,7 @@ export class UsersController {
     return this.prismaService.user.create({
       data: {
         email: userData.email,
+        externalUID: '',
         password: hash,
         status: 'active',
         userTypeId: 1, // Organization Member

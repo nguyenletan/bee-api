@@ -398,7 +398,11 @@ model Property {
   hasMajorRefurbishmentOrExtensionsDone Boolean?
   latestYearForRefurbishmentOrExtension Int?
   statusId                              Int?                                   @default(2)
+  streetNumber                          String?                                @db.VarChar
+  streetName                            String?                                @db.VarChar
+  editedBy                              String?                                @db.VarChar
   Building                              Building?                              @relation(fields: [buildingId], references: [id], onDelete: Cascade, map: "property_building_id_fk")
+  User                                  User?                                  @relation(fields: [editedBy], references: [externalUID], onDelete: NoAction, onUpdate: NoAction, map: "property_user_externaluid_fk")
   Floor                                 Floor?                                 @relation(fields: [floorId], references: [id], onDelete: Cascade, map: "property_floor_id_fk")
   BuildingMajorOrientation              BuildingMajorOrientation?              @relation(fields: [majorOrientationId], references: [id], onDelete: Cascade, map: "property_buildingmajororientation _id_fk")
   Status                                Status?                                @relation(fields: [statusId], references: [id], onDelete: Cascade, map: "property_status_id_fk")
@@ -625,17 +629,19 @@ model UseType {
 }
 
 model User {
-  id         Int          @id @default(autoincrement())
-  email      String       @unique(map: "user_email_uindex") @db.VarChar
-  password   String?      @db.VarChar
-  status     String?      @db.VarChar
-  userTypeId Int?
-  createdAt  DateTime     @default(now()) @db.Timestamp(6)
-  updatedAt  DateTime?    @db.Timestamp(6)
-  authTypeId Int?
-  AuthType   AuthType?    @relation(fields: [authTypeId], references: [id], onDelete: Cascade, map: "user_authtype_id_fk")
-  UserType   UserType?    @relation(fields: [userTypeId], references: [id], onDelete: Cascade, map: "user_usertype_id_fk")
-  UserDetail UserDetail[]
+  id          Int          @id @default(autoincrement())
+  email       String       @unique(map: "user_email_uindex") @db.VarChar
+  password    String?      @db.VarChar
+  status      String?      @db.VarChar
+  userTypeId  Int?
+  createdAt   DateTime     @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime?    @db.Timestamp(6)
+  authTypeId  Int?
+  externalUID String       @unique(map: "user_externaluid_uindex") @db.VarChar
+  AuthType    AuthType?    @relation(fields: [authTypeId], references: [id], onDelete: Cascade, map: "user_authtype_id_fk")
+  UserType    UserType?    @relation(fields: [userTypeId], references: [id], onDelete: Cascade, map: "user_usertype_id_fk")
+  Property    Property[]
+  UserDetail  UserDetail[]
 }
 
 model UserDetail {

@@ -973,9 +973,10 @@ export class BuildingsService {
     // });
     // console.log(result);
     return await this.prismaService.$queryRaw`
-        SELECT p."streetAddress", p.photo, B.id, B.name FROM "Property" p
-        INNER JOIN "PropertyUser" PU ON p.id = PU."propertyId"
-        INNER JOIN "Building" B on B.id = p."buildingId"
+        SELECT p."streetAddress", p.photo, B.id, B.name, P."streetNumber", P."streetName" 
+        FROM "Property" p
+          INNER JOIN "PropertyUser" PU ON p.id = PU."propertyId"
+          INNER JOIN "Building" B on B.id = p."buildingId"
         WHERE "statusId" = 2 AND PU."userAuthUID" = ${user.uid} AND "buildingId" is not null
         ORDER BY p.id DESC`;
   }
@@ -1625,12 +1626,14 @@ export class BuildingsService {
     const prop = await this.prismaService.$queryRaw`
         SELECT p.*, B.*, p.id as "propId", UT.name as "useTypeName",
               SR.name as "sustainabilityRatingName",
-              SRS.name as "sustainabilityRatingSchemeName"
+              SRS.name as "sustainabilityRatingSchemeName",
+              U.email
         FROM "Property" p
           INNER JOIN "Building" B on B.id = p."buildingId"
           INNER JOIN "UseType" UT on UT.id = p."useTypeId"
           INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
           INNER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
+          INNER JOIN "User" U on U."externalUID" = p."editedBy"
         WHERE "statusId" = 2 AND B.id = ${id}`;
 
     return this.calculateFromBuildingInformation(prop, startDay, endDay);
