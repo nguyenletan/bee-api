@@ -1,6 +1,6 @@
-import { Body, Controller, Get, NotFoundException, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { User as UserModel, Prisma } from '@prisma/client';
+import { User as UserModel, UserTracking } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 
@@ -88,6 +88,22 @@ export class UsersController {
         password: hash,
         status: 'active',
         userTypeId: 1, // Organization Member
+      },
+    });
+  }
+
+  @Post('tracking')
+  async tracking(
+    @Body()
+    trackingData: {
+      externalUID: string;
+      pageName: string;
+    },
+  ): Promise<UserTracking> {
+    return this.prismaService.userTracking.create({
+      data: {
+        externalId: trackingData.externalUID,
+        pageName: trackingData.pageName,
       },
     });
   }
