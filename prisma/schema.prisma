@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL_LOCAL")
 }
 
 model AuthType {
@@ -783,4 +783,11 @@ model R_FlowType {
   name            String            @db.VarChar
   description     String?
   EquipmentDetail EquipmentDetail[]
+}
+
+model UserTracking {
+  id         Int       @id(map: "usertracking_pk") @default(autoincrement())
+  externalId String?   @db.VarChar
+  createdAt  DateTime? @default(now()) @db.Timestamp(6)
+  pageName   String?   @db.VarChar
 }

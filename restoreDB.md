@@ -4,6 +4,6 @@ docker exec -i pg_container /bin/bash -c "PGPASSWORD=root psql --username root b
 
 
 psql \
--h db.cmivhwoqubycuikrwega.supabase.co \
+-h db.lckvjvsmqajiposrvvum.supabase.co \
 -U postgres \
 < dump.sql

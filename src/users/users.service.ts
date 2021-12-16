@@ -7,4 +7,11 @@ export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {}
+  async keepTrack(externalUID: string) {
+    this.prismaService.userTracking.create({
+      data: {
+        externalId: externalUID,
+      },
+    });
+  }
 }
