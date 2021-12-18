@@ -26,19 +26,20 @@ async function bootstrap() {
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ extended: true, limit: '50mb' }));
   app.enableCors({
-    origin: function (origin, callback) {
-      console.log(origin);
-      console.log(allowList);
-      callback(null, true);
-      // if (origin === undefined || allowList.indexOf(origin) !== -1) {
-      //   console.log('allowed cors for:', origin);
-      //   callback(null, true);
-      // } else {
-      //   console.log('blocked cors for:', origin);
-      //   callback(new Error('Not allowed by CORS'));
-      // }
-    },
-
+    // origin: function (origin, callback) {
+    //   console.log(origin);
+    //   console.log(allowList);
+    //   callback(null, true);
+    //   // if (origin === undefined || allowList.indexOf(origin) !== -1) {
+    //   //   console.log('allowed cors for:', origin);
+    //   //   callback(null, true);
+    //   // } else {
+    //   //   console.log('blocked cors for:', origin);
+    //   //   callback(new Error('Not allowed by CORS'));
+    //   // }
+    // },
+    origin: '*',
+    credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
 
