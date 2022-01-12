@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL_DEV2")
+  url      = env("DATABASE_URL")
 }
 
 model AuthType {
@@ -756,7 +756,7 @@ model EquipmentDetail {
   depreciationMode                String           @db.VarChar
   estimatedUsefulLife             Int?
   initialAssetCost                Float
-  refrigerantTypeId_              Int?             @map("refrigerantTypeId ")
+  refrigerantTypeId               Int?
   flowTypeId                      Int?
   maxHead                         Float?
   maxFlowRate                     Float?
@@ -775,7 +775,7 @@ model EquipmentDetail {
   imageUrl                        String?          @db.VarChar
   Equipments                      Equipments       @relation(fields: [equipmentId], references: [id], onDelete: Cascade, map: "equipmentdetail_equipments_id_fk")
   R_FlowType                      R_FlowType?      @relation(fields: [flowTypeId], references: [id], onUpdate: SetNull, map: "equipmentdetail_r_flowtype_id_fk")
-  RefrigerantType                 RefrigerantType? @relation(fields: [refrigerantTypeId_], references: [id], onUpdate: SetNull, map: "equipmentdetail_refrigeranttype_id_fk")
+  RefrigerantType                 RefrigerantType? @relation(fields: [refrigerantTypeId], references: [id], onUpdate: SetNull, map: "equipmentdetail_refrigeranttype_id_fk")
 }
 
 model R_FlowType {
