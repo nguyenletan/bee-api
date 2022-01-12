@@ -1661,7 +1661,7 @@ export class BuildingsService {
           INNER JOIN "Building" B on B.id = p."buildingId"
           INNER JOIN "UseType" UT on UT.id = p."useTypeId"
           INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
-          INNER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
+          LEFT OUTER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
        WHERE "statusId" = 2 AND B.id = ${id}`;
 
     const building = await this.prismaService.building.findFirst({

@@ -219,8 +219,8 @@ export class HistorizedPointsService {
     }
 
     //console.log(equipmentTypeQueryResult);
-    console.log('equipmentQueryResult: ');
-    console.log(equipmentQueryResult);
+    //console.log('equipmentQueryResult: ');
+    //console.log(equipmentQueryResult);
     return equipmentTypeQueryResult;
   }
 
