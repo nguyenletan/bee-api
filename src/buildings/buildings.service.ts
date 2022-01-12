@@ -47,6 +47,7 @@ import {
   IElectricConsumptionFromHistorizedLogsSubSystem,
 } from '../shared/types/IElectricConsumptionFromHistorizedLogs';
 import { IOverallEnergyConsumptionInformation } from '../shared/types/iOverallEnergyConsumptionInformation';
+
 // import { IEquipmentTypeGroup } from '../shared/types/iEquipmentTypeGroup';
 
 @Injectable()
@@ -778,6 +779,21 @@ export class BuildingsService {
       },
     );
 
+    // console.log(
+    //   'createBuildingDto.generalBuildingInformation.sustainabilityRatingId: ',
+    // );
+    // console.log(
+    //   createBuildingDto.generalBuildingInformation.sustainabilityRatingId,
+    // );
+
+    if (
+      createBuildingDto.generalBuildingInformation.sustainabilityRatingId ===
+      null
+    ) {
+      //Empty value
+      createBuildingDto.generalBuildingInformation.sustainabilityRatingId = 86;
+    }
+
     const addingBuildingObject = {
       name: createBuildingDto.generalBuildingInformation.buildingName,
 
@@ -1164,9 +1180,6 @@ export class BuildingsService {
         new Date(endDay),
       );
 
-    console.log('sumOfAnnualCoolingSystemConsumption: ');
-    console.log(sumOfAnnualCoolingSystemConsumption);
-
     if (sumOfAnnualCoolingSystemConsumption[0].sum) {
       annualCoolingSystemConsumption.coolingLoadForSpace =
         sumOfAnnualCoolingSystemConsumption[0].sum;
@@ -1370,9 +1383,9 @@ export class BuildingsService {
     startDay: string,
     endDay: string,
   ) {
-    console.log('calculateBreakdownByTime');
-    console.log(startDay);
-    console.log(endDay);
+    // console.log('calculateBreakdownByTime');
+    // console.log(startDay);
+    // console.log(endDay);
     const prop = await this.prismaService.$queryRaw`
         SELECT p.*, B.*, p.id as "propId"
         FROM "Property" p
@@ -1632,7 +1645,7 @@ export class BuildingsService {
           INNER JOIN "Building" B on B.id = p."buildingId"
           INNER JOIN "UseType" UT on UT.id = p."useTypeId"
           INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
-          INNER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
+          LEFT OUTER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
           INNER JOIN "User" U on U."externalUID" = p."editedBy"
         WHERE "statusId" = 2 AND B.id = ${id}`;
 
@@ -1934,6 +1947,8 @@ export class BuildingsService {
         id: id,
         propId: prop[0].propId,
         buildingName: building.name,
+        streetName: building.Property[0].streetName,
+        streetNumber: building.Property[0].streetNumber,
         address: building.Property[0].streetAddress,
         city: building.Property[0].city,
         state: building.Property[0].state,
@@ -2281,7 +2296,13 @@ export class BuildingsService {
           update: {
             data: {
               streetAddress:
-                updateBuildingDto.generalBuildingInformation.address,
+                updateBuildingDto.generalBuildingInformation.streetNumber +
+                ' ' +
+                updateBuildingDto.generalBuildingInformation.streetNumber,
+              streetName:
+                updateBuildingDto.generalBuildingInformation.streetName,
+              streetNumber:
+                updateBuildingDto.generalBuildingInformation.streetNumber,
 
               postCode: updateBuildingDto.generalBuildingInformation.postalCode,
 

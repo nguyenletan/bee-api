@@ -12,6 +12,8 @@ export interface IGeneralBuildingInformation {
   buildingName: string;
 
   address: string;
+  streetName: string;
+  streetNumber: string;
 
   city: string;
 
