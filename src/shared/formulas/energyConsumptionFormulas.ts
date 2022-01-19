@@ -11,6 +11,8 @@ import { IMechanicalVentilationForGeneralSpace } from '../types/iMechanicalVenti
 import { MechanicalVentilationSpecificFanPowers } from '../reference-tables/mechanicalVentilation.reference';
 import { LightFittingEfficacyReference } from '../reference-tables/lightFittingEfficacy.reference';
 import { Utilities } from '../utilities';
+import { EnergyCO2EmissionFormulas } from './energyCO2EmissionFormulas';
+import LEDBulbCost from '../reference-tables/LEDBulbCost.reference';
 
 export class EnergyConsumptionFormulas {
   // Cooling Load for Space (kWh) = [Space Cooling Load] * [Total Floor Area (Internal)] * [% of Total Floor Area (Internal)]
@@ -222,6 +224,34 @@ export class EnergyConsumptionFormulas {
     return result;
   }
 
+  // New Lighting Efficacy (lm/W) = ([%LED Usage] * [LED Efficacy RoT]) +
+  // ([%Compact Fluorescent Tube Usage] * [Compact Fluorescent Tube Efficacy RoT])
+  // + ([%Fluorescent T5 Tube Usage] * [Fluorescent T5 Tube Efficacy RoT]) +
+  // ([%Fluorescent T8 Tube Usage] * [Fluorescent T8 Tube Efficacy RoT]) +
+  // ([%Fluorescent T12 Tube Usage] * [Fluorescent T12 Tube Efficacy RoT])
+  static calculateNewOverallLightingEfficacy(
+    lightingSystems: LightingSystem[],
+    percentReplacement: number,
+  ): number {
+    let result = 0;
+    if (lightingSystems) {
+      for (const lightingSystem of lightingSystems) {
+        const lightFittingEfficacy = LightFittingEfficacyReference.find(
+          (x) => x.id === lightingSystem.lightingFittingTypeId,
+        );
+        if (lightFittingEfficacy) {
+          //const ledEfficacyRoT = lightFittingEfficacy.efficacy;
+          result +=
+            (lightingSystem.percentageOfFittingTypeUsed / 100) *
+            (100 - percentReplacement) *
+            lightFittingEfficacy.efficacy;
+        }
+      }
+      //const result = lightingSystem.percentageOfFittingTypeUsed;
+    }
+    return result;
+  }
+
   // Lighting Load = LIGHTING_LUX (lm/m2)
   // Lighting Load for Space (lm) = [Space Lighting Load RoT] *
   // [Total Floor Area (Internal)] * [% of Total Floor Area (Internal)]
@@ -256,6 +286,168 @@ export class EnergyConsumptionFormulas {
       );
     }
     return 0;
+  }
+
+  // Annual Lighting System Energy Consumption (kWh) =
+  // ([Total Lighting Load] * [Annual Operating Hours]) / (1000  * [Overall Lighting Efficacy])
+  static calculateAnnualLightingSystemEnergyConsumption(
+    spaceUsage: SpaceUsage,
+    totalFloorArea,
+    operationHours: AverageOperatingHours,
+    lightingSystems: LightingSystem[],
+  ): number {
+    if (lightingSystems) {
+      return (
+        (this.calculateLightingLoadForSpace(spaceUsage, totalFloorArea) *
+          this.calculateTotalOperatingHours(operationHours)) /
+        this.calculateOverallLightingEfficacy(lightingSystems)
+      );
+    }
+    return 0;
+  }
+
+  // New Annual Lighting System Energy Consumption (kWh) =
+  // ([Total Lighting Load] * [Annual Operating Hours]) / (1000  * [New Overall Lighting Efficacy])
+  static calculateNewAnnualLightingSystemEnergyConsumption(
+    spaceUsage: SpaceUsage,
+    totalFloorArea,
+    operationHours: AverageOperatingHours,
+    percentReplacement: number,
+    lightingSystems: LightingSystem[],
+  ): number {
+    if (lightingSystems) {
+      return (
+        (this.calculateLightingLoadForSpace(spaceUsage, totalFloorArea) *
+          this.calculateTotalOperatingHours(operationHours)) /
+        this.calculateNewOverallLightingEfficacy(
+          lightingSystems,
+          percentReplacement,
+        )
+      );
+    }
+    return 0;
+  }
+
+  // Annual Energy Savings (kWh/Yr) =
+  // [Annual Lighting System Energy Consumption (kWh)] - [New Lighting System Energy Consumption (kWh)]
+  static calculateAnnualEnergySavings(
+    spaceUsage: SpaceUsage,
+    totalFloorArea,
+    operationHours: AverageOperatingHours,
+    percentReplacement: number,
+    lightingSystems: LightingSystem[],
+  ): number {
+    if (lightingSystems) {
+      return (
+        this.calculateAnnualLightingSystemEnergyConsumption(
+          spaceUsage,
+          totalFloorArea,
+          operationHours,
+          lightingSystems,
+        ) -
+        this.calculateNewAnnualLightingSystemEnergyConsumption(
+          spaceUsage,
+          totalFloorArea,
+          operationHours,
+          percentReplacement,
+          lightingSystems,
+        )
+      );
+    }
+    return 0;
+  }
+
+  // Annual Energy Cost Savings ($/Yr) = [Energy Savings] * [Tariff Rate]
+  static calculateAnnualEnergyCostSavings(
+    spaceUsage: SpaceUsage,
+    totalFloorArea,
+    operationHours: AverageOperatingHours,
+    percentReplacement: number,
+    tariffRate: number,
+    lightingSystems: LightingSystem[],
+  ): number {
+    if (lightingSystems) {
+      return (
+        this.calculateAnnualEnergySavings(
+          spaceUsage,
+          totalFloorArea,
+          operationHours,
+          percentReplacement,
+          lightingSystems,
+        ) * tariffRate
+      );
+    }
+    return 0;
+  }
+
+  // Annual Carbon Emissions Avoided (Tons/Yr) = [Energy Savings] * [Grid Emission Rate]
+  static calculateAnnualCarbonEmissionsAvoided(
+    spaceUsage: SpaceUsage,
+    totalFloorArea,
+    operationHours: AverageOperatingHours,
+    percentReplacement: number,
+    countryCode: string,
+    lightingSystems: LightingSystem[],
+  ): number {
+    if (lightingSystems) {
+      const annualEnergySavings = this.calculateAnnualEnergySavings(
+        spaceUsage,
+        totalFloorArea,
+        operationHours,
+        percentReplacement,
+        lightingSystems,
+      );
+      return EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
+        annualEnergySavings,
+        countryCode,
+      );
+    }
+    return 0;
+  }
+
+  // Cost of Improvement ($) =
+  // [Total Lighting Load] * [(100% -%LED Usage)*(%Replacement)] * [LED Bulb Cost ($/W)] / [LED Efficacy RoT]
+  static calculateCostOfImprovement(
+    spaceUsage: SpaceUsage,
+    totalFloorArea,
+    percentLEDUsage: number,
+    percentReplacement: number,
+  ): number {
+    return (
+      (this.calculateLightingLoadForSpace(spaceUsage, totalFloorArea) *
+        (100 - percentLEDUsage) *
+        (percentReplacement / 100) *
+        LEDBulbCost) /
+      LightFittingEfficacyReference[0].efficacy
+    );
+  }
+
+  // Payback (Yr) = [Cost of Improvement] / [Annual Energy Cost Savings]
+  static calculatePayback(
+    spaceUsage: SpaceUsage,
+    totalFloorArea,
+    percentLEDUsage: number,
+    percentReplacement: number,
+    operationHours: AverageOperatingHours,
+    tariffRate: number,
+    lightingSystems: LightingSystem[],
+  ): number {
+    return (
+      this.calculateCostOfImprovement(
+        spaceUsage,
+        totalFloorArea,
+        percentLEDUsage,
+        percentReplacement,
+      ) /
+      this.calculateAnnualEnergyCostSavings(
+        spaceUsage,
+        totalFloorArea,
+        operationHours,
+        percentReplacement,
+        tariffRate,
+        lightingSystems,
+      )
+    );
   }
 
   public static calculateTotalOperatingHours(
