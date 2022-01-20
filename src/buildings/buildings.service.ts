@@ -1292,8 +1292,8 @@ export class BuildingsService {
         annualMechanicalVentilationSystemConsumption.annualEnergyUsage +
         annualLightingConsumption.lightingEnergyConsumption);
 
-    console.log('annualCoolingSystemConsumption');
-    console.log(annualCoolingSystemConsumption);
+    // console.log('annualCoolingSystemConsumption');
+    // console.log(annualCoolingSystemConsumption);
 
     const consumptionBreakdown = BuildingsService.calculateConsumptionBreakdown(
       annualCoolingSystemConsumption,

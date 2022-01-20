@@ -288,17 +288,40 @@ export class EnergyConsumptionFormulas {
     return 0;
   }
 
+  private static calculateTotalLightLoad(
+    spaceUsages: SpaceUsage[],
+    totalFloorArea: number,
+    lightingSystems: LightingSystem[],
+  ): number {
+    let totalLoad = 0;
+    if (spaceUsages) {
+      // W
+      for (const spaceUsage of spaceUsages) {
+        totalLoad += this.calculateLightingEnergyUseForSpace(
+          spaceUsage,
+          totalFloorArea,
+          lightingSystems,
+        );
+      }
+    }
+    return totalLoad;
+  }
+
   // Annual Lighting System Energy Consumption (kWh) =
   // ([Total Lighting Load] * [Annual Operating Hours]) / (1000  * [Overall Lighting Efficacy])
   static calculateAnnualLightingSystemEnergyConsumption(
-    spaceUsage: SpaceUsage,
+    spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
     lightingSystems: LightingSystem[],
   ): number {
     if (lightingSystems) {
       return (
-        (this.calculateLightingLoadForSpace(spaceUsage, totalFloorArea) *
+        (this.calculateTotalLightLoad(
+          spaceUsages,
+          totalFloorArea,
+          lightingSystems,
+        ) *
           this.calculateTotalOperatingHours(operationHours)) /
         this.calculateOverallLightingEfficacy(lightingSystems)
       );
@@ -309,7 +332,7 @@ export class EnergyConsumptionFormulas {
   // New Annual Lighting System Energy Consumption (kWh) =
   // ([Total Lighting Load] * [Annual Operating Hours]) / (1000  * [New Overall Lighting Efficacy])
   static calculateNewAnnualLightingSystemEnergyConsumption(
-    spaceUsage: SpaceUsage,
+    spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
     percentReplacement: number,
@@ -317,7 +340,11 @@ export class EnergyConsumptionFormulas {
   ): number {
     if (lightingSystems) {
       return (
-        (this.calculateLightingLoadForSpace(spaceUsage, totalFloorArea) *
+        (this.calculateTotalLightLoad(
+          spaceUsages,
+          totalFloorArea,
+          lightingSystems,
+        ) *
           this.calculateTotalOperatingHours(operationHours)) /
         this.calculateNewOverallLightingEfficacy(
           lightingSystems,
@@ -331,7 +358,7 @@ export class EnergyConsumptionFormulas {
   // Annual Energy Savings (kWh/Yr) =
   // [Annual Lighting System Energy Consumption (kWh)] - [New Lighting System Energy Consumption (kWh)]
   static calculateAnnualEnergySavings(
-    spaceUsage: SpaceUsage,
+    spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
     percentReplacement: number,
@@ -340,13 +367,13 @@ export class EnergyConsumptionFormulas {
     if (lightingSystems) {
       return (
         this.calculateAnnualLightingSystemEnergyConsumption(
-          spaceUsage,
+          spaceUsages,
           totalFloorArea,
           operationHours,
           lightingSystems,
         ) -
         this.calculateNewAnnualLightingSystemEnergyConsumption(
-          spaceUsage,
+          spaceUsages,
           totalFloorArea,
           operationHours,
           percentReplacement,
@@ -359,7 +386,7 @@ export class EnergyConsumptionFormulas {
 
   // Annual Energy Cost Savings ($/Yr) = [Energy Savings] * [Tariff Rate]
   static calculateAnnualEnergyCostSavings(
-    spaceUsage: SpaceUsage,
+    spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
     percentReplacement: number,
@@ -369,7 +396,7 @@ export class EnergyConsumptionFormulas {
     if (lightingSystems) {
       return (
         this.calculateAnnualEnergySavings(
-          spaceUsage,
+          spaceUsages,
           totalFloorArea,
           operationHours,
           percentReplacement,
@@ -382,7 +409,7 @@ export class EnergyConsumptionFormulas {
 
   // Annual Carbon Emissions Avoided (Tons/Yr) = [Energy Savings] * [Grid Emission Rate]
   static calculateAnnualCarbonEmissionsAvoided(
-    spaceUsage: SpaceUsage,
+    spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
     percentReplacement: number,
@@ -391,7 +418,7 @@ export class EnergyConsumptionFormulas {
   ): number {
     if (lightingSystems) {
       const annualEnergySavings = this.calculateAnnualEnergySavings(
-        spaceUsage,
+        spaceUsages,
         totalFloorArea,
         operationHours,
         percentReplacement,
@@ -408,13 +435,18 @@ export class EnergyConsumptionFormulas {
   // Cost of Improvement ($) =
   // [Total Lighting Load] * [(100% -%LED Usage)*(%Replacement)] * [LED Bulb Cost ($/W)] / [LED Efficacy RoT]
   static calculateCostOfImprovement(
-    spaceUsage: SpaceUsage,
+    spaceUsages: SpaceUsage[],
     totalFloorArea,
     percentLEDUsage: number,
     percentReplacement: number,
+    lightingSystems: LightingSystem[],
   ): number {
     return (
-      (this.calculateLightingLoadForSpace(spaceUsage, totalFloorArea) *
+      (this.calculateTotalLightLoad(
+        spaceUsages,
+        totalFloorArea,
+        lightingSystems,
+      ) *
         (100 - percentLEDUsage) *
         (percentReplacement / 100) *
         LEDBulbCost) /
@@ -424,7 +456,7 @@ export class EnergyConsumptionFormulas {
 
   // Payback (Yr) = [Cost of Improvement] / [Annual Energy Cost Savings]
   static calculatePayback(
-    spaceUsage: SpaceUsage,
+    spaceUsages: SpaceUsage[],
     totalFloorArea,
     percentLEDUsage: number,
     percentReplacement: number,
@@ -434,13 +466,14 @@ export class EnergyConsumptionFormulas {
   ): number {
     return (
       this.calculateCostOfImprovement(
-        spaceUsage,
+        spaceUsages,
         totalFloorArea,
         percentLEDUsage,
         percentReplacement,
+        lightingSystems,
       ) /
       this.calculateAnnualEnergyCostSavings(
-        spaceUsage,
+        spaceUsages,
         totalFloorArea,
         operationHours,
         percentReplacement,
