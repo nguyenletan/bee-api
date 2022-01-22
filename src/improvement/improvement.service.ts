@@ -5,9 +5,14 @@ import { PrismaService } from '../prisma.service';
 import { Utilities } from '../shared/utilities';
 import { EnergyConsumptionFormulas } from '../shared/formulas/energyConsumptionFormulas';
 
+import { HistorizedPointsService } from '../historized-points/historized-points.service';
+
 @Injectable()
 export class ImprovementService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private historizedPointsService: HistorizedPointsService,
+  ) {}
 
   create(createImprovementDto: CreateImprovementDto) {
     return 'This action adds a new improvement';
@@ -107,9 +112,7 @@ export class ImprovementService {
     );
   }
 
-  // Annual Energy Savings (kWh/Yr) =
-  // [Annual Lighting System Energy Consumption (kWh)] - [New Lighting System Energy Consumption (kWh)]
-  async getAnnualEnergySavings(buildingId: number, percentReplacement: number) {
+  async getAnnualLightingSystemEnergyConsumption(buildingId: number) {
     const prop = await this.prismaService.property.findFirst({
       where: {
         buildingId: {
@@ -165,12 +168,22 @@ export class ImprovementService {
         ? Utilities.convertFt2ToM2(prop.grossInteriorArea)
         : prop.grossInteriorArea;
 
-    return EnergyConsumptionFormulas.calculateAnnualEnergySavings(
+    return EnergyConsumptionFormulas.calculateAnnualLightingSystemEnergyConsumption(
       spaceUsages,
       totalFloorArea,
       operationHours,
-      percentReplacement,
       lightingSystems,
+    );
+  }
+
+  // Annual Energy Savings (kWh/Yr) =
+  // [Annual Lighting System Energy Consumption (kWh)] - [New Lighting System Energy Consumption (kWh)]
+  async getAnnualEnergySavings(buildingId: number, percentReplacement: number) {
+    return (
+      (await this.getNewAnnualLightingSystemEnergyConsumption(
+        buildingId,
+        percentReplacement,
+      )) - (await this.getAnnualLightingSystemEnergyConsumption(buildingId))
     );
   }
 
@@ -178,8 +191,8 @@ export class ImprovementService {
   async getAnnualEnergyCostSavings(
     buildingId: number,
     percentReplacement: number,
-    tariffRate: number,
   ) {
+    const tariffRate = 0.23;
     const prop = await this.prismaService.property.findFirst({
       where: {
         buildingId: {
@@ -234,6 +247,29 @@ export class ImprovementService {
       prop.grossInteriorAreaUnit === 'ft2'
         ? Utilities.convertFt2ToM2(prop.grossInteriorArea)
         : prop.grossInteriorArea;
+
+    // const electricConsumptionsFromHistorizedLogs =
+    //   await this.buildingsService.getListOfElectricConsumptionsFromHistorizedLogs(
+    //     prop[0].propId,
+    //     new Date('2020/01/01'),
+    //     new Date('2020/12/31'),
+    //   );
+
+    // const overallGroupByYear =
+    //   await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByYear(
+    //     prop.id,
+    //     new Date('2020/01/02'),
+    //     new Date('2020/12/31'),
+    //   );
+    //
+    // console.log(overallGroupByYear[0]?.value);
+    //
+    // const totalConsumption = overallGroupByYear[0]?.value;
+
+    // const overallEnergyConsumptionInformation =
+    //   BuildingsService.calculateOverallEnergyConsumptionInformation(
+    //     electricConsumptionsFromHistorizedLogs,
+    //   );
 
     return EnergyConsumptionFormulas.calculateAnnualEnergyCostSavings(
       spaceUsages,
@@ -376,11 +412,8 @@ export class ImprovementService {
   }
 
   // Payback (Yr) = [Cost of Improvement] / [Annual Energy Cost Savings]
-  async getPayback(
-    buildingId: number,
-    percentReplacement: number,
-    tariffRate: number,
-  ) {
+  async getPayback(buildingId: number, percentReplacement: number) {
+    const tariffRate = 0.23;
     const prop = await this.prismaService.property.findFirst({
       where: {
         buildingId: {

@@ -589,7 +589,7 @@ export class BuildingsService {
     };
   }
 
-  private async getListOfElectricConsumptionsFromHistorizedLogs(
+  public async getListOfElectricConsumptionsFromHistorizedLogs(
     propId: number,
     startDay: Date,
     endDay: Date,
@@ -997,7 +997,7 @@ export class BuildingsService {
         ORDER BY p.id DESC`;
   }
 
-  private static calculateOverallEnergyConsumptionInformation(
+  public static calculateOverallEnergyConsumptionInformation(
     electricConsumptionsFromHistorizedLogs: IElectricConsumptionFromHistorizedLogs,
   ): IOverallEnergyConsumptionInformation {
     let totalEnergyConsumption = 0;

@@ -76,18 +76,14 @@ export class ImprovementController {
     );
   }
 
-  @Get(
-    '/getAnnualEnergyCostSavings/:buildingId/:percentReplacement/:tariffRate',
-  )
+  @Get('/getAnnualEnergyCostSavings/:buildingId/:percentReplacement')
   getAnnualEnergyCostSavings(
     @Param('buildingId') buildingId: string,
     @Param('percentReplacement') percentReplacement: string,
-    @Param('tariffRate') tariffRate: string,
   ) {
     return this.improvementService.getAnnualEnergyCostSavings(
       +buildingId,
       +percentReplacement,
-      +tariffRate,
     );
   }
 
@@ -117,18 +113,11 @@ export class ImprovementController {
   }
 
   // Payback (Yr) = [Cost of Improvement] / [Annual Energy Cost Savings]
-  @Get(
-    '/getAnnualCarbonEmissionsAvoided/:buildingId/:percentReplacement/:tariffRate',
-  )
+  @Get('/getPayback/:buildingId/:percentReplacement')
   getPayback(
     @Param('buildingId') buildingId: string,
     @Param('percentReplacement') percentReplacement: string,
-    @Param('tariffRate') tariffRate: string,
   ) {
-    return this.improvementService.getPayback(
-      +buildingId,
-      +percentReplacement,
-      +tariffRate,
-    );
+    return this.improvementService.getPayback(+buildingId, +percentReplacement);
   }
 }
