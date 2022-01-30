@@ -323,7 +323,7 @@ export class EnergyConsumptionFormulas {
           lightingSystems,
         ) *
           this.calculateTotalOperatingHours(operationHours)) /
-        this.calculateOverallLightingEfficacy(lightingSystems)
+        (1000 * this.calculateOverallLightingEfficacy(lightingSystems))
       );
     }
     return 0;
@@ -346,10 +346,11 @@ export class EnergyConsumptionFormulas {
           lightingSystems,
         ) *
           this.calculateTotalOperatingHours(operationHours)) /
-        this.calculateNewOverallLightingEfficacy(
-          lightingSystems,
-          percentReplacement,
-        )
+        (1000 *
+          this.calculateNewOverallLightingEfficacy(
+            lightingSystems,
+            percentReplacement,
+          ))
       );
     }
     return 0;
