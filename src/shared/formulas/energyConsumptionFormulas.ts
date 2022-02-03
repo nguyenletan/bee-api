@@ -224,11 +224,13 @@ export class EnergyConsumptionFormulas {
     return result;
   }
 
-  // New Lighting Efficacy (lm/W) = ([%LED Usage] * [LED Efficacy RoT]) +
-  // ([%Compact Fluorescent Tube Usage] * [Compact Fluorescent Tube Efficacy RoT])
-  // + ([%Fluorescent T5 Tube Usage] * [Fluorescent T5 Tube Efficacy RoT]) +
-  // ([%Fluorescent T8 Tube Usage] * [Fluorescent T8 Tube Efficacy RoT]) +
-  // ([%Fluorescent T12 Tube Usage] * [Fluorescent T12 Tube Efficacy RoT])
+  // New Lighting Efficacy (lm/W) = (([%LED Usage] +[(100% -%LED Usage)*(%Replacement)]) *
+  // [LED Efficacy RoT]) + (([%Compact Fluorescent Tube Usage] * [100% - %Replacement] *
+  // [Compact Fluorescent Tube Efficacy RoT]) + ([%Fluorescent T5 Tube Usage] *
+  // [100% - %Replacement]* [Fluorescent T5 Tube Efficacy RoT]) +
+  // ([%Fluorescent T8 Tube Usage] * [100% - %Replacement] *
+  // [Fluorescent T8 Tube Efficacy RoT]) + ([%Fluorescent T12 Tube Usage] *
+  // [100% - %Replacement] * [Fluorescent T12 Tube Efficacy RoT])
   static calculateNewOverallLightingEfficacy(
     lightingSystems: LightingSystem[],
     percentReplacement: number,
@@ -241,10 +243,17 @@ export class EnergyConsumptionFormulas {
         );
         if (lightFittingEfficacy) {
           //const ledEfficacyRoT = lightFittingEfficacy.efficacy;
-          result +=
-            (lightingSystem.percentageOfFittingTypeUsed / 100) *
-            (100 - percentReplacement) *
-            lightFittingEfficacy.efficacy;
+          if (lightFittingEfficacy.lightFitting === 'LED') {
+            result +=
+              lightingSystem.percentageOfFittingTypeUsed / 100 +
+              ((100 - lightingSystem.percentageOfFittingTypeUsed) / 100) *
+                (percentReplacement / 100);
+          } else {
+            result +=
+              (lightingSystem.percentageOfFittingTypeUsed / 100) *
+              ((100 - percentReplacement) / 100) *
+              lightFittingEfficacy.efficacy;
+          }
         }
       }
       //const result = lightingSystem.percentageOfFittingTypeUsed;
@@ -465,6 +474,27 @@ export class EnergyConsumptionFormulas {
     tariffRate: number,
     lightingSystems: LightingSystem[],
   ): number {
+    // console.log(
+    //   this.calculateCostOfImprovement(
+    //     spaceUsages,
+    //     totalFloorArea,
+    //     percentLEDUsage,
+    //     percentReplacement,
+    //     lightingSystems,
+    //   ),
+    // );
+    // console.log('/');
+    // console.log(
+    //   this.calculateAnnualEnergyCostSavings(
+    //     spaceUsages,
+    //     totalFloorArea,
+    //     operationHours,
+    //     percentReplacement,
+    //     tariffRate,
+    //     lightingSystems,
+    //   ),
+    // );
+
     return (
       this.calculateCostOfImprovement(
         spaceUsages,
