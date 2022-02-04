@@ -376,17 +376,17 @@ export class EnergyConsumptionFormulas {
   ): number {
     if (lightingSystems) {
       return (
-        this.calculateAnnualLightingSystemEnergyConsumption(
-          spaceUsages,
-          totalFloorArea,
-          operationHours,
-          lightingSystems,
-        ) -
         this.calculateNewAnnualLightingSystemEnergyConsumption(
           spaceUsages,
           totalFloorArea,
           operationHours,
           percentReplacement,
+          lightingSystems,
+        ) -
+        this.calculateAnnualLightingSystemEnergyConsumption(
+          spaceUsages,
+          totalFloorArea,
+          operationHours,
           lightingSystems,
         )
       );
