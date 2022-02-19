@@ -65,36 +65,48 @@ export class ImprovementController {
 
   // Annual Energy Savings (kWh/Yr) =
   // [Annual Lighting System Energy Consumption (kWh)] - [New Lighting System Energy Consumption (kWh)]
-  @Get('/getAnnualEnergySavings/:buildingId/:percentReplacement')
+  @Get(
+    '/getAnnualEnergySavings/:buildingId/:oldPercentReplacement/:percentReplacement',
+  )
   getAnnualEnergySavings(
     @Param('buildingId') buildingId: string,
+    @Param('oldPercentReplacement') oldPercentReplacement: string,
     @Param('percentReplacement') percentReplacement: string,
   ) {
     return this.improvementService.getAnnualEnergySavings(
       +buildingId,
+      +oldPercentReplacement,
       +percentReplacement,
     );
   }
 
-  @Get('/getAnnualEnergyCostSavings/:buildingId/:percentReplacement')
+  @Get(
+    '/getAnnualEnergyCostSavings/:buildingId/:oldPercentReplacement/:percentReplacement',
+  )
   getAnnualEnergyCostSavings(
     @Param('buildingId') buildingId: string,
+    @Param('oldPercentReplacement') oldPercentReplacement: string,
     @Param('percentReplacement') percentReplacement: string,
   ) {
     return this.improvementService.getAnnualEnergyCostSavings(
       +buildingId,
+      +oldPercentReplacement,
       +percentReplacement,
     );
   }
 
   // Annual Carbon Emissions Avoided (Tons/Yr) = [Energy Savings] * [Grid Emission Rate]
-  @Get('/getAnnualCarbonEmissionsAvoided/:buildingId/:percentReplacement')
+  @Get(
+    '/getAnnualCarbonEmissionsAvoided/:buildingId/:oldPercentReplacement/:percentReplacement',
+  )
   getAnnualCarbonEmissionsAvoided(
     @Param('buildingId') buildingId: string,
+    @Param('oldPercentReplacement') oldPercentReplacement: string,
     @Param('percentReplacement') percentReplacement: string,
   ) {
     return this.improvementService.getAnnualCarbonEmissionsAvoided(
       +buildingId,
+      +oldPercentReplacement,
       +percentReplacement,
     );
   }
@@ -113,11 +125,16 @@ export class ImprovementController {
   }
 
   // Payback (Yr) = [Cost of Improvement] / [Annual Energy Cost Savings]
-  @Get('/getPayback/:buildingId/:percentReplacement')
+  @Get('/getPayback/:buildingId/:oldPercentReplacement/:percentReplacement')
   getPayback(
     @Param('buildingId') buildingId: string,
+    @Param('oldPercentReplacement') oldPercentReplacement: string,
     @Param('percentReplacement') percentReplacement: string,
   ) {
-    return this.improvementService.getPayback(+buildingId, +percentReplacement);
+    return this.improvementService.getPayback(
+      +buildingId,
+      +oldPercentReplacement,
+      +percentReplacement,
+    );
   }
 }

@@ -119,7 +119,7 @@ export class EnergyConsumptionFormulas {
           heatingSystem.Heater[0].heaterTypeId === 2 ||
           heatingSystem.Heater[0].heaterTypeId === 6
         ) {
-          console.log(heatingSystem.Heater[0]);
+          //console.log(heatingSystem.Heater[0]);
 
           return <IHeatingLoadForGeneralSpace>{
             heatingLoad: spaceHeatingLoad,
@@ -371,9 +371,14 @@ export class EnergyConsumptionFormulas {
     spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
+    oldPercentReplacement: number,
     percentReplacement: number,
     lightingSystems: LightingSystem[],
   ): number {
+    // console.log('oldPercentReplacement:');
+    // console.log(oldPercentReplacement);
+    // console.log('PercentReplacement:');
+    // console.log(percentReplacement);
     if (lightingSystems) {
       return (
         this.calculateNewAnnualLightingSystemEnergyConsumption(
@@ -383,10 +388,11 @@ export class EnergyConsumptionFormulas {
           percentReplacement,
           lightingSystems,
         ) -
-        this.calculateAnnualLightingSystemEnergyConsumption(
+        this.calculateNewAnnualLightingSystemEnergyConsumption(
           spaceUsages,
           totalFloorArea,
           operationHours,
+          oldPercentReplacement,
           lightingSystems,
         )
       );
@@ -399,6 +405,7 @@ export class EnergyConsumptionFormulas {
     spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
+    oldPercentReplacement: number,
     percentReplacement: number,
     tariffRate: number,
     lightingSystems: LightingSystem[],
@@ -409,6 +416,7 @@ export class EnergyConsumptionFormulas {
           spaceUsages,
           totalFloorArea,
           operationHours,
+          oldPercentReplacement,
           percentReplacement,
           lightingSystems,
         ) * tariffRate
@@ -422,6 +430,7 @@ export class EnergyConsumptionFormulas {
     spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
+    oldPercentReplacement: number,
     percentReplacement: number,
     countryCode: string,
     lightingSystems: LightingSystem[],
@@ -431,6 +440,7 @@ export class EnergyConsumptionFormulas {
         spaceUsages,
         totalFloorArea,
         operationHours,
+        oldPercentReplacement,
         percentReplacement,
         lightingSystems,
       );
@@ -469,6 +479,7 @@ export class EnergyConsumptionFormulas {
     spaceUsages: SpaceUsage[],
     totalFloorArea,
     percentLEDUsage: number,
+    oldPercentReplacement: number,
     percentReplacement: number,
     operationHours: AverageOperatingHours,
     tariffRate: number,
@@ -507,6 +518,7 @@ export class EnergyConsumptionFormulas {
         spaceUsages,
         totalFloorArea,
         operationHours,
+        oldPercentReplacement,
         percentReplacement,
         tariffRate,
         lightingSystems,

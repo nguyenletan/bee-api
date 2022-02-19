@@ -178,18 +178,27 @@ export class ImprovementService {
 
   // Annual Energy Savings (kWh/Yr) =
   // [Annual Lighting System Energy Consumption (kWh)] - [New Lighting System Energy Consumption (kWh)]
-  async getAnnualEnergySavings(buildingId: number, percentReplacement: number) {
+  async getAnnualEnergySavings(
+    buildingId: number,
+    oldPercentReplacement: number,
+    percentReplacement: number,
+  ) {
     return (
       (await this.getNewAnnualLightingSystemEnergyConsumption(
         buildingId,
         percentReplacement,
-      )) - (await this.getAnnualLightingSystemEnergyConsumption(buildingId))
+      )) -
+      (await this.getNewAnnualLightingSystemEnergyConsumption(
+        buildingId,
+        oldPercentReplacement,
+      ))
     );
   }
 
   // Annual Energy Cost Savings ($/Yr) = [Energy Savings] * [Tariff Rate]
   async getAnnualEnergyCostSavings(
     buildingId: number,
+    oldPercentReplacement: number,
     percentReplacement: number,
   ) {
     const tariffRate = 0.23;
@@ -275,6 +284,7 @@ export class ImprovementService {
       spaceUsages,
       totalFloorArea,
       operationHours,
+      oldPercentReplacement,
       percentReplacement,
       tariffRate,
       lightingSystems,
@@ -284,6 +294,7 @@ export class ImprovementService {
   // // Annual Carbon Emissions Avoided (Tons/Yr) = [Energy Savings] * [Grid Emission Rate]
   async getAnnualCarbonEmissionsAvoided(
     buildingId: number,
+    oldPercentReplacement: number,
     percentReplacement: number,
   ) {
     const prop = await this.prismaService.property.findFirst({
@@ -345,6 +356,7 @@ export class ImprovementService {
       spaceUsages,
       totalFloorArea,
       operationHours,
+      oldPercentReplacement,
       percentReplacement,
       prop.countryCode,
       lightingSystems,
@@ -412,7 +424,11 @@ export class ImprovementService {
   }
 
   // Payback (Yr) = [Cost of Improvement] / [Annual Energy Cost Savings]
-  async getPayback(buildingId: number, percentReplacement: number) {
+  async getPayback(
+    buildingId: number,
+    oldPercentReplacement: number,
+    percentReplacement: number,
+  ) {
     const tariffRate = 0.23;
     const prop = await this.prismaService.property.findFirst({
       where: {
@@ -477,6 +493,7 @@ export class ImprovementService {
       spaceUsages,
       totalFloorArea,
       percentLEDUsage,
+      oldPercentReplacement,
       percentReplacement,
       operationHours,
       tariffRate,
