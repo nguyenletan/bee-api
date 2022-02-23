@@ -41,6 +41,7 @@ async function bootstrap() {
     origin: '*',
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+
   });
 
   const config = new DocumentBuilder()
