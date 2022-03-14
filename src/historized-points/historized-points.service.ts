@@ -338,4 +338,12 @@ export class HistorizedPointsService {
     // console.log(equipmentQueryResult);
     return equipmentTypeQueryResult;
   }
+
+  // async getMaxDayAndMinDayOfLightingHistorizedPointsByPropertyId(propId: number): Promise<{minDate: Date, maxDate: Date}> {
+  //   const minMax = await this.prismaService.$queryRaw`
+  //   SELECT MAX("createdAt"), min("createdAt") FROM "LightingHistorizedPoint"
+  //   WHERE "propId" = 143`;
+
+
+  // }
 }

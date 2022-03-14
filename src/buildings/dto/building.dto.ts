@@ -73,7 +73,7 @@ export interface ISpaceUsageGFA {
   typeId: number;
   percentage: number;
   climateControlId: number;
-  fanTypeId: number;
+  fanTypeId: number | string | null;
   hasReheatRecovery: boolean;
 }
 
@@ -109,6 +109,9 @@ export interface ILightingSubSystem {
   title: string;
   indoorLightingSystemTypeId: number;
   percentage: number;
+  numberOfBulbs: number;
+  wattRatingOfBulb: number;
+  lumensOfBulb: number;
 }
 
 export interface IEnvelopFacade {

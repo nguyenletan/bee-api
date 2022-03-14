@@ -12,6 +12,8 @@ import { FirebaseAuthStrategy } from './firebase/firebase-auth.strategy';
 import { HistorizedPointsModule } from './historized-points/historized-points.module';
 import { EquipmentsModule } from './equipments/equipments.module';
 import { ImprovementModule } from './improvement/improvement.module';
+import { LightingSystemModule } from './lighting-system/lighting-system.module';
+
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { ImprovementModule } from './improvement/improvement.module';
     HistorizedPointsModule,
     EquipmentsModule,
     ImprovementModule,
+    LightingSystemModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, PrismaService, FirebaseAuthStrategy],

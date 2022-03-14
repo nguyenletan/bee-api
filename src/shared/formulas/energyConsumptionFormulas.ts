@@ -320,7 +320,7 @@ export class EnergyConsumptionFormulas {
   // ([Total Lighting Load] * [Annual Operating Hours]) / (1000  * [Overall Lighting Efficacy])
   static calculateAnnualLightingSystemEnergyConsumption(
     spaceUsages: SpaceUsage[],
-    totalFloorArea,
+    totalFloorArea: number,
     operationHours: AverageOperatingHours,
     lightingSystems: LightingSystem[],
   ): number {
@@ -340,6 +340,10 @@ export class EnergyConsumptionFormulas {
 
   // New Annual Lighting System Energy Consumption (kWh) =
   // ([Total Lighting Load] * [Annual Operating Hours]) / (1000  * [New Overall Lighting Efficacy])
+
+  // New Annual Lighting System Energy Consumption (kWh) =
+  // ([Current Lighting Efficacy (lm/W)] / [New Lighting Efficacy (lm/W)])
+  // * ([Baseline Annual Lighting System Energy Consumption (kWh)])
   static calculateNewAnnualLightingSystemEnergyConsumption(
     spaceUsages: SpaceUsage[],
     totalFloorArea,
@@ -371,28 +375,22 @@ export class EnergyConsumptionFormulas {
     spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
-    oldPercentReplacement: number,
     percentReplacement: number,
     lightingSystems: LightingSystem[],
   ): number {
-    // console.log('oldPercentReplacement:');
-    // console.log(oldPercentReplacement);
-    // console.log('PercentReplacement:');
-    // console.log(percentReplacement);
     if (lightingSystems) {
       return (
-        this.calculateNewAnnualLightingSystemEnergyConsumption(
+        this.calculateAnnualLightingSystemEnergyConsumption(
           spaceUsages,
           totalFloorArea,
           operationHours,
-          percentReplacement,
           lightingSystems,
         ) -
         this.calculateNewAnnualLightingSystemEnergyConsumption(
           spaceUsages,
           totalFloorArea,
           operationHours,
-          oldPercentReplacement,
+          percentReplacement,
           lightingSystems,
         )
       );
@@ -405,7 +403,6 @@ export class EnergyConsumptionFormulas {
     spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
-    oldPercentReplacement: number,
     percentReplacement: number,
     tariffRate: number,
     lightingSystems: LightingSystem[],
@@ -416,7 +413,6 @@ export class EnergyConsumptionFormulas {
           spaceUsages,
           totalFloorArea,
           operationHours,
-          oldPercentReplacement,
           percentReplacement,
           lightingSystems,
         ) * tariffRate
@@ -430,7 +426,6 @@ export class EnergyConsumptionFormulas {
     spaceUsages: SpaceUsage[],
     totalFloorArea,
     operationHours: AverageOperatingHours,
-    oldPercentReplacement: number,
     percentReplacement: number,
     countryCode: string,
     lightingSystems: LightingSystem[],
@@ -440,7 +435,6 @@ export class EnergyConsumptionFormulas {
         spaceUsages,
         totalFloorArea,
         operationHours,
-        oldPercentReplacement,
         percentReplacement,
         lightingSystems,
       );
@@ -479,7 +473,6 @@ export class EnergyConsumptionFormulas {
     spaceUsages: SpaceUsage[],
     totalFloorArea,
     percentLEDUsage: number,
-    oldPercentReplacement: number,
     percentReplacement: number,
     operationHours: AverageOperatingHours,
     tariffRate: number,
@@ -518,7 +511,6 @@ export class EnergyConsumptionFormulas {
         spaceUsages,
         totalFloorArea,
         operationHours,
-        oldPercentReplacement,
         percentReplacement,
         tariffRate,
         lightingSystems,
