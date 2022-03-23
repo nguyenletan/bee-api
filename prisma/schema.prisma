@@ -313,6 +313,9 @@ model LightingSystem {
   numberOfBulbs               Int?
   wattRatingOfBulb            Int?
   lumensOfBulb                Float?
+  title                       String?              @db.VarChar
+  numberOfDaysUsedPerWeek     Int?
+  numberOfHoursUsedPerDay     Int?
   LightingFittingType         LightingFittingType? @relation(fields: [lightingFittingTypeId], references: [id], onDelete: Cascade, map: "lightinginformationsection_fittingtype_id_fk")
   Property                    Property?            @relation(fields: [propId], references: [id], onDelete: Cascade, map: "lightingfittingsystem_property_id_fk")
   Equipments                  Equipments[]

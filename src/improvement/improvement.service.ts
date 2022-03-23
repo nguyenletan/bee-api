@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { add } from 'date-fns';
+import { sumBy } from 'lodash';
 import { CreateImprovementDto } from './dto/create-improvement.dto';
 import { UpdateImprovementDto } from './dto/update-improvement.dto';
 import { PrismaService } from '../prisma.service';
@@ -56,6 +57,7 @@ export class ImprovementService {
     percentReplacement: number,
     period: number,
     startDate: Date,
+    newLightingSystem: any,
   ) {
     const prop = await this.prismaService.property.findFirst({
       where: {
@@ -75,23 +77,32 @@ export class ImprovementService {
         id: 'asc',
       },
     });
-    return (
-      (EnergyConsumptionFormulas.calculateOverallLightingEfficacy(
-        lightingSystems,
-      ) /
-        EnergyConsumptionFormulas.calculateNewOverallLightingEfficacy(
-          lightingSystems,
-          percentReplacement,
-        )) *
-      (await this.getAnnualLightingSystemEnergyConsumption(
+    const baselineAnnualLightingSystemEnergyConsumption =
+      await this.getBaselineAnnualLightingSystemEnergyConsumption(
         buildingId,
         period,
         startDate,
-      ))
+      );
+
+    const currentLightingEfficacy =
+      EnergyConsumptionFormulas.calculateOverallLightingEfficacy(
+        lightingSystems,
+      );
+
+    const newLightingEfficacy = +sumBy(newLightingSystem, (item: any) => {
+      if (item.lumensOfBulb > 0) {
+        return item.wattRatingOfBulb / item.lumensOfBulb;
+      }
+      return 0;
+    }).toFixed(2);
+
+    return (
+      (currentLightingEfficacy / newLightingEfficacy) *
+      baselineAnnualLightingSystemEnergyConsumption
     );
   }
 
-  async getAnnualLightingSystemEnergyConsumption(
+  async getBaselineAnnualLightingSystemEnergyConsumption(
     buildingId: number,
     period: number,
     startDate: Date,
@@ -104,21 +115,21 @@ export class ImprovementService {
       },
     });
 
-    console.log(startDate);
-    console.log(add(startDate, { years: period }));
+    // console.log(startDate);
+    // console.log(add(startDate, { years: period }));
 
-    // const totalHistorizedLightingSystemConsumption =
-    //   await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
-    //     prop.id,
-    //     startDate,
-    //     add(startDate, { years: period }),
-    //   );
-    //
-    // if (totalHistorizedLightingSystemConsumption[0].sum > 0) {
-    //   return totalHistorizedLightingSystemConsumption[0].sum / period;
-    // }
-    //
-    // console.log(totalHistorizedLightingSystemConsumption);
+    const totalHistorizedLightingSystemConsumption =
+      await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
+        prop.id,
+        startDate,
+        add(startDate, { years: period }),
+      );
+
+    if (totalHistorizedLightingSystemConsumption[0].sum > 0) {
+      return totalHistorizedLightingSystemConsumption[0].sum / period;
+    }
+
+    console.log(totalHistorizedLightingSystemConsumption);
 
     const lightingSystems = await this.prismaService.lightingSystem.findMany({
       where: {
@@ -183,18 +194,20 @@ export class ImprovementService {
     percentReplacement: number,
     period: number,
     startDate: Date,
+    lightingSystem: any,
   ) {
     return (
+      (await this.getBaselineAnnualLightingSystemEnergyConsumption(
+        buildingId,
+        period,
+        startDate,
+      )) -
       (await this.getNewAnnualLightingSystemEnergyConsumption(
         buildingId,
         percentReplacement,
         period,
         startDate,
-      )) -
-      (await this.getAnnualLightingSystemEnergyConsumption(
-        buildingId,
-        period,
-        startDate,
+        lightingSystem,
       ))
     );
   }
@@ -207,14 +220,15 @@ export class ImprovementService {
     startDate: Date,
   ) {
     const tariffRate = 0.23;
-    return (
-      (await this.getAnnualEnergySavings(
-        buildingId,
-        percentReplacement,
-        period,
-        startDate,
-      )) * tariffRate
-    );
+    return 0;
+    // return (
+    //   (await this.getAnnualEnergySavings(
+    //     buildingId,
+    //     percentReplacement,
+    //     period,
+    //     startDate,
+    //   )) * tariffRate
+    // );
   }
 
   // // Annual Carbon Emissions Avoided (Tons/Yr) = [Energy Savings] * [Grid Emission Rate]
@@ -232,16 +246,18 @@ export class ImprovementService {
       },
     });
 
-    const annualEnergySavings = await this.getAnnualEnergySavings(
-      buildingId,
-      percentReplacement,
-      period,
-      startDate,
-    );
-    return EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
-      annualEnergySavings,
-      prop.countryCode,
-    );
+    return 0;
+
+    // const annualEnergySavings = await this.getAnnualEnergySavings(
+    //   buildingId,
+    //   percentReplacement,
+    //   period,
+    //   startDate,
+    // );
+    // return EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
+    //   annualEnergySavings,
+    //   prop.countryCode,
+    // );
   }
 
   // Cost of Improvement ($) =

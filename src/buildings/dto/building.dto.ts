@@ -112,6 +112,8 @@ export interface ILightingSubSystem {
   numberOfBulbs: number;
   wattRatingOfBulb: number;
   lumensOfBulb: number;
+  numberOfDaysUsedPerWeek: number;
+  numberOfHoursUsedPerDay: number;
 }
 
 export interface IEnvelopFacade {

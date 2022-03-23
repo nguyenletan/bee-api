@@ -755,9 +755,12 @@ export class BuildingsService {
             (+item.numberOfBulbs / totalOfBulbs) *
             100
           ).toFixed(2),
+          title: item.title,
           numberOfBulbs: +item.numberOfBulbs,
           lumensOfBulb: +item.lumensOfBulb,
           wattRatingOfBulb: +item.wattRatingOfBulb,
+          numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
+          numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
         };
       },
     );
@@ -1901,7 +1904,7 @@ export class BuildingsService {
         (lightingSubSystem: LightingSystem) => {
           return {
             id: lightingSubSystem.id,
-            title: 'title ' + lightingSubSystem.id,
+            title: lightingSubSystem.title,
             indoorLightingSystemTypeId: lightingSubSystem.lightingFittingTypeId,
             percentage: +(
               (+lightingSubSystem.numberOfBulbs / totalOfBulbs) *
@@ -1910,6 +1913,8 @@ export class BuildingsService {
             lumensOfBulb: lightingSubSystem.lumensOfBulb,
             numberOfBulbs: lightingSubSystem.numberOfBulbs,
             wattRatingOfBulb: lightingSubSystem.wattRatingOfBulb,
+            numberOfHoursUsedPerDay: lightingSubSystem.numberOfHoursUsedPerDay,
+            numberOfDaysUsedPerWeek: lightingSubSystem.numberOfDaysUsedPerWeek,
           };
         },
       );
@@ -2251,8 +2256,11 @@ export class BuildingsService {
         numberOfBulbs: +item.numberOfBulbs,
         wattRatingOfBulb: +item.wattRatingOfBulb,
         lumensOfBulb: +item.lumensOfBulb,
+        title: item.title,
+        numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
+        numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
       };
-      console.log(item);
+      //console.log(item);
       await this.prismaService.lightingSystem.upsert({
         where: {
           id: item.id,

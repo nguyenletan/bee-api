@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma.service';
 import * as _ from 'lodash';
 import { IEquipmentTypeGroup } from '../shared/types/iEquipmentTypeGroup';
 import { IEquipmentGroup } from '../shared/types/iEquipmentGroup';
+import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class HistorizedPointsService {
@@ -277,9 +278,9 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ): Promise<number> {
-    return await this.prismaService.$queryRaw`
+    return await this.prismaService.$queryRaw(Prisma.sql`
         select sum(value) from "LightingHistorizedPoint"
-        where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
+        where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`);
   }
 
   async sumAllOverallHistorizedPointsByPropertyIdAndDateRange(

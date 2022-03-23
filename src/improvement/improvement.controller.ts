@@ -59,30 +59,38 @@ export class ImprovementController {
     @Param('period') period: string,
     @Param('startDate') startDate: string,
   ) {
-    return this.improvementService.getNewAnnualLightingSystemEnergyConsumption(
-      +buildingId,
-      +percentReplacement,
-      +period,
-      new Date(startDate),
-    );
+    return 0;
+    // return this.improvementService.getNewAnnualLightingSystemEnergyConsumption(
+    //   +buildingId,
+    //   +percentReplacement,
+    //   +period,
+    //   new Date(startDate),
+    // );
   }
 
   // Annual Energy Savings (kWh/Yr) =
   // [Annual Lighting System Energy Consumption (kWh)] - [New Lighting System Energy Consumption (kWh)]
-  @Get(
-    '/getAnnualEnergySavings/:buildingId/:percentReplacement/:period/:startDate/',
-  )
+  @Post('/getAnnualEnergySavings/')
   getAnnualEnergySavings(
-    @Param('buildingId') buildingId: string,
-    @Param('percentReplacement') percentReplacement: string,
-    @Param('period') period: string,
-    @Param('startDate') startDate: string,
+    // @Param('buildingId') buildingId: string,
+    // @Param('percentReplacement') percentReplacement: string,
+    // @Param('period') period: string,
+    // @Param('startDate') startDate: string,
+    @Body()
+    data: {
+      lightingSystem: any;
+      buildingId: string;
+      percentReplacement: string;
+      period: string;
+      startDate: string;
+    },
   ) {
     return this.improvementService.getAnnualEnergySavings(
-      +buildingId,
-      +percentReplacement,
-      +period,
-      new Date(startDate),
+      +data.buildingId,
+      +data.percentReplacement,
+      +data.period,
+      new Date(data.startDate),
+      data.lightingSystem,
     );
   }
 
