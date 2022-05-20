@@ -1,5 +1,5 @@
-import { Injectable } from "@nestjs/common";
-import { format, subDays, subYears } from "date-fns";
+import { Injectable } from '@nestjs/common';
+import { format, subDays, subYears } from 'date-fns';
 
 import {
   BuildingDto,
@@ -10,9 +10,9 @@ import {
   IHeatingSystem,
   ILightingSubSystem,
   ISolarPanelSystem,
-  ISpaceUsageGFA
-} from "./dto/building.dto";
-import { PrismaService } from "../prisma.service";
+  ISpaceUsageGFA,
+} from './dto/building.dto';
+import { PrismaService } from '../prisma.service';
 import {
   AverageOperatingHours,
   ElectricityConsumption,
@@ -20,33 +20,33 @@ import {
   LightingSystem,
   Property,
   SolarPanelSystem,
-  SpaceUsage
-} from "@prisma/client";
-import * as _ from "lodash";
-import { EnergyConsumptionFormulas } from "../shared/formulas/energyConsumptionFormulas";
-import { Utilities } from "../shared/utilities";
-import { ICoolingLoadForGeneralSpace } from "../shared/types/iCoolingLoadForGeneralSpace";
-import { IHeatingLoadForGeneralSpace } from "../shared/types/iHeatingLoadForGeneralSpace";
-import { IMechanicalVentilationForGeneralSpace } from "../shared/types/iMechanicalVentilationForGeneralSpace";
-import { ILightingLoadForSpace } from "../shared/types/iLightingLoadForSpace";
-import { IBreakdownConsumption } from "../shared/types/iBreakdownConsumption";
+  SpaceUsage,
+} from '@prisma/client';
+import * as _ from 'lodash';
+import { EnergyConsumptionFormulas } from '../shared/formulas/energyConsumptionFormulas';
+import { Utilities } from '../shared/utilities';
+import { ICoolingLoadForGeneralSpace } from '../shared/types/iCoolingLoadForGeneralSpace';
+import { IHeatingLoadForGeneralSpace } from '../shared/types/iHeatingLoadForGeneralSpace';
+import { IMechanicalVentilationForGeneralSpace } from '../shared/types/iMechanicalVentilationForGeneralSpace';
+import { ILightingLoadForSpace } from '../shared/types/iLightingLoadForSpace';
+import { IBreakdownConsumption } from '../shared/types/iBreakdownConsumption';
 // import { EnergyCostFormulas } from '../shared/formulas/energyCostFormulas';
 // import { IBreakdownCost } from '../shared/types/iBreakdownCost';
 // import { ICO2EmissionBreakdown } from '../shared/types/iCO2EmissionBreakdown';
 // import { EnergyCO2EmissionFormulas } from '../shared/formulas/energyCO2EmissionFormulas';
-import { PVGISService } from "../shared/externalAPIs/PVGIS.service";
-import { PVTechChoices } from "../shared/types/iPVTechChoice";
-import { BuildingEnvelopeUValueReferences } from "../shared/reference-tables/buildingEnvelopeUValue.reference";
-import { IBuildingEnvelopeDetail } from "../shared/types/iBuildingEnvelopeDetail";
-import { BuildingWindowUValuesReferences } from "../shared/reference-tables/buildingWindowUValues.reference";
-import { AreaMeasureUnit, LengthMeasureUnit } from "../shared/types/unit";
-import { HistorizedPointsService } from "../historized-points/historized-points.service";
-import { IEquipmentGroup } from "../shared/types/iEquipmentGroup";
+import { PVGISService } from '../shared/externalAPIs/PVGIS.service';
+import { PVTechChoices } from '../shared/types/iPVTechChoice';
+import { BuildingEnvelopeUValueReferences } from '../shared/reference-tables/buildingEnvelopeUValue.reference';
+import { IBuildingEnvelopeDetail } from '../shared/types/iBuildingEnvelopeDetail';
+import { BuildingWindowUValuesReferences } from '../shared/reference-tables/buildingWindowUValues.reference';
+import { AreaMeasureUnit, LengthMeasureUnit } from '../shared/types/unit';
+import { HistorizedPointsService } from '../historized-points/historized-points.service';
+import { IEquipmentGroup } from '../shared/types/iEquipmentGroup';
 import {
   IElectricConsumptionFromHistorizedLogs,
-  IElectricConsumptionFromHistorizedLogsSubSystem
-} from "../shared/types/IElectricConsumptionFromHistorizedLogs";
-import { IOverallEnergyConsumptionInformation } from "../shared/types/iOverallEnergyConsumptionInformation";
+  IElectricConsumptionFromHistorizedLogsSubSystem,
+} from '../shared/types/IElectricConsumptionFromHistorizedLogs';
+import { IOverallEnergyConsumptionInformation } from '../shared/types/iOverallEnergyConsumptionInformation';
 
 // import { IEquipmentTypeGroup } from '../shared/types/iEquipmentTypeGroup';
 
@@ -55,19 +55,18 @@ export class BuildingsService {
   constructor(
     private prismaService: PrismaService,
     private _PVGISService: PVGISService,
-    private historizedPointsService: HistorizedPointsService
-  ) {
-  }
+    private historizedPointsService: HistorizedPointsService,
+  ) {}
 
   private static calculateAnnualConsumptionOfCoolingSystem(
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
-    annualTotalOperatingHours: number
+    annualTotalOperatingHours: number,
   ): ICoolingLoadForGeneralSpace {
     const result: ICoolingLoadForGeneralSpace = {
       coolingLoad: 0,
       coolingLoadForSpace: 0,
-      equipmentTypeGroups: null
+      equipmentTypeGroups: null,
     };
     if (spaceUsages) {
       for (const spaceUsage of spaceUsages) {
@@ -80,7 +79,7 @@ export class BuildingsService {
               spaceUsage,
               totalFloorArea,
               spaceUsage.usagePercentage,
-              annualTotalOperatingHours
+              annualTotalOperatingHours,
             );
           if (coolingLoadForGeneralSpace) {
             result.coolingLoad +=
@@ -100,12 +99,12 @@ export class BuildingsService {
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
     annualTotalOperatingHours: number,
-    heatingSystem: any
+    heatingSystem: any,
   ): IHeatingLoadForGeneralSpace {
     const result: IHeatingLoadForGeneralSpace = {
       heatingLoad: 0,
       heatingLoadForSpace: 0,
-      equipmentTypeGroups: null
+      equipmentTypeGroups: null,
     };
     if (spaceUsages) {
       for (const spaceUsage of spaceUsages) {
@@ -119,7 +118,7 @@ export class BuildingsService {
               totalFloorArea,
               spaceUsage.usagePercentage,
               annualTotalOperatingHours,
-              heatingSystem
+              heatingSystem,
             );
           if (heatingLoadForGeneralSpace) {
             result.heatingLoad +=
@@ -139,12 +138,12 @@ export class BuildingsService {
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
     annualTotalOperatingHours: number,
-    lightingSystems: LightingSystem[]
+    lightingSystems: LightingSystem[],
   ): ILightingLoadForSpace {
     const result: ILightingLoadForSpace = {
       lightingLoad: 0,
       lightingEnergyConsumption: 0,
-      equipmentTypeGroups: null
+      equipmentTypeGroups: null,
     };
 
     if (spaceUsages) {
@@ -154,7 +153,7 @@ export class BuildingsService {
           EnergyConsumptionFormulas.calculateLightingEnergyUseForSpace(
             spaceUsage,
             totalFloorArea,
-            lightingSystems
+            lightingSystems,
           );
       }
       result.lightingEnergyConsumption =
@@ -168,12 +167,12 @@ export class BuildingsService {
   private static calculateAnnualMechanicalVentilationSystem(
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
-    annualTotalOperatingHours: number
+    annualTotalOperatingHours: number,
   ): IMechanicalVentilationForGeneralSpace {
     const result: IMechanicalVentilationForGeneralSpace = {
       airVolumeFlowRate: 0,
       annualEnergyUsage: 0,
-      equipmentTypeGroups: null
+      equipmentTypeGroups: null,
     };
     if (spaceUsages) {
       for (const spaceUsage of spaceUsages) {
@@ -182,7 +181,7 @@ export class BuildingsService {
             EnergyConsumptionFormulas.calculateAnnualEnergyUsageForEachMechanicallyVentilatedSpace(
               spaceUsage,
               totalFloorArea,
-              annualTotalOperatingHours
+              annualTotalOperatingHours,
             );
           if (mechanicalVentilationForGeneralSpace) {
             result.airVolumeFlowRate +=
@@ -200,10 +199,10 @@ export class BuildingsService {
 
   private static calculateSubBreakdownForSubSystem(
     total: number,
-    equipmentGroups: IEquipmentGroup[]
+    equipmentGroups: IEquipmentGroup[],
   ) {
     return equipmentGroups.map((e) => {
-      console.log("equipmentId: ");
+      console.log('equipmentId: ');
       console.log(e);
       return {
         id: e.name,
@@ -211,13 +210,13 @@ export class BuildingsService {
         value: +((e.sum * 100) / total).toFixed(0),
         subBreakdown: null,
         equipmentId: e.id,
-        color: null
+        color: null,
       };
     });
   }
 
   private static calculateCoolingConsumptionBreakdown(
-    coolingLoadConsumption: ICoolingLoadForGeneralSpace
+    coolingLoadConsumption: ICoolingLoadForGeneralSpace,
   ): IBreakdownConsumption[] {
     return coolingLoadConsumption.equipmentTypeGroups.map((c) => {
       // console.log('c');
@@ -231,15 +230,15 @@ export class BuildingsService {
         ).toFixed(0),
         subBreakdown: BuildingsService.calculateSubBreakdownForSubSystem(
           c.sum,
-          c.equipmentGroups
+          c.equipmentGroups,
         ),
-        color: null
+        color: null,
       };
     });
   }
 
   private static calculateHeatingConsumptionBreakdown(
-    heatingLoadConsumption: IHeatingLoadForGeneralSpace
+    heatingLoadConsumption: IHeatingLoadForGeneralSpace,
   ): IBreakdownConsumption[] {
     return heatingLoadConsumption.equipmentTypeGroups.map((c) => {
       return {
@@ -251,15 +250,15 @@ export class BuildingsService {
         ).toFixed(0),
         subBreakdown: BuildingsService.calculateSubBreakdownForSubSystem(
           c.sum,
-          c.equipmentGroups
+          c.equipmentGroups,
         ),
-        color: null
+        color: null,
       };
     });
   }
 
   private static calculateMechanicalVentilationConsumptionBreakdown(
-    mechanicalVentilationConsumption: IMechanicalVentilationForGeneralSpace
+    mechanicalVentilationConsumption: IMechanicalVentilationForGeneralSpace,
   ): IBreakdownConsumption[] {
     return mechanicalVentilationConsumption.equipmentTypeGroups.map((c) => {
       return {
@@ -271,9 +270,9 @@ export class BuildingsService {
         ).toFixed(0),
         subBreakdown: BuildingsService.calculateSubBreakdownForSubSystem(
           c.sum,
-          c.equipmentGroups
+          c.equipmentGroups,
         ),
-        color: null
+        color: null,
       };
     });
   }
@@ -283,7 +282,7 @@ export class BuildingsService {
     heatingLoadConsumption: IHeatingLoadForGeneralSpace,
     mechanicalVentilationConsumption: IMechanicalVentilationForGeneralSpace,
     lightingLoadConsumption: ILightingLoadForSpace,
-    otherConsumption: number
+    otherConsumption: number,
   ): IBreakdownConsumption[] {
     const total =
       coolingLoadConsumption.coolingLoadForSpace +
@@ -321,54 +320,54 @@ export class BuildingsService {
 
     return [
       {
-        id: "cooling",
+        id: 'cooling',
         value: coolingLoadConsumptionPercentage,
         consumption: coolingLoadConsumption.coolingLoadForSpace,
-        color: "#636c2e",
+        color: '#636c2e',
         subBreakdown: BuildingsService.calculateCoolingConsumptionBreakdown(
-          coolingLoadConsumption
-        )
+          coolingLoadConsumption,
+        ),
       },
       {
-        id: "heating",
+        id: 'heating',
         value: heatingLoadConsumptionPercentage,
         consumption: heatingLoadConsumption.heatingLoadForSpace,
-        color: "#87972f",
+        color: '#87972f',
         subBreakdown: BuildingsService.calculateHeatingConsumptionBreakdown(
-          heatingLoadConsumption
-        )
+          heatingLoadConsumption,
+        ),
       },
       {
-        id: "lighting",
+        id: 'lighting',
         value: lightingLoadConsumptionPercentage,
         consumption: heatingLoadConsumption.heatingLoadForSpace,
-        color: "#acbf42",
-        subBreakdown: null
+        color: '#acbf42',
+        subBreakdown: null,
       },
       {
-        id: "mechanical ventilation",
+        id: 'mechanical ventilation',
         value: mechanicalVentilationConsumptionPercentage,
         consumption: mechanicalVentilationConsumption.annualEnergyUsage,
-        color: "#c1cf74",
+        color: '#c1cf74',
         subBreakdown:
           BuildingsService.calculateMechanicalVentilationConsumptionBreakdown(
-            mechanicalVentilationConsumption
-          )
+            mechanicalVentilationConsumption,
+          ),
       },
       {
-        id: "others",
+        id: 'others',
         value: otherConsumptionPercentage,
         consumption: otherConsumption,
-        color: "#d5dfa3",
-        subBreakdown: null
-      }
+        color: '#d5dfa3',
+        subBreakdown: null,
+      },
     ];
   }
 
   private static async calculateAverageDailyEnergyProductionSolarPVSystem(
     solarPVSystems: SolarPanelSystem[],
     pvgisService: PVGISService,
-    prop: Property
+    prop: Property,
   ): Promise<number> {
     if (solarPVSystems) {
       let result = 0;
@@ -378,7 +377,7 @@ export class BuildingsService {
           await BuildingsService.calculateAverageDailyEnergyProductionEachSolarPVSystem(
             solarPVSystem,
             pvgisService,
-            prop
+            prop,
           );
       }
       return result;
@@ -389,7 +388,7 @@ export class BuildingsService {
   private static async calculateAverageDailyEnergyProductionEachSolarPVSystem(
     solarPVSystem: SolarPanelSystem,
     pvgisService: PVGISService,
-    prop: Property
+    prop: Property,
   ): Promise<number> {
     const peakPower = solarPVSystem.installedCapacity;
 
@@ -401,11 +400,11 @@ export class BuildingsService {
     }
 
     const pvTechChoice = PVTechChoices.find(
-      (x) => solarPVSystem.pvTechChoiceId === x.id
+      (x) => solarPVSystem.pvTechChoiceId === x.id,
     )?.shortName;
 
     const mountingPlace =
-      solarPVSystem.mountingTypeId === 1 ? "free" : "building";
+      solarPVSystem.mountingTypeId === 1 ? 'free' : 'building';
 
     const loss = solarPVSystem.systemLoss;
     const fixed = solarPVSystem.trackingTypeId === 1 ? 1 : 0;
@@ -416,12 +415,12 @@ export class BuildingsService {
 
     const aspect: number | string =
       aspectValue === 0
-        ? "south"
+        ? 'south'
         : aspectValue === 90
-          ? "west"
-          : aspectValue === -90
-            ? "east"
-            : aspectValue;
+        ? 'west'
+        : aspectValue === -90
+        ? 'east'
+        : aspectValue;
 
     const inclinedAxis = solarPVSystem.inclineAngle ? 1 : 0;
 
@@ -451,7 +450,7 @@ export class BuildingsService {
       inclinedOptimum,
       verticalAxis,
       verticalAxisAngle,
-      twoAxis
+      twoAxis,
     );
     // t.subscribe({
     //   next(response) {
@@ -474,7 +473,7 @@ export class BuildingsService {
 
   private static calculateUValue(
     prop: Property,
-    externalEnvelopeSubSystem: ExternalEnvelopeSubSystem
+    externalEnvelopeSubSystem: ExternalEnvelopeSubSystem,
   ): IBuildingEnvelopeDetail {
     if (prop) {
       let year = prop.completionYear + 10;
@@ -488,12 +487,12 @@ export class BuildingsService {
 
       const uValue = _.findLast(
         BuildingEnvelopeUValueReferences,
-        (x) => x.year <= year
+        (x) => x.year <= year,
       );
 
       const buildingWindowUValue = BuildingWindowUValuesReferences.find(
         (x) =>
-          (x.id = externalEnvelopeSubSystem.externalWindowInsulationTypeId)
+          (x.id = externalEnvelopeSubSystem.externalWindowInsulationTypeId),
       );
 
       let windowUValue = null;
@@ -521,7 +520,7 @@ export class BuildingsService {
         wall: wallUValue,
         floor: floorUValue,
         openings: windowUValue,
-        roof: roofUValue
+        roof: roofUValue,
       };
     }
     return null;
@@ -532,7 +531,7 @@ export class BuildingsService {
     groupByQuarter: unknown,
     groupByMonth: unknown,
     groupByWeek: unknown,
-    groupByDay: unknown
+    groupByDay: unknown,
   ): IElectricConsumptionFromHistorizedLogsSubSystem {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -540,7 +539,7 @@ export class BuildingsService {
       return {
         value: +(x.value / 1000).toFixed(2), // convert to mWh
         label: x.year,
-        year: x.year
+        year: x.year,
       };
     });
 
@@ -549,9 +548,9 @@ export class BuildingsService {
     const electricConsumptionGroupByQuarter = groupByQuarter.map((x) => {
       return {
         value: +(x.value / 1000).toFixed(2), // convert to mWh
-        label: "Q" + x.quarter + " " + x.year,
+        label: 'Q' + x.quarter + ' ' + x.year,
         year: x.year,
-        quarter: x.quarter
+        quarter: x.quarter,
       };
     });
 
@@ -560,9 +559,9 @@ export class BuildingsService {
     const electricConsumptionGroupByMonth = groupByMonth.map((x) => {
       return {
         value: +(x.value / 1000).toFixed(2), // convert to mWh
-        label: x.month + "/" + x.year,
+        label: x.month + '/' + x.year,
         year: x.year,
-        month: x.month
+        month: x.month,
       };
     });
 
@@ -571,9 +570,9 @@ export class BuildingsService {
     const electricConsumptionGroupByWeek = groupByWeek.map((x) => {
       return {
         value: +(x.value / 1000).toFixed(2), // convert to mWh
-        label: "W" + x.week + " " + x.year,
+        label: 'W' + x.week + ' ' + x.year,
         year: x.year,
-        week: x.week
+        week: x.week,
       };
     });
 
@@ -582,10 +581,10 @@ export class BuildingsService {
     const electricConsumptionGroupByDay = groupByDay.map((x) => {
       return {
         value: +(x.value / 1000).toFixed(2),
-        label: x.day + "/" + x.month + "/" + x.year,
+        label: x.day + '/' + x.month + '/' + x.year,
         year: x.year,
         month: x.month,
-        day: x.day
+        day: x.day,
       };
     });
 
@@ -594,34 +593,34 @@ export class BuildingsService {
       electricConsumptionGroupByQuarter: electricConsumptionGroupByQuarter,
       electricConsumptionGroupByMonth: electricConsumptionGroupByMonth,
       electricConsumptionGroupByWeek: electricConsumptionGroupByWeek,
-      electricConsumptionGroupByDay: electricConsumptionGroupByDay
+      electricConsumptionGroupByDay: electricConsumptionGroupByDay,
     };
   }
 
   public async getListOfElectricConsumptionsFromHistorizedLogs(
     propId: number,
     startDay: Date,
-    endDay: Date
+    endDay: Date,
   ): Promise<IElectricConsumptionFromHistorizedLogs> {
     const overallGroupByYear =
       await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByYear(
         propId,
         startDay,
-        endDay
+        endDay,
       );
 
     const overallGroupByQuarter =
       await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByQuarter(
         propId,
         startDay,
-        endDay
+        endDay,
       );
 
     const overallGroupByMonth =
       await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByMonth(
         propId,
         startDay,
-        endDay
+        endDay,
       );
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -629,7 +628,7 @@ export class BuildingsService {
       await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByWeek(
         propId,
         startDay,
-        endDay
+        endDay,
       );
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -637,7 +636,7 @@ export class BuildingsService {
       await this.historizedPointsService.getOverallHistorizedPointsByPropertyIdAndGroupByDay(
         propId,
         startDay,
-        endDay
+        endDay,
       );
 
     const overall = this.calculateConsumptionsFromHistorizedLogsAndGroupBy(
@@ -645,28 +644,28 @@ export class BuildingsService {
       overallGroupByQuarter,
       overallGroupByMonth,
       overallGroupByWeek,
-      overallGroupByDay
+      overallGroupByDay,
     );
 
     const coolingGroupByYear =
       await this.historizedPointsService.getCoolingHistorizedPointsByPropertyIdAndGroupByYear(
         propId,
         startDay,
-        endDay
+        endDay,
       );
 
     const coolingGroupByQuarter =
       await this.historizedPointsService.getCoolingHistorizedPointsByPropertyIdAndGroupByQuarter(
         propId,
         startDay,
-        endDay
+        endDay,
       );
 
     const coolingGroupByMonth =
       await this.historizedPointsService.getCoolingHistorizedPointsByPropertyIdAndGroupByMonth(
         propId,
         startDay,
-        endDay
+        endDay,
       );
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -674,7 +673,7 @@ export class BuildingsService {
       await this.historizedPointsService.getCoolingHistorizedPointsByPropertyIdAndGroupByWeek(
         propId,
         startDay,
-        endDay
+        endDay,
       );
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -682,7 +681,7 @@ export class BuildingsService {
       await this.historizedPointsService.getCoolingHistorizedPointsByPropertyIdAndGroupByDay(
         propId,
         startDay,
-        endDay
+        endDay,
       );
 
     const cooling = this.calculateConsumptionsFromHistorizedLogsAndGroupBy(
@@ -690,12 +689,12 @@ export class BuildingsService {
       coolingGroupByQuarter,
       coolingGroupByMonth,
       coolingGroupByWeek,
-      coolingGroupByDay
+      coolingGroupByDay,
     );
 
     return {
       coolingSystem: cooling,
-      overall: overall
+      overall: overall,
     };
   }
 
@@ -716,21 +715,21 @@ export class BuildingsService {
     /// mapping for averageOperatingHours
     const averageOperatingHours: AverageOperatingHours = <
       AverageOperatingHours
-      >{};
+    >{};
 
     for (const item of createBuildingDto?.buildingActivity) {
       if (item.isEnable) {
-        averageOperatingHours[item.codeName + "Start"] = format(
+        averageOperatingHours[item.codeName + 'Start'] = format(
           new Date(item.startTime),
-          "HH:mm"
+          'HH:mm',
         );
-        averageOperatingHours[item.codeName + "End"] = format(
+        averageOperatingHours[item.codeName + 'End'] = format(
           new Date(item.endTime),
-          "HH:mm"
+          'HH:mm',
         );
       } else {
-        averageOperatingHours[item.codeName + "Start"] = null;
-        averageOperatingHours[item.codeName + "End"] = null;
+        averageOperatingHours[item.codeName + 'Start'] = null;
+        averageOperatingHours[item.codeName + 'End'] = null;
       }
     }
 
@@ -741,19 +740,19 @@ export class BuildingsService {
             month: item.month,
             year: item.year,
             monthlyValue: Number(item.value),
-            monthlyCost: Number(item.cost)
+            monthlyCost: Number(item.cost),
           };
-        }
+        },
       );
 
     const totalOfBulbs = _.sumBy(
       createBuildingDto?.lightingSubSystemList,
       (item) => {
-        if (item && typeof +item.numberOfBulbs === "number") {
+        if (item && typeof +item.numberOfBulbs === 'number') {
           return +item.numberOfBulbs;
         }
         return 0;
-      }
+      },
     );
 
     const lightingSubSystemList = createBuildingDto?.lightingSubSystemList.map(
@@ -769,9 +768,9 @@ export class BuildingsService {
           lumensOfBulb: +item.lumensOfBulb,
           wattRatingOfBulb: +item.wattRatingOfBulb,
           numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
-          numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek
+          numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
         };
-      }
+      },
     );
 
     const spaceUsageGFAList = createBuildingDto?.spaceUsageGFAList.map(
@@ -781,10 +780,10 @@ export class BuildingsService {
           usagePercentage: item.percentage,
           climateControlId: item.climateControlId,
           title: item.title,
-          fanTypeId: item.fanTypeId === "" ? null : +item.fanTypeId,
-          hasReheatRecovery: item.hasReheatRecovery
+          fanTypeId: item.fanTypeId === '' ? null : +item.fanTypeId,
+          hasReheatRecovery: item.hasReheatRecovery,
         };
-      }
+      },
     );
 
     const solarPanelSystemList = createBuildingDto?.solarPanelSystemList.map(
@@ -802,9 +801,9 @@ export class BuildingsService {
           orientationAngle:
             item.trackingTypeId === 1 || item.trackingTypeId === 3
               ? Number(item.orientationAngle)
-              : null
+              : null,
         };
-      }
+      },
     );
 
     // console.log(
@@ -826,11 +825,11 @@ export class BuildingsService {
       name: createBuildingDto.generalBuildingInformation.buildingName,
 
       storeysBelowGround: Number(
-        createBuildingDto.generalBuildingInformation.storeysBelowGround
+        createBuildingDto.generalBuildingInformation.storeysBelowGround,
       ),
 
       storeysAboveGround: Number(
-        createBuildingDto.generalBuildingInformation.storeysAboveGround
+        createBuildingDto.generalBuildingInformation.storeysAboveGround,
       ),
 
       numberOfFloorAboveGroundLvl: 0,
@@ -841,12 +840,12 @@ export class BuildingsService {
 
       averageInternalFloorToCeilingHeight: Number(
         createBuildingDto.generalBuildingInformation
-          .avgInternalFloorToCeilingHeight
+          .avgInternalFloorToCeilingHeight,
       ),
 
       averageInternalFloorToCeilingHeightUnit:
-      createBuildingDto.generalBuildingInformation
-        .avgInternalFloorToCeilingHeightUnit,
+        createBuildingDto.generalBuildingInformation
+          .avgInternalFloorToCeilingHeightUnit,
 
       Property: {
         create: {
@@ -856,7 +855,7 @@ export class BuildingsService {
           streetName: createBuildingDto.generalBuildingInformation.streetName,
 
           streetNumber:
-          createBuildingDto.generalBuildingInformation.streetNumber,
+            createBuildingDto.generalBuildingInformation.streetNumber,
 
           postCode: createBuildingDto.generalBuildingInformation.postalCode,
 
@@ -869,97 +868,97 @@ export class BuildingsService {
           grossFloorArea: 0,
 
           grossInteriorArea: Number(
-            createBuildingDto.generalBuildingInformation.grossInteriorArea
+            createBuildingDto.generalBuildingInformation.grossInteriorArea,
           ),
 
           grossInteriorAreaUnit:
-          createBuildingDto.generalBuildingInformation.grossInteriorAreaUnit,
+            createBuildingDto.generalBuildingInformation.grossInteriorAreaUnit,
 
           netUsableArea: Number(
-            createBuildingDto.generalBuildingInformation.netUsableArea
+            createBuildingDto.generalBuildingInformation.netUsableArea,
           ),
 
           netUsableAreaUnit:
-          createBuildingDto.generalBuildingInformation.netUsableAreaUnit,
+            createBuildingDto.generalBuildingInformation.netUsableAreaUnit,
 
           latitude: createBuildingDto.generalBuildingInformation.location?.lat,
 
           longitude: createBuildingDto.generalBuildingInformation.location?.lng,
 
           majorOrientationId:
-          createBuildingDto.generalBuildingInformation.buildingOrientedId,
+            createBuildingDto.generalBuildingInformation.buildingOrientedId,
 
           completionYear: Number(
             createBuildingDto.generalBuildingInformation
-              .constructionPeriodValue
+              .constructionPeriodValue,
           ),
 
           sustainabilityRatingSchemeId: Number(
             createBuildingDto.generalBuildingInformation
-              .sustainabilityRatingSchemeId
+              .sustainabilityRatingSchemeId,
           ),
 
           sustainabilityRatingId: Number(
-            createBuildingDto.generalBuildingInformation.sustainabilityRatingId
+            createBuildingDto.generalBuildingInformation.sustainabilityRatingId,
           ),
 
           useTypeId: Number(
-            createBuildingDto.generalBuildingInformation.useTypeId
+            createBuildingDto.generalBuildingInformation.useTypeId,
           ),
 
           photo: createBuildingDto.generalBuildingInformation.buildingPhoto,
 
           hasMajorRefurbishmentOrExtensionsDone:
-          createBuildingDto.generalBuildingInformation
-            .hasMajorRefurbishmentOrExtensionsDone,
+            createBuildingDto.generalBuildingInformation
+              .hasMajorRefurbishmentOrExtensionsDone,
 
           latestYearForRefurbishmentOrExtension:
-          createBuildingDto.generalBuildingInformation
-            .latestYearForRefurbishmentOrExtension,
+            createBuildingDto.generalBuildingInformation
+              .latestYearForRefurbishmentOrExtension,
 
           AverageOperatingHours: {
             create: {
-              ...averageOperatingHours
-            }
+              ...averageOperatingHours,
+            },
           },
 
           SpaceUsage: {
-            create: spaceUsageGFAList
+            create: spaceUsageGFAList,
           },
 
           ElectricityConsumption: {
-            create: electricityConsumptionList
+            create: electricityConsumptionList,
           },
 
           LightingSystem: {
-            create: lightingSubSystemList
+            create: lightingSubSystemList,
           },
 
           ExternalEnvelopeSubSystem: {
             create: {
               externalWindowToWallRatio:
-              createBuildingDto.envelopFacade.externalWindowToWallRatio,
+                createBuildingDto.envelopFacade.externalWindowToWallRatio,
               externalWindowInsulationTypeId:
-              createBuildingDto.envelopFacade.externalWindowInsulationTypeId,
+                createBuildingDto.envelopFacade.externalWindowInsulationTypeId,
               roofInsulationTypeId:
-              createBuildingDto.envelopFacade.externalRoofInsulationTypeId,
+                createBuildingDto.envelopFacade.externalRoofInsulationTypeId,
               externalGroundInsulationTypeId:
-              createBuildingDto.envelopFacade
-                .externalGroundFloorInsulationTypeId
-            }
+                createBuildingDto.envelopFacade
+                  .externalGroundFloorInsulationTypeId,
+            },
           },
 
           SolarPanelSystem: {
-            create: solarPanelSystemList
+            create: solarPanelSystemList,
           },
 
           PropertyUser: {
             create: {
-              userAuthUID: user.uid
-            }
-          }
-        }
-      }
+              userAuthUID: user.uid,
+            },
+          },
+        },
+      },
     };
 
     if (createBuildingDto.coolingSystem.hasCoolingSystem) {
@@ -968,19 +967,19 @@ export class BuildingsService {
         CoolingSystem: {
           create: {
             coolingSystemTypeId:
-            createBuildingDto.coolingSystem.coolingSystemTypeId,
+              createBuildingDto.coolingSystem.coolingSystemTypeId,
             Chiller: {
               create: {
                 compressorTypeId:
-                createBuildingDto.coolingSystem.compressorTypeId,
+                  createBuildingDto.coolingSystem.compressorTypeId,
                 refrigerantTypeId:
-                createBuildingDto.coolingSystem.refrigerantTypeId,
+                  createBuildingDto.coolingSystem.refrigerantTypeId,
                 chillerEnergySourceTypeId:
-                createBuildingDto.coolingSystem.chillerEnergySourceTypeId
-              }
-            }
-          }
-        }
+                  createBuildingDto.coolingSystem.chillerEnergySourceTypeId,
+              },
+            },
+          },
+        },
       };
     }
 
@@ -990,21 +989,21 @@ export class BuildingsService {
         HeatingSystem: {
           create: {
             heatingSystemTypeId:
-            createBuildingDto.heatingSystem.heatingSystemTypeId,
+              createBuildingDto.heatingSystem.heatingSystemTypeId,
             Heater: {
               create: {
                 heaterTypeId: createBuildingDto.heatingSystem.heaterTypeId,
                 heaterEnergySourceId:
-                createBuildingDto.heatingSystem.heaterEnergySourceTypeId
-              }
-            }
-          }
-        }
+                  createBuildingDto.heatingSystem.heaterEnergySourceTypeId,
+              },
+            },
+          },
+        },
       };
     }
 
     return await this.prismaService.building.create({
-      data: addingBuildingObject
+      data: addingBuildingObject,
     });
   }
 
@@ -1034,7 +1033,7 @@ export class BuildingsService {
   }
 
   public static calculateOverallEnergyConsumptionInformation(
-    electricConsumptionsFromHistorizedLogs: IElectricConsumptionFromHistorizedLogs
+    electricConsumptionsFromHistorizedLogs: IElectricConsumptionFromHistorizedLogs,
   ): IOverallEnergyConsumptionInformation {
     let totalEnergyConsumption = 0;
     if (
@@ -1045,25 +1044,25 @@ export class BuildingsService {
       totalEnergyConsumption = _.reduce(
         electricConsumptionsFromHistorizedLogs.overall
           .electricConsumptionGroupByYear,
-        function(sum, n) {
+        function (sum, n) {
           return sum + n.value;
         },
-        0
+        0,
       );
     }
     return {
       totalEnergyConsumption: +totalEnergyConsumption.toFixed(2), // convert to mWh
       totalEnergyCost: +(totalEnergyConsumption * 1000 * 0.23).toFixed(2),
       totalCarbonEmissions: +(totalEnergyConsumption * 1000 * 0.000208).toFixed(
-        2
-      )
+        2,
+      ),
     };
   }
 
   private async calculateFromBuildingInformation(
     prop: any,
     startDay: string,
-    endDay: string
+    endDay: string,
   ) {
     let annualCost = 0;
     let annualConsumption = 0;
@@ -1072,7 +1071,7 @@ export class BuildingsService {
       await this.getListOfElectricConsumptionsFromHistorizedLogs(
         prop[0].propId,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
 
     const prev12MonthsEndDay = subDays(new Date(startDay), 1);
@@ -1085,7 +1084,7 @@ export class BuildingsService {
       await this.getListOfElectricConsumptionsFromHistorizedLogs(
         prop[0].propId,
         prev12MonthsStartDay,
-        prev12MonthsEndDay
+        prev12MonthsEndDay,
       );
 
     const prev24MonthsEndDay = subDays(new Date(prev12MonthsStartDay), 1);
@@ -1095,41 +1094,41 @@ export class BuildingsService {
       await this.getListOfElectricConsumptionsFromHistorizedLogs(
         prop[0].propId,
         prev24MonthsStartDay,
-        prev24MonthsEndDay
+        prev24MonthsEndDay,
       );
 
     const overallEnergyConsumptionInformation =
       BuildingsService.calculateOverallEnergyConsumptionInformation(
-        electricConsumptionsFromHistorizedLogs
+        electricConsumptionsFromHistorizedLogs,
       );
 
     const electricConsumptions =
       await this.prismaService.electricityConsumption.findMany({
         where: {
           propId: {
-            equals: prop[0].propId
-          }
+            equals: prop[0].propId,
+          },
         },
         orderBy: {
-          id: "asc"
-        }
+          id: 'asc',
+        },
       });
 
     const operationHours =
       await this.prismaService.averageOperatingHours.findFirst({
         where: {
           propId: {
-            equals: prop[0].propId
-          }
+            equals: prop[0].propId,
+          },
         },
         orderBy: {
-          id: "asc"
-        }
+          id: 'asc',
+        },
       });
 
     const last12MonthConsumptions = _.take<ElectricityConsumption>(
       electricConsumptions,
-      12
+      12,
     );
 
     for (let i = 0; i < last12MonthConsumptions.length; i++) {
@@ -1138,10 +1137,10 @@ export class BuildingsService {
 
       if (i + 12 < electricConsumptions.length) {
         /// TODO: will remove it, just use it for debugging
-        last12MonthConsumptions[i]["sameMonthLastYearValue"] =
+        last12MonthConsumptions[i]['sameMonthLastYearValue'] =
           electricConsumptions[i + 12].monthlyValue / 1000;
 
-        last12MonthConsumptions[i]["sameMonthLastYearComparison"] =
+        last12MonthConsumptions[i]['sameMonthLastYearComparison'] =
           (last12MonthConsumptions[i].monthlyValue -
             electricConsumptions[i + 12].monthlyValue) /
           1000;
@@ -1150,9 +1149,9 @@ export class BuildingsService {
       if (i + 1 < electricConsumptions.length) {
         /// TODO: will remove it, just use it for debugging
         const lastMonthValue = electricConsumptions[i + 1].monthlyValue;
-        last12MonthConsumptions[i]["lastMonthValue"] = lastMonthValue / 1000;
+        last12MonthConsumptions[i]['lastMonthValue'] = lastMonthValue / 1000;
 
-        last12MonthConsumptions[i]["lastMonthComparison"] =
+        last12MonthConsumptions[i]['lastMonthComparison'] =
           (last12MonthConsumptions[i].monthlyValue - lastMonthValue) / 1000;
       }
     }
@@ -1179,7 +1178,7 @@ export class BuildingsService {
       EnergyConsumptionFormulas.calculateTotalOperatingHours(operationHours);
 
     const totalFloorArea =
-      prop[0].grossInteriorAreaUnit === "ft2"
+      prop[0].grossInteriorAreaUnit === 'ft2'
         ? Utilities.convertFt2ToM2(prop[0].grossInteriorArea)
         : prop[0].grossInteriorArea;
 
@@ -1188,32 +1187,32 @@ export class BuildingsService {
         AND: [
           {
             propId: {
-              equals: prop[0].propId
-            }
+              equals: prop[0].propId,
+            },
           },
           {
             climateControlId: {
-              in: [1, 2, 3, 4]
-            }
-          }
-        ]
+              in: [1, 2, 3, 4],
+            },
+          },
+        ],
       },
       orderBy: {
-        id: "asc"
-      }
+        id: 'asc',
+      },
     });
     // KWh
     const annualCoolingSystemConsumption =
       BuildingsService.calculateAnnualConsumptionOfCoolingSystem(
         spaceUsages,
         totalFloorArea,
-        totalOperatingHours
+        totalOperatingHours,
       );
     const sumOfAnnualCoolingSystemConsumption =
       await this.historizedPointsService.sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
 
     if (sumOfAnnualCoolingSystemConsumption[0].sum) {
@@ -1224,7 +1223,7 @@ export class BuildingsService {
       await this.historizedPointsService.getAllEquipmentTypeOfCoolingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
 
     // console.log('annualCoolingSystemConsumption.equipmentTypeGroups');
@@ -1233,12 +1232,12 @@ export class BuildingsService {
     const heatingSystem = await this.prismaService.heatingSystem.findFirst({
       where: {
         propId: {
-          equals: prop[0].propId
-        }
+          equals: prop[0].propId,
+        },
       },
       include: {
-        Heater: true
-      }
+        Heater: true,
+      },
     });
     // KWh
     const annualHeatingSystemConsumption =
@@ -1246,13 +1245,13 @@ export class BuildingsService {
         spaceUsages,
         totalFloorArea,
         totalOperatingHours,
-        heatingSystem
+        heatingSystem,
       );
     const sumOfAnnualHeatingSystemConsumption =
       await this.historizedPointsService.sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
     if (sumOfAnnualHeatingSystemConsumption[0].sum) {
       annualHeatingSystemConsumption.heatingLoadForSpace =
@@ -1262,7 +1261,7 @@ export class BuildingsService {
       await this.historizedPointsService.getAllEquipmentTypeOfHeatingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
 
     // kwh
@@ -1270,13 +1269,13 @@ export class BuildingsService {
       BuildingsService.calculateAnnualMechanicalVentilationSystem(
         spaceUsages,
         totalFloorArea,
-        totalOperatingHours
+        totalOperatingHours,
       );
     const sumOfAnnualMechanicalVentilationSystemConsumption =
       await this.historizedPointsService.sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
     if (sumOfAnnualMechanicalVentilationSystemConsumption[0].sum) {
       annualMechanicalVentilationSystemConsumption.annualEnergyUsage =
@@ -1286,18 +1285,18 @@ export class BuildingsService {
       await this.historizedPointsService.getAllEquipmentTypeOfMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
 
     const lightingSystems = await this.prismaService.lightingSystem.findMany({
       where: {
         propId: {
-          equals: prop[0].propId
-        }
+          equals: prop[0].propId,
+        },
       },
       orderBy: {
-        id: "asc"
-      }
+        id: 'asc',
+      },
     });
     // kwh
     const annualLightingConsumption =
@@ -1305,14 +1304,14 @@ export class BuildingsService {
         spaceUsages,
         totalFloorArea,
         totalOperatingHours,
-        lightingSystems
+        lightingSystems,
       );
 
     const sumOfAnnualLightingSystemConsumption =
       await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
 
     if (sumOfAnnualLightingSystemConsumption[0].sum) {
@@ -1336,37 +1335,37 @@ export class BuildingsService {
       annualHeatingSystemConsumption,
       annualMechanicalVentilationSystemConsumption,
       annualLightingConsumption,
-      annualOtherSystemConsumption
+      annualOtherSystemConsumption,
     );
 
     const solarPVSystems = await this.prismaService.solarPanelSystem.findMany({
       where: {
         propId: {
-          equals: prop[0].propId
-        }
+          equals: prop[0].propId,
+        },
       },
       orderBy: {
-        id: "asc"
-      }
+        id: 'asc',
+      },
     });
     const pvSolarSystemLoad =
       await BuildingsService.calculateAverageDailyEnergyProductionSolarPVSystem(
         solarPVSystems,
         this._PVGISService,
-        prop[0]
+        prop[0],
       );
 
     const externalEnvelopeSubSystem =
       await this.prismaService.externalEnvelopeSubSystem.findFirst({
         where: {
           propId: {
-            equals: prop[0].propId
-          }
-        }
+            equals: prop[0].propId,
+          },
+        },
       });
     const incidentalGainsOtherInformation = BuildingsService.calculateUValue(
       prop[0],
-      externalEnvelopeSubSystem
+      externalEnvelopeSubSystem,
     );
 
     //const pvgisData = await this._PVGISService.callAPI();
@@ -1395,29 +1394,29 @@ export class BuildingsService {
       annualHeatingSystemConsumption: annualHeatingSystemConsumption,
       annualLightingConsumption: annualLightingConsumption,
       annualMechanicalVentilationSystemConsumption:
-      annualMechanicalVentilationSystemConsumption,
+        annualMechanicalVentilationSystemConsumption,
       annualOtherSystemConsumption: annualOtherSystemConsumption,
       pvSolarSystemLoad: pvSolarSystemLoad,
       consumptionBreakdown: consumptionBreakdown,
       incidentalGainsOtherInformation: incidentalGainsOtherInformation,
       prop: prop[0],
       electricConsumptionsFromHistorizedLogs:
-      electricConsumptionsFromHistorizedLogs,
+        electricConsumptionsFromHistorizedLogs,
       prev12MonthsElectricityConsumptionsFromHistorizedLogs:
-      prev12MonthsElectricityConsumptionsFromHistorizedLogs,
+        prev12MonthsElectricityConsumptionsFromHistorizedLogs,
       prev24MonthsElectricityConsumptionsFromHistorizedLogs:
-      prev24MonthsElectricityConsumptionsFromHistorizedLogs,
+        prev24MonthsElectricityConsumptionsFromHistorizedLogs,
       electricConsumptions: _.take<ElectricityConsumption>(
         electricConsumptions,
-        24
-      )
+        24,
+      ),
     };
   }
 
   public async calculateBreakdownByTime(
     id: number,
     startDay: string,
-    endDay: string
+    endDay: string,
   ) {
     // console.log('calculateBreakdownByTime');
     // console.log(startDay);
@@ -1432,14 +1431,14 @@ export class BuildingsService {
     const coolingSystemConsumption: ICoolingLoadForGeneralSpace = {
       coolingLoad: 0,
       coolingLoadForSpace: 0,
-      equipmentTypeGroups: null
+      equipmentTypeGroups: null,
     };
 
     const sumOfCoolingSystemConsumption =
       await this.historizedPointsService.sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
     if (sumOfCoolingSystemConsumption[0].sum) {
       coolingSystemConsumption.coolingLoadForSpace =
@@ -1449,19 +1448,19 @@ export class BuildingsService {
       await this.historizedPointsService.getAllEquipmentTypeOfCoolingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
 
     const heatingSystemConsumption: IHeatingLoadForGeneralSpace = {
       heatingLoad: 0,
       heatingLoadForSpace: 0,
-      equipmentTypeGroups: null
+      equipmentTypeGroups: null,
     };
     const sumOfHeatingSystemConsumption =
       await this.historizedPointsService.sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
     if (sumOfHeatingSystemConsumption[0].sum) {
       heatingSystemConsumption.heatingLoadForSpace =
@@ -1471,20 +1470,20 @@ export class BuildingsService {
       await this.historizedPointsService.getAllEquipmentTypeOfHeatingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
 
     const mechanicalVentilationSystemConsumption: IMechanicalVentilationForGeneralSpace =
       {
         airVolumeFlowRate: 0,
         annualEnergyUsage: 0,
-        equipmentTypeGroups: null
+        equipmentTypeGroups: null,
       };
     const sumOfMechanicalVentilationSystemConsumption =
       await this.historizedPointsService.sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
     if (sumOfMechanicalVentilationSystemConsumption[0].sum) {
       mechanicalVentilationSystemConsumption.annualEnergyUsage =
@@ -1494,20 +1493,20 @@ export class BuildingsService {
       await this.historizedPointsService.getAllEquipmentTypeOfMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
 
     const lightingConsumption: ILightingLoadForSpace = {
       lightingLoad: 0,
       lightingEnergyConsumption: 0,
-      equipmentTypeGroups: null
+      equipmentTypeGroups: null,
     };
 
     const sumOfLightingSystemConsumption =
       await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId as number,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
     if (sumOfLightingSystemConsumption[0].sum) {
       lightingConsumption.lightingEnergyConsumption =
@@ -1518,12 +1517,12 @@ export class BuildingsService {
       await this.historizedPointsService.sumAllOverallHistorizedPointsByPropertyIdAndDateRange(
         prop[0].propId,
         new Date(startDay),
-        new Date(endDay)
+        new Date(endDay),
       );
 
     const overallElectricConsumption = tmp[0].sum;
 
-    console.log("overallElectricConsumption");
+    console.log('overallElectricConsumption');
     console.log(overallElectricConsumption);
 
     const overallOtherSystemConsumption =
@@ -1538,7 +1537,7 @@ export class BuildingsService {
       heatingSystemConsumption,
       mechanicalVentilationSystemConsumption,
       lightingConsumption,
-      overallOtherSystemConsumption
+      overallOtherSystemConsumption,
     );
 
     // const overallCost = overallElectricConsumption * 0.23;
@@ -1551,7 +1550,7 @@ export class BuildingsService {
       coolingSystemConsumption: coolingSystemConsumption,
       lightingConsumption: lightingConsumption,
       mechanicalVentilationSystemConsumption:
-      mechanicalVentilationSystemConsumption
+        mechanicalVentilationSystemConsumption,
     };
   }
 
@@ -1560,7 +1559,7 @@ export class BuildingsService {
     prop: any,
     groupBy: string,
     startDay: string,
-    endDay: string
+    endDay: string,
   ): Promise<IBreakdownConsumption[]> {
     let overallElectricConsumption,
       coolingElectricConsumption,
@@ -1569,41 +1568,41 @@ export class BuildingsService {
       mechanicalVentilationElectricConsumption = 0;
 
     switch (groupBy) {
-      case "month":
+      case 'month':
       default:
         overallElectricConsumption =
           await this.historizedPointsService.sumAllOverallHistorizedPointsByPropertyIdAndDateRange(
             prop.propId,
             new Date(startDay),
-            new Date(endDay)
+            new Date(endDay),
           );
 
         coolingElectricConsumption =
           await this.historizedPointsService.sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
             prop.propId,
             new Date(startDay),
-            new Date(endDay)
+            new Date(endDay),
           );
 
         heatingElectricConsumption =
           await this.historizedPointsService.sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(
             prop.propId,
             new Date(startDay),
-            new Date(endDay)
+            new Date(endDay),
           );
 
         lightingElectricConsumption =
           await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
             prop.propId,
             new Date(startDay),
-            new Date(endDay)
+            new Date(endDay),
           );
 
         mechanicalVentilationElectricConsumption =
           await this.historizedPointsService.sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
             prop.propId,
             new Date(startDay),
-            new Date(endDay)
+            new Date(endDay),
           );
 
         break;
@@ -1640,35 +1639,35 @@ export class BuildingsService {
 
     return [
       {
-        id: "cooling",
+        id: 'cooling',
         value: percentageOfCoolingElectricConsumption,
         consumption: coolingElectricConsumption,
         color: null,
         subBreakdown: BuildingsService.calculateCoolingConsumptionBreakdown(
-          coolingElectricConsumption
-        )
+          coolingElectricConsumption,
+        ),
       },
       {
-        id: "heating",
+        id: 'heating',
         value: percentageOfHeatingElectricConsumption,
         consumption: heatingElectricConsumption,
         color: null,
-        subBreakdown: null
+        subBreakdown: null,
       },
       {
-        id: "lighting",
+        id: 'lighting',
         value: percentageOfLightingElectricConsumption,
         consumption: lightingElectricConsumption,
         color: null,
-        subBreakdown: null
+        subBreakdown: null,
       },
       {
-        id: "mechanical ventilation",
+        id: 'mechanical ventilation',
         value: percentageOfMechanicalVenlitlationElectricConsumption,
         consumption: mechanicalVentilationElectricConsumption,
         color: null,
-        subBreakdown: null
-      }
+        subBreakdown: null,
+      },
     ];
   }
 
@@ -1712,8 +1711,8 @@ export class BuildingsService {
     const building = await this.prismaService.building.findFirst({
       where: {
         id: {
-          equals: id
-        }
+          equals: id,
+        },
       },
       include: {
         Property: {
@@ -1723,20 +1722,20 @@ export class BuildingsService {
             ElectricityConsumption: true,
             CoolingSystem: {
               include: {
-                Chiller: true
-              }
+                Chiller: true,
+              },
             },
             HeatingSystem: {
               include: {
-                Heater: true
-              }
+                Heater: true,
+              },
             },
             LightingSystem: true,
             ExternalEnvelopeSubSystem: true,
-            SolarPanelSystem: true
-          }
-        }
-      }
+            SolarPanelSystem: true,
+          },
+        },
+      },
     });
 
     // console.log(building.Property[0]?.AverageOperatingHours);
@@ -1745,127 +1744,127 @@ export class BuildingsService {
       {
         id: 1,
         averageOperatingHoursId:
-        building.Property[0]?.AverageOperatingHours[0].id,
-        name: "Sunday",
-        codeName: "sunday",
+          building.Property[0]?.AverageOperatingHours[0].id,
+        name: 'Sunday',
+        codeName: 'sunday',
         startTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.sundayStart}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.sundayStart}`,
         ),
         endTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.sundayEnd}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.sundayEnd}`,
         ),
         isEnable:
-          building.Property[0]?.AverageOperatingHours[0]?.sundayStart !== null
+          building.Property[0]?.AverageOperatingHours[0]?.sundayStart !== null,
       },
       {
         id: 2,
         averageOperatingHoursId:
-        building.Property[0]?.AverageOperatingHours[0].id,
-        name: "Monday",
-        codeName: "monday",
+          building.Property[0]?.AverageOperatingHours[0].id,
+        name: 'Monday',
+        codeName: 'monday',
         startTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.mondayStart}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.mondayStart}`,
         ),
         endTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.mondayEnd}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.mondayEnd}`,
         ),
         isEnable:
-          building.Property[0]?.AverageOperatingHours[0]?.mondayStart !== null
+          building.Property[0]?.AverageOperatingHours[0]?.mondayStart !== null,
       },
       {
         id: 3,
         averageOperatingHoursId:
-        building.Property[0]?.AverageOperatingHours[0].id,
-        name: "Tuesday",
-        codeName: "tuesday",
+          building.Property[0]?.AverageOperatingHours[0].id,
+        name: 'Tuesday',
+        codeName: 'tuesday',
         startTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.tuesdayStart}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.tuesdayStart}`,
         ),
         endTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.tuesdayEnd}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.tuesdayEnd}`,
         ),
         isEnable:
-          building.Property[0]?.AverageOperatingHours[0]?.tuesdayStart !== null
+          building.Property[0]?.AverageOperatingHours[0]?.tuesdayStart !== null,
       },
       {
         id: 4,
         averageOperatingHoursId:
-        building.Property[0]?.AverageOperatingHours[0].id,
-        name: "Wednesday",
-        codeName: "wednesday",
+          building.Property[0]?.AverageOperatingHours[0].id,
+        name: 'Wednesday',
+        codeName: 'wednesday',
         startTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.wednesdayStart}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.wednesdayStart}`,
         ),
         endTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.wednesdayEnd}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.wednesdayEnd}`,
         ),
         isEnable:
           building.Property[0]?.AverageOperatingHours[0]?.wednesdayStart !==
-          null
+          null,
       },
       {
         id: 5,
         averageOperatingHoursId:
-        building.Property[0]?.AverageOperatingHours[0].id,
-        name: "Thursday",
-        codeName: "thursday",
+          building.Property[0]?.AverageOperatingHours[0].id,
+        name: 'Thursday',
+        codeName: 'thursday',
         startTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.thursdayStart}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.thursdayStart}`,
         ),
         endTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.thursdayEnd}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.thursdayEnd}`,
         ),
         isEnable:
           building.Property[0]?.AverageOperatingHours[0]?.thursdayStart !==
-          null
+          null,
       },
       {
         id: 6,
         averageOperatingHoursId:
-        building.Property[0]?.AverageOperatingHours[0].id,
-        name: "Friday",
-        codeName: "friday",
+          building.Property[0]?.AverageOperatingHours[0].id,
+        name: 'Friday',
+        codeName: 'friday',
         startTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.fridayStart}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.fridayStart}`,
         ),
         endTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.fridayEnd}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.fridayEnd}`,
         ),
         isEnable:
-          building.Property[0]?.AverageOperatingHours[0]?.fridayStart !== null
+          building.Property[0]?.AverageOperatingHours[0]?.fridayStart !== null,
       },
       {
         id: 7,
         averageOperatingHoursId:
-        building.Property[0]?.AverageOperatingHours[0].id,
-        name: "Saturday",
-        codeName: "saturday",
+          building.Property[0]?.AverageOperatingHours[0].id,
+        name: 'Saturday',
+        codeName: 'saturday',
         startTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.saturdayStart}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.saturdayStart}`,
         ),
         endTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.saturdayEnd}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.saturdayEnd}`,
         ),
         isEnable:
           building.Property[0]?.AverageOperatingHours[0]?.saturdayStart !==
-          null
+          null,
       },
       {
         id: 8,
         averageOperatingHoursId:
-        building.Property[0]?.AverageOperatingHours[0].id,
-        name: "Public Holiday",
-        codeName: "publicHoliday",
+          building.Property[0]?.AverageOperatingHours[0].id,
+        name: 'Public Holiday',
+        codeName: 'publicHoliday',
         startTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.publicHolidayStart}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.publicHolidayStart}`,
         ),
         endTime: new Date(
-          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.publicHolidayEnd}`
+          `2021-01-01T${building.Property[0]?.AverageOperatingHours[0]?.publicHolidayEnd}`,
         ),
         isEnable:
           building.Property[0]?.AverageOperatingHours[0]?.publicHolidayStart !==
-          null
-      }
+          null,
+      },
     ];
 
     const spaceUsageGFAList: ISpaceUsageGFA[] =
@@ -1878,9 +1877,9 @@ export class BuildingsService {
             percentage: spaceUsage.usagePercentage,
             climateControlId: spaceUsage.climateControlId,
             fanTypeId: spaceUsage.fanTypeId,
-            hasReheatRecovery: spaceUsage.hasReheatRecovery
+            hasReheatRecovery: spaceUsage.hasReheatRecovery,
           };
-        }
+        },
       );
 
     const electricityConsumptions: IElectricityConsumption[] =
@@ -1891,9 +1890,9 @@ export class BuildingsService {
             month: electricConsumption.month,
             year: electricConsumption.year,
             value: electricConsumption.monthlyValue,
-            cost: electricConsumption.monthlyCost
+            cost: electricConsumption.monthlyCost,
           };
-        }
+        },
       );
 
     //console.log(electricityConsumptions);
@@ -1901,11 +1900,11 @@ export class BuildingsService {
     const totalOfBulbs = _.sumBy(
       building.Property[0]?.LightingSystem,
       (item) => {
-        if (item && typeof +item.numberOfBulbs === "number") {
+        if (item && typeof +item.numberOfBulbs === 'number') {
           return +item.numberOfBulbs;
         }
         return 0;
-      }
+      },
     );
 
     const lightingSubSystemList: ILightingSubSystem[] =
@@ -1923,9 +1922,9 @@ export class BuildingsService {
             numberOfBulbs: lightingSubSystem.numberOfBulbs,
             wattRatingOfBulb: lightingSubSystem.wattRatingOfBulb,
             numberOfHoursUsedPerDay: lightingSubSystem.numberOfHoursUsedPerDay,
-            numberOfDaysUsedPerWeek: lightingSubSystem.numberOfDaysUsedPerWeek
+            numberOfDaysUsedPerWeek: lightingSubSystem.numberOfDaysUsedPerWeek,
           };
-        }
+        },
       );
 
     const solarPanelSystemList: ISolarPanelSystem[] =
@@ -1933,16 +1932,16 @@ export class BuildingsService {
         (solarPanelSystem: SolarPanelSystem) => {
           return {
             id: solarPanelSystem.id,
-            title: "SolarPanelSystem " + solarPanelSystem.id,
+            title: 'SolarPanelSystem ' + solarPanelSystem.id,
             orientationAngle: solarPanelSystem.orientationAngle,
             systemLoss: solarPanelSystem.systemLoss,
             trackingTypeId: solarPanelSystem.trackingTypeId,
             mountingTypeId: solarPanelSystem.mountingTypeId,
             pvTechChoiceId: solarPanelSystem.pvTechChoiceId,
             installedCapacity: solarPanelSystem.installedCapacity,
-            inclineAngel: solarPanelSystem.inclineAngle
+            inclineAngel: solarPanelSystem.inclineAngle,
           };
-        }
+        },
       );
 
     // console.log(building.Property[0]?.CoolingSystem[0]);
@@ -1953,14 +1952,14 @@ export class BuildingsService {
         chillerId: building.Property[0]?.CoolingSystem[0]?.Chiller[0]?.id,
         hasCoolingSystem: building.Property[0]?.CoolingSystem[0] !== undefined,
         coolingSystemTypeId:
-        building.Property[0]?.CoolingSystem[0]?.coolingSystemTypeId,
+          building.Property[0]?.CoolingSystem[0]?.coolingSystemTypeId,
         chillerEnergySourceTypeId:
-        building.Property[0]?.CoolingSystem[0]?.Chiller[0]
-          ?.chillerEnergySourceTypeId,
+          building.Property[0]?.CoolingSystem[0]?.Chiller[0]
+            ?.chillerEnergySourceTypeId,
         compressorTypeId:
-        building.Property[0]?.CoolingSystem[0]?.Chiller[0]?.compressorTypeId,
+          building.Property[0]?.CoolingSystem[0]?.Chiller[0]?.compressorTypeId,
         refrigerantTypeId:
-        building.Property[0]?.CoolingSystem[0]?.Chiller[0]?.refrigerantTypeId
+          building.Property[0]?.CoolingSystem[0]?.Chiller[0]?.refrigerantTypeId,
       };
     }
 
@@ -1971,12 +1970,12 @@ export class BuildingsService {
         heaterId: building.Property[0]?.HeatingSystem[0]?.Heater[0]?.id,
         hasHeatingSystem: building.Property[0]?.HeatingSystem[0] !== undefined,
         heatingSystemTypeId:
-        building.Property[0]?.HeatingSystem[0]?.heatingSystemTypeId,
+          building.Property[0]?.HeatingSystem[0]?.heatingSystemTypeId,
         heaterEnergySourceTypeId:
-        building.Property[0]?.HeatingSystem[0]?.Heater[0]
-          ?.heaterEnergySourceId,
+          building.Property[0]?.HeatingSystem[0]?.Heater[0]
+            ?.heaterEnergySourceId,
         heaterTypeId:
-        building.Property[0]?.HeatingSystem[0]?.Heater[0]?.heaterTypeId
+          building.Property[0]?.HeatingSystem[0]?.Heater[0]?.heaterTypeId,
       };
     }
 
@@ -1990,20 +1989,20 @@ export class BuildingsService {
       envelopFacade: {
         id: building.Property[0]?.ExternalEnvelopeSubSystem[0]?.id,
         externalWindowInsulationTypeId:
-        building.Property[0]?.ExternalEnvelopeSubSystem[0]
-          ?.externalWindowInsulationTypeId,
+          building.Property[0]?.ExternalEnvelopeSubSystem[0]
+            ?.externalWindowInsulationTypeId,
         externalWindowToWallRatio:
-        building.Property[0]?.ExternalEnvelopeSubSystem[0]
-          ?.externalWindowToWallRatio,
+          building.Property[0]?.ExternalEnvelopeSubSystem[0]
+            ?.externalWindowToWallRatio,
         externalGroundFloorInsulationTypeId:
-        building.Property[0]?.ExternalEnvelopeSubSystem[0]
-          ?.floorInsulationTypeId,
+          building.Property[0]?.ExternalEnvelopeSubSystem[0]
+            ?.floorInsulationTypeId,
         externalRoofInsulationTypeId:
-        building.Property[0]?.ExternalEnvelopeSubSystem[0]
-          ?.roofInsulationTypeId,
+          building.Property[0]?.ExternalEnvelopeSubSystem[0]
+            ?.roofInsulationTypeId,
         externalWallInsulationTypeId:
-        building.Property[0]?.ExternalEnvelopeSubSystem[0]
-          ?.externalWallInsulationTypeId
+          building.Property[0]?.ExternalEnvelopeSubSystem[0]
+            ?.externalWallInsulationTypeId,
       },
       solarPanelSystemList: solarPanelSystemList,
       generalBuildingInformation: {
@@ -2020,38 +2019,38 @@ export class BuildingsService {
         suburb: null,
         location: {
           lat: parseFloat(building.Property[0].latitude.toString()),
-          lng: parseFloat(building.Property[0].longitude.toString())
+          lng: parseFloat(building.Property[0].longitude.toString()),
         },
         storeysAboveGround: building.storeysAboveGround,
         storeysBelowGround: building.storeysBelowGround,
         grossInteriorArea: building.Property[0].grossInteriorArea,
         grossInteriorAreaUnit:
-          building.Property[0].grossInteriorAreaUnit === "m2"
+          building.Property[0].grossInteriorAreaUnit === 'm2'
             ? AreaMeasureUnit.SquareMetre
             : AreaMeasureUnit.SquareFeet,
         netUsableArea: building.Property[0].netUsableArea,
         netUsableAreaUnit:
-          building.Property[0].netUsableAreaUnit === "m2"
+          building.Property[0].netUsableAreaUnit === 'm2'
             ? AreaMeasureUnit.SquareMetre
             : AreaMeasureUnit.SquareFeet,
         avgInternalFloorToCeilingHeight:
-        building.averageInternalFloorToCeilingHeight,
+          building.averageInternalFloorToCeilingHeight,
         avgInternalFloorToCeilingHeightUnit:
-          building.averageInternalFloorToCeilingHeightUnit === "m"
+          building.averageInternalFloorToCeilingHeightUnit === 'm'
             ? LengthMeasureUnit.Metre
             : LengthMeasureUnit.Feet,
         buildingOrientedId: building.buildingMajorOrientationId,
         constructionPeriodValue: building.Property[0].completionYear,
         sustainabilityRatingSchemeId:
-        building.Property[0].sustainabilityRatingSchemeId,
+          building.Property[0].sustainabilityRatingSchemeId,
         sustainabilityRatingId: building.Property[0].sustainabilityRatingId,
         useTypeId: building.Property[0].useTypeId,
         buildingPhoto: building.Property[0].photo,
         hasMajorRefurbishmentOrExtensionsDone:
-        building.Property[0].hasMajorRefurbishmentOrExtensionsDone,
+          building.Property[0].hasMajorRefurbishmentOrExtensionsDone,
         latestYearForRefurbishmentOrExtension:
-        building.Property[0].latestYearForRefurbishmentOrExtension
-      }
+          building.Property[0].latestYearForRefurbishmentOrExtension,
+      },
     };
   }
 
@@ -2060,21 +2059,21 @@ export class BuildingsService {
 
     const averageOperatingHours: AverageOperatingHours = <
       AverageOperatingHours
-      >{};
+    >{};
 
     for (const item of updateBuildingDto?.buildingActivity) {
       if (item.isEnable) {
-        averageOperatingHours[item.codeName + "Start"] = format(
+        averageOperatingHours[item.codeName + 'Start'] = format(
           new Date(item.startTime),
-          "HH:mm"
+          'HH:mm',
         );
-        averageOperatingHours[item.codeName + "End"] = format(
+        averageOperatingHours[item.codeName + 'End'] = format(
           new Date(item.endTime),
-          "HH:mm"
+          'HH:mm',
         );
       } else {
-        averageOperatingHours[item.codeName + "Start"] = null;
-        averageOperatingHours[item.codeName + "End"] = null;
+        averageOperatingHours[item.codeName + 'Start'] = null;
+        averageOperatingHours[item.codeName + 'End'] = null;
       }
     }
 
@@ -2082,9 +2081,9 @@ export class BuildingsService {
 
     await this.prismaService.averageOperatingHours.update({
       where: {
-        id: updateBuildingDto.buildingActivity[0].averageOperatingHoursId
+        id: updateBuildingDto.buildingActivity[0].averageOperatingHoursId,
       },
-      data: averageOperatingHours
+      data: averageOperatingHours,
     });
 
     for (const item of updateBuildingDto?.spaceUsageGFAList) {
@@ -2094,21 +2093,21 @@ export class BuildingsService {
         climateControlId: item.climateControlId,
         title: item.title,
         fanTypeId:
-          item.fanTypeId === "" || item.fanTypeId === null
+          item.fanTypeId === '' || item.fanTypeId === null
             ? null
             : +item.fanTypeId,
-        hasReheatRecovery: item.hasReheatRecovery
+        hasReheatRecovery: item.hasReheatRecovery,
       };
       //console.log(item);
       await this.prismaService.spaceUsage.upsert({
         where: {
-          id: item.id
+          id: item.id,
         },
         update: spaceUsage,
         create: {
           ...spaceUsage,
-          propId: updateBuildingDto.generalBuildingInformation.propId
-        }
+          propId: updateBuildingDto.generalBuildingInformation.propId,
+        },
       });
     }
 
@@ -2117,19 +2116,19 @@ export class BuildingsService {
         month: item.month,
         year: item.year,
         monthlyValue: Number(item.value),
-        monthlyCost: Number(item.cost)
+        monthlyCost: Number(item.cost),
       };
 
       // console.log(item);
       await this.prismaService.electricityConsumption.upsert({
         where: {
-          id: item.id
+          id: item.id,
         },
         update: electricityConsumption,
         create: {
           ...electricityConsumption,
-          propId: updateBuildingDto.generalBuildingInformation.propId
-        }
+          propId: updateBuildingDto.generalBuildingInformation.propId,
+        },
       });
     }
 
@@ -2138,110 +2137,110 @@ export class BuildingsService {
 
     if (updateBuildingDto.coolingSystem?.hasCoolingSystem === true) {
       if (updateBuildingDto.coolingSystem?.id !== undefined) {
-        console.log("update");
+        console.log('update');
         await this.prismaService.coolingSystem.update({
           where: {
-            id: updateBuildingDto.coolingSystem?.id
+            id: updateBuildingDto.coolingSystem?.id,
           },
           data: {
             coolingSystemTypeId:
-            updateBuildingDto.coolingSystem?.coolingSystemTypeId,
+              updateBuildingDto.coolingSystem?.coolingSystemTypeId,
             Chiller: {
               update: {
                 where: {
-                  id: updateBuildingDto.coolingSystem?.chillerId
+                  id: updateBuildingDto.coolingSystem?.chillerId,
                 },
                 data: {
                   compressorTypeId:
-                  updateBuildingDto.coolingSystem?.compressorTypeId,
+                    updateBuildingDto.coolingSystem?.compressorTypeId,
                   refrigerantTypeId:
-                  updateBuildingDto.coolingSystem.refrigerantTypeId,
+                    updateBuildingDto.coolingSystem.refrigerantTypeId,
                   chillerEnergySourceTypeId:
-                  updateBuildingDto.coolingSystem.chillerEnergySourceTypeId
-                }
-              }
-            }
-          }
+                    updateBuildingDto.coolingSystem.chillerEnergySourceTypeId,
+                },
+              },
+            },
+          },
         });
       } else {
-        console.log("create");
+        console.log('create');
         await this.prismaService.coolingSystem.create({
           data: {
             coolingSystemTypeId:
-            updateBuildingDto.coolingSystem?.coolingSystemTypeId,
+              updateBuildingDto.coolingSystem?.coolingSystemTypeId,
             propId: updateBuildingDto.generalBuildingInformation.propId,
             Chiller: {
               create: {
                 compressorTypeId:
-                updateBuildingDto.coolingSystem?.compressorTypeId,
+                  updateBuildingDto.coolingSystem?.compressorTypeId,
                 refrigerantTypeId:
-                updateBuildingDto.coolingSystem.refrigerantTypeId,
+                  updateBuildingDto.coolingSystem.refrigerantTypeId,
                 chillerEnergySourceTypeId:
-                updateBuildingDto.coolingSystem.chillerEnergySourceTypeId
-              }
-            }
-          }
+                  updateBuildingDto.coolingSystem.chillerEnergySourceTypeId,
+              },
+            },
+          },
         });
       }
     } else {
       if (updateBuildingDto.coolingSystem?.id !== undefined) {
-        console.log("delete");
+        console.log('delete');
         await this.prismaService.coolingSystem.delete({
           where: {
-            id: updateBuildingDto.coolingSystem?.id
-          }
+            id: updateBuildingDto.coolingSystem?.id,
+          },
         });
       }
     }
 
     if (updateBuildingDto.heatingSystem.hasHeatingSystem === true) {
       if (updateBuildingDto.heatingSystem?.id !== undefined) {
-        console.log("update heating");
+        console.log('update heating');
         await this.prismaService.heatingSystem.update({
           where: {
-            id: updateBuildingDto.heatingSystem?.id
+            id: updateBuildingDto.heatingSystem?.id,
           },
           data: {
             heatingSystemTypeId:
-            updateBuildingDto.heatingSystem?.heatingSystemTypeId,
+              updateBuildingDto.heatingSystem?.heatingSystemTypeId,
             Heater: {
               update: {
                 where: {
-                  id: updateBuildingDto.heatingSystem?.heaterId
+                  id: updateBuildingDto.heatingSystem?.heaterId,
                 },
                 data: {
                   heaterTypeId: updateBuildingDto.heatingSystem.heaterTypeId,
                   heaterEnergySourceId:
-                  updateBuildingDto.heatingSystem.heaterEnergySourceTypeId
-                }
-              }
-            }
-          }
+                    updateBuildingDto.heatingSystem.heaterEnergySourceTypeId,
+                },
+              },
+            },
+          },
         });
       } else {
-        console.log("create heating");
+        console.log('create heating');
         await this.prismaService.heatingSystem.create({
           data: {
             heatingSystemTypeId:
-            updateBuildingDto.heatingSystem?.heatingSystemTypeId,
+              updateBuildingDto.heatingSystem?.heatingSystemTypeId,
             propId: updateBuildingDto.generalBuildingInformation.propId,
             Heater: {
               create: {
                 heaterTypeId: updateBuildingDto.heatingSystem.heaterTypeId,
                 heaterEnergySourceId:
-                updateBuildingDto.heatingSystem.heaterEnergySourceTypeId
-              }
-            }
-          }
+                  updateBuildingDto.heatingSystem.heaterEnergySourceTypeId,
+              },
+            },
+          },
         });
       }
     } else {
       if (updateBuildingDto.heatingSystem?.id !== undefined) {
-        console.log("delete heating");
+        console.log('delete heating');
         await this.prismaService.heatingSystem.delete({
           where: {
-            id: updateBuildingDto.heatingSystem?.id
-          }
+            id: updateBuildingDto.heatingSystem?.id,
+          },
         });
       }
     }
@@ -2249,11 +2248,11 @@ export class BuildingsService {
     const totalOfBulbs = _.sumBy(
       updateBuildingDto?.lightingSubSystemList,
       (item) => {
-        if (item && typeof +item.numberOfBulbs === "number") {
+        if (item && typeof +item.numberOfBulbs === 'number') {
           return +item.numberOfBulbs;
         }
         return 0;
-      }
+      },
     );
     for (const item of updateBuildingDto?.lightingSubSystemList) {
       const lightingSystem = {
@@ -2267,35 +2266,35 @@ export class BuildingsService {
         lumensOfBulb: +item.lumensOfBulb,
         title: item.title,
         numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
-        numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay
+        numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
       };
       //console.log(item);
       await this.prismaService.lightingSystem.upsert({
         where: {
-          id: item.id
+          id: item.id,
         },
         update: lightingSystem,
         create: {
           ...lightingSystem,
-          propId: updateBuildingDto.generalBuildingInformation.propId
-        }
+          propId: updateBuildingDto.generalBuildingInformation.propId,
+        },
       });
     }
 
     await this.prismaService.externalEnvelopeSubSystem.update({
       where: {
-        id: updateBuildingDto.envelopFacade?.id
+        id: updateBuildingDto.envelopFacade?.id,
       },
       data: {
         externalWindowToWallRatio:
-        updateBuildingDto.envelopFacade?.externalWindowToWallRatio,
+          updateBuildingDto.envelopFacade?.externalWindowToWallRatio,
         externalWindowInsulationTypeId:
-        updateBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
+          updateBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
         roofInsulationTypeId:
-        updateBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
+          updateBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
         externalGroundInsulationTypeId:
-        updateBuildingDto.envelopFacade?.externalGroundFloorInsulationTypeId
-      }
+          updateBuildingDto.envelopFacade?.externalGroundFloorInsulationTypeId,
+      },
     });
 
     for (const item of updateBuildingDto?.solarPanelSystemList) {
@@ -2312,20 +2311,20 @@ export class BuildingsService {
         orientationAngle:
           item.trackingTypeId === 1 || item.trackingTypeId === 3
             ? Number(item.orientationAngle)
-            : null
+            : null,
       };
 
       console.log(solarPanelSystem);
 
       this.prismaService.solarPanelSystem.upsert({
         where: {
-          id: item.id
+          id: item.id,
         },
         update: solarPanelSystem,
         create: {
           ...solarPanelSystem,
-          propId: updateBuildingDto.generalBuildingInformation.propId
-        }
+          propId: updateBuildingDto.generalBuildingInformation.propId,
+        },
       });
     }
 
@@ -2354,11 +2353,11 @@ export class BuildingsService {
         name: updateBuildingDto.generalBuildingInformation.buildingName,
 
         storeysBelowGround: Number(
-          updateBuildingDto.generalBuildingInformation.storeysBelowGround
+          updateBuildingDto.generalBuildingInformation.storeysBelowGround,
         ),
 
         storeysAboveGround: Number(
-          updateBuildingDto.generalBuildingInformation.storeysAboveGround
+          updateBuildingDto.generalBuildingInformation.storeysAboveGround,
         ),
 
         numberOfFloorAboveGroundLvl: 0,
@@ -2369,12 +2368,12 @@ export class BuildingsService {
 
         averageInternalFloorToCeilingHeight: Number(
           updateBuildingDto.generalBuildingInformation
-            .avgInternalFloorToCeilingHeight
+            .avgInternalFloorToCeilingHeight,
         ),
 
         averageInternalFloorToCeilingHeightUnit:
-        updateBuildingDto.generalBuildingInformation
-          .avgInternalFloorToCeilingHeightUnit,
+          updateBuildingDto.generalBuildingInformation
+            .avgInternalFloorToCeilingHeightUnit,
 
         Property: {
           update: {
@@ -2383,12 +2382,12 @@ export class BuildingsService {
 
               streetAddress:
                 updateBuildingDto.generalBuildingInformation.streetNumber +
-                " " +
+                ' ' +
                 updateBuildingDto.generalBuildingInformation.streetNumber,
               streetName:
-              updateBuildingDto.generalBuildingInformation.streetName,
+                updateBuildingDto.generalBuildingInformation.streetName,
               streetNumber:
-              updateBuildingDto.generalBuildingInformation.streetNumber,
+                updateBuildingDto.generalBuildingInformation.streetNumber,
 
               postCode: updateBuildingDto.generalBuildingInformation.postalCode,
 
@@ -2397,72 +2396,72 @@ export class BuildingsService {
               city: updateBuildingDto.generalBuildingInformation.city,
 
               countryCode:
-              updateBuildingDto.generalBuildingInformation.countryCode,
+                updateBuildingDto.generalBuildingInformation.countryCode,
 
               grossFloorArea: 0,
 
               grossInteriorArea: Number(
-                updateBuildingDto.generalBuildingInformation.grossInteriorArea
+                updateBuildingDto.generalBuildingInformation.grossInteriorArea,
               ),
 
               grossInteriorAreaUnit:
-              updateBuildingDto.generalBuildingInformation
-                .grossInteriorAreaUnit,
+                updateBuildingDto.generalBuildingInformation
+                  .grossInteriorAreaUnit,
 
               netUsableArea: Number(
-                updateBuildingDto.generalBuildingInformation.netUsableArea
+                updateBuildingDto.generalBuildingInformation.netUsableArea,
               ),
 
               netUsableAreaUnit:
-              updateBuildingDto.generalBuildingInformation.netUsableAreaUnit,
+                updateBuildingDto.generalBuildingInformation.netUsableAreaUnit,
 
               latitude:
-              updateBuildingDto.generalBuildingInformation.location?.lat,
+                updateBuildingDto.generalBuildingInformation.location?.lat,
 
               longitude:
-              updateBuildingDto.generalBuildingInformation.location?.lng,
+                updateBuildingDto.generalBuildingInformation.location?.lng,
 
               majorOrientationId:
-              updateBuildingDto.generalBuildingInformation.buildingOrientedId,
+                updateBuildingDto.generalBuildingInformation.buildingOrientedId,
 
               completionYear: Number(
                 updateBuildingDto.generalBuildingInformation
-                  .constructionPeriodValue
+                  .constructionPeriodValue,
               ),
 
               sustainabilityRatingSchemeId: Number(
                 updateBuildingDto.generalBuildingInformation
-                  .sustainabilityRatingSchemeId
+                  .sustainabilityRatingSchemeId,
               ),
 
               sustainabilityRatingId: Number(
                 updateBuildingDto.generalBuildingInformation
-                  .sustainabilityRatingId
+                  .sustainabilityRatingId,
               ),
 
               useTypeId: Number(
-                updateBuildingDto.generalBuildingInformation.useTypeId
+                updateBuildingDto.generalBuildingInformation.useTypeId,
               ),
 
               //photo: updateBuildingDto.generalBuildingInformation.buildingPhoto,
 
               hasMajorRefurbishmentOrExtensionsDone:
-              updateBuildingDto.generalBuildingInformation
-                .hasMajorRefurbishmentOrExtensionsDone,
+                updateBuildingDto.generalBuildingInformation
+                  .hasMajorRefurbishmentOrExtensionsDone,
 
               latestYearForRefurbishmentOrExtension:
-              updateBuildingDto.generalBuildingInformation
-                .latestYearForRefurbishmentOrExtension
+                updateBuildingDto.generalBuildingInformation
+                  .latestYearForRefurbishmentOrExtension,
             },
             where: {
-              id: updateBuildingDto.generalBuildingInformation.propId
-            }
-          }
-        }
+              id: updateBuildingDto.generalBuildingInformation.propId,
+            },
+          },
+        },
       },
       where: {
-        id: id
-      }
+        id: id,
+      },
     });
   }
 
