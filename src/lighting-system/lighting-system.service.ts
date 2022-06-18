@@ -3,6 +3,7 @@ import { CreateLightingSystemDto } from './dto/create-lighting-system.dto';
 import { UpdateLightingSystemDto } from './dto/update-lighting-system.dto';
 
 import { PrismaService } from '../prisma.service';
+import { differenceInCalendarWeeks } from 'date-fns';
 
 @Injectable()
 export class LightingSystemService {
@@ -20,12 +21,36 @@ export class LightingSystemService {
     return `This action returns a #${id} lightingSystem`;
   }
 
-  findByBuildingId(buildingId: number) {
-    return this.prismaService.$queryRaw`
+  async findByBuildingId(buildingId: number) {
+    const result: [] = await this.prismaService.$queryRaw`
         SELECT LS.*
-        FROM "Building" B INNER JOIN "Property" P on B.id = P."buildingId"
-                          INNER JOIN "LightingSystem" LS ON P.id = LS."propId"
+        FROM "Building" B
+                 INNER JOIN "Property" P on B.id = P."buildingId"
+                 INNER JOIN "LightingSystem" LS ON P.id = LS."propId"
         WHERE "buildingId" = ${buildingId}`;
+
+    const tariffRate = 0.023;
+    const gridEmissionRate = 0.1;
+    return result.map((x: any) => {
+      const energyConsumption =
+        (x.numberOfBulbs *
+          x.wattRatingOfBulb *
+          x.numberOfDaysUsedPerWeek *
+          x.numberOfHoursUsedPerDay *
+          -differenceInCalendarWeeks(
+            new Date(new Date().getFullYear(), 1, 1),
+            new Date(new Date().getFullYear(), 12, 31),
+          )) /
+        1000;
+      const energyCost = energyConsumption * tariffRate;
+      const emissions = energyConsumption * gridEmissionRate;
+      console.log(energyConsumption);
+      x.energyConsumption = energyConsumption;
+      x.energyCost = energyCost;
+      x.emissions = emissions;
+      return x;
+    });
+    //return result;
   }
 
   update(id: number, updateLightingSystemDto: UpdateLightingSystemDto) {
