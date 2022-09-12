@@ -44,7 +44,7 @@ export class LightingSystemService {
         1000;
       const energyCost = energyConsumption * tariffRate;
       const emissions = energyConsumption * gridEmissionRate;
-      console.log(energyConsumption);
+      //console.log(energyConsumption);
       x.energyConsumption = energyConsumption;
       x.energyCost = energyCost;
       x.emissions = emissions;

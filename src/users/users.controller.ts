@@ -51,8 +51,6 @@ export class UsersController {
     },
   ): Promise<UserModel> {
     const saltOrRounds = 10;
-    console.log(userData.email);
-    console.log(userData.password);
     const hash = await bcrypt.hash(userData.password, saltOrRounds);
 
     // await bcrypt.genSalt(this.saltRounds, (err: any, salt: any) => {

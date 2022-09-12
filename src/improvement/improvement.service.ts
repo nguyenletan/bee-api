@@ -128,9 +128,6 @@ export class ImprovementService {
     if (totalHistorizedLightingSystemConsumption[0].sum > 0) {
       return totalHistorizedLightingSystemConsumption[0].sum / period;
     }
-
-    console.log(totalHistorizedLightingSystemConsumption);
-
     const lightingSystems = await this.prismaService.lightingSystem.findMany({
       where: {
         propId: {

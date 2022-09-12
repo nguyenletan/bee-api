@@ -88,8 +88,6 @@ export class PVGISService {
 
     apiUrl += 'outputformat=json';
 
-    console.log(apiUrl);
-
     //this.apiUrl += `lat=${lat}&lon=${lon}&peakpower=$&loss=14&outputformat=json`;
 
     const data$ = this.httpService.get<any>(apiUrl);

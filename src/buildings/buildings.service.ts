@@ -202,8 +202,7 @@ export class BuildingsService {
     equipmentGroups: IEquipmentGroup[],
   ) {
     return equipmentGroups.map((e) => {
-      console.log('equipmentId: ');
-      console.log(e);
+
       return {
         id: e.name,
         consumption: e.sum,
@@ -391,10 +390,6 @@ export class BuildingsService {
     prop: Property,
   ): Promise<number> {
     const peakPower = solarPVSystem.installedCapacity;
-
-    console.log('peakPower: ');
-    console.log(peakPower);
-
     if (!peakPower) {
       return 0;
     }
@@ -1522,9 +1517,6 @@ export class BuildingsService {
 
     const overallElectricConsumption = tmp[0].sum;
 
-    console.log('overallElectricConsumption');
-    console.log(overallElectricConsumption);
-
     const overallOtherSystemConsumption =
       overallElectricConsumption -
       (coolingSystemConsumption.coolingLoadForSpace +
@@ -2137,7 +2129,7 @@ export class BuildingsService {
 
     if (updateBuildingDto.coolingSystem?.hasCoolingSystem === true) {
       if (updateBuildingDto.coolingSystem?.id !== undefined) {
-        console.log('update');
+
         await this.prismaService.coolingSystem.update({
           where: {
             id: updateBuildingDto.coolingSystem?.id,
@@ -2163,7 +2155,6 @@ export class BuildingsService {
           },
         });
       } else {
-        console.log('create');
         await this.prismaService.coolingSystem.create({
           data: {
             coolingSystemTypeId:
@@ -2184,7 +2175,6 @@ export class BuildingsService {
       }
     } else {
       if (updateBuildingDto.coolingSystem?.id !== undefined) {
-        console.log('delete');
         await this.prismaService.coolingSystem.delete({
           where: {
             id: updateBuildingDto.coolingSystem?.id,
@@ -2195,7 +2185,6 @@ export class BuildingsService {
 
     if (updateBuildingDto.heatingSystem.hasHeatingSystem === true) {
       if (updateBuildingDto.heatingSystem?.id !== undefined) {
-        console.log('update heating');
         await this.prismaService.heatingSystem.update({
           where: {
             id: updateBuildingDto.heatingSystem?.id,
@@ -2218,7 +2207,6 @@ export class BuildingsService {
           },
         });
       } else {
-        console.log('create heating');
         await this.prismaService.heatingSystem.create({
           data: {
             heatingSystemTypeId:
@@ -2236,7 +2224,6 @@ export class BuildingsService {
       }
     } else {
       if (updateBuildingDto.heatingSystem?.id !== undefined) {
-        console.log('delete heating');
         await this.prismaService.heatingSystem.delete({
           where: {
             id: updateBuildingDto.heatingSystem?.id,
@@ -2313,8 +2300,6 @@ export class BuildingsService {
             ? Number(item.orientationAngle)
             : null,
       };
-
-      console.log(solarPanelSystem);
 
       this.prismaService.solarPanelSystem.upsert({
         where: {

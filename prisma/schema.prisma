@@ -192,11 +192,11 @@ model Equipments {
   spaceUsageId                  Int?
   mechanicalVentilationSystemId Int?
   CoolingSystem                 CoolingSystem?               @relation(fields: [coolingSystemId], references: [id], onUpdate: SetNull, map: "equipments_coolingsystem_id_fk")
-  R_EquipmentTypes              R_EquipmentTypes?            @relation(fields: [equipTypeId], references: [id], onUpdate: SetNull, map: "equipments_r_equipmenttypes_id_fk")
   HeatingSystem                 HeatingSystem?               @relation(fields: [heatingSystemId], references: [id], onUpdate: SetNull, map: "equipments_heatingsystem_id_fk")
   LightingSystem                LightingSystem?              @relation(fields: [lightingSystemId], references: [id], onUpdate: SetNull, map: "equipments_lightingsystem_id_fk")
   MechanicalVentilationSystem   MechanicalVentilationSystem? @relation(fields: [mechanicalVentilationSystemId], references: [id], onDelete: Cascade, map: "equipments_mechanicalventilation_id_fk")
   Property                      Property?                    @relation(fields: [propertyId], references: [id], onDelete: Cascade, map: "equipments_property_id_fk")
+  R_EquipmentTypes              R_EquipmentTypes?            @relation(fields: [equipTypeId], references: [id], onUpdate: SetNull, map: "equipments_r_equipmenttypes_id_fk")
   SpaceUsage                    SpaceUsage?                  @relation(fields: [spaceUsageId], references: [id], onUpdate: SetNull, map: "equipments_spaceusage_id_fk")
   EquipmentDetail               EquipmentDetail[]
   Points                        Points[]
@@ -216,11 +216,11 @@ model ExternalEnvelopeSubSystem {
   propId                         Int?
   externalGroundInsulationTypeId Int?
   GroundInsulationType           GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_groundinsulationtype_id_fk")
+  Property                       Property?             @relation(fields: [propId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_property_id_fk")
   RoofInsulationType             RoofInsulationType?   @relation(fields: [externalRoofInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_roofinsulationtype_id_fk_2")
+  RoofType                       RoofType?             @relation(fields: [roofInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_rooftype_id_fk")
   WallInsulationType             WallInsulationType?   @relation(fields: [externalWallInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_wallinsulationtype_id_fk")
   WindowInsulationType           WindowInsulationType? @relation(fields: [externalWindowInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_windowinsulationtype_id_fk")
-  Property                       Property?             @relation(fields: [propId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_property_id_fk")
-  RoofType                       RoofType?             @relation(fields: [roofInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_rooftype_id_fk")
 }
 
 model FanType {
@@ -305,7 +305,7 @@ model LightingFittingType {
 }
 
 model LightingSystem {
-  id                          Int                  @id(map: "lightinginformationsection_pk") @default(autoincrement())
+  id                          Int                         @id(map: "lightinginformationsection_pk") @default(autoincrement())
   estimatedLightingLoad       Float?
   lightingFittingTypeId       Int?
   percentageOfFittingTypeUsed Float?
@@ -313,12 +313,13 @@ model LightingSystem {
   numberOfBulbs               Int?
   wattRatingOfBulb            Int?
   lumensOfBulb                Float?
-  title                       String?              @db.VarChar
+  title                       String?                     @db.VarChar
   numberOfDaysUsedPerWeek     Int?
   numberOfHoursUsedPerDay     Int?
-  LightingFittingType         LightingFittingType? @relation(fields: [lightingFittingTypeId], references: [id], onDelete: Cascade, map: "lightinginformationsection_fittingtype_id_fk")
-  Property                    Property?            @relation(fields: [propId], references: [id], onDelete: Cascade, map: "lightingfittingsystem_property_id_fk")
+  Property                    Property?                   @relation(fields: [propId], references: [id], onDelete: Cascade, map: "lightingfittingsystem_property_id_fk")
+  LightingFittingType         LightingFittingType?        @relation(fields: [lightingFittingTypeId], references: [id], onDelete: Cascade, map: "lightinginformationsection_fittingtype_id_fk")
   Equipments                  Equipments[]
+  LightingSystemImprovement   LightingSystemImprovement[]
 }
 
 model MechanicalVentilationSystem {
@@ -408,12 +409,12 @@ model Property {
   streetName                            String?                                @db.VarChar
   editedBy                              String?                                @db.VarChar
   Building                              Building?                              @relation(fields: [buildingId], references: [id], onDelete: Cascade, map: "property_building_id_fk")
-  User                                  User?                                  @relation(fields: [editedBy], references: [externalUID], onDelete: NoAction, onUpdate: NoAction, map: "property_user_externaluid_fk")
-  Floor                                 Floor?                                 @relation(fields: [floorId], references: [id], onDelete: Cascade, map: "property_floor_id_fk")
   BuildingMajorOrientation              BuildingMajorOrientation?              @relation(fields: [majorOrientationId], references: [id], onDelete: Cascade, map: "property_buildingmajororientation _id_fk")
+  Floor                                 Floor?                                 @relation(fields: [floorId], references: [id], onDelete: Cascade, map: "property_floor_id_fk")
   Status                                Status?                                @relation(fields: [statusId], references: [id], onDelete: Cascade, map: "property_status_id_fk")
   SustainabilityRating                  SustainabilityRating?                  @relation(fields: [sustainabilityRatingId], references: [id], onDelete: Cascade, map: "property_sustainabilityrating_id_fk")
   SustainabilityRatingScheme            SustainabilityRatingScheme?            @relation(fields: [sustainabilityRatingSchemeId], references: [id], onDelete: Cascade, map: "property_sustainabilityratingscheme_id_fk")
+  User                                  User?                                  @relation(fields: [editedBy], references: [externalUID], onDelete: NoAction, onUpdate: NoAction, map: "property_user_externaluid_fk")
   UseType                               UseType?                               @relation(fields: [useTypeId], references: [id], onDelete: Cascade, map: "property_usetype_id_fk")
   Zone                                  Zone?                                  @relation(fields: [zoneId], references: [id], onDelete: Cascade, map: "property_zone_id_fk")
   AverageOperatingHours                 AverageOperatingHours[]
@@ -796,4 +797,17 @@ model UserTracking {
   externalId String?   @db.VarChar
   createdAt  DateTime? @default(now()) @db.Timestamp(6)
   pageName   String?   @db.VarChar
+}
+
+model LightingSystemImprovement {
+  id                  Int             @id @default(autoincrement())
+  userExternalId      String
+  lightSystemId       Int?
+  numberOfBulbs       Int?
+  wattRating          Float?
+  lumenRating         Float?
+  costOfEachBulb      Float?
+  numberOfDaysPerWeek Int?
+  numberOfHoursPerDay Int?
+  LightingSystem      LightingSystem? @relation(fields: [lightSystemId], references: [id], onDelete: Cascade, map: "lightingsystemimprovement_lightingsystem_id_fk")
 }

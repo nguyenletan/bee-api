@@ -34,12 +34,10 @@ export class FirebaseAuthStrategy extends PassportStrategy(
   }
 
   async validate(token: string) {
-    console.log('validate:' + token);
     const firebaseUser: any = await this.defaultApp
       .auth()
       .verifyIdToken(token, true)
       .catch((err) => {
-        console.log(err);
         throw new UnauthorizedException(err.message);
       });
     if (!firebaseUser) {
