@@ -19,10 +19,7 @@ export class ProgressMockDataController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-
-
-
-    return this.progressMockDataService.findOne(+id);
+    return this.progressMockDataService.findOne(id);
   }
 
 

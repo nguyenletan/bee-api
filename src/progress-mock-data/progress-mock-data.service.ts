@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateProgressMockDatumDto } from './dto/create-progress-mock-datum.dto';
 import { UpdateProgressMockDatumDto } from './dto/update-progress-mock-datum.dto';
 
+var student01 = require('./mock-data/student01.json');
+var student02 = require('./mock-data/student02.json');
 @Injectable()
 export class ProgressMockDataService {
   create(createProgressMockDatumDto: CreateProgressMockDatumDto) {
@@ -12,8 +14,16 @@ export class ProgressMockDataService {
     return `This action returns all progressMockData`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} progressMockDatum`;
+  findOne(id: string) {
+    switch (id) {
+      case '1':
+        return student01;
+      case '2':
+        return student02;
+      default:
+        return student01;
+    }
+    //return `This action returns a #${id} progressMockDatum`;
   }
 
   update(id: number, updateProgressMockDatumDto: UpdateProgressMockDatumDto) {
