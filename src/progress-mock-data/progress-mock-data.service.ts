@@ -98,7 +98,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34297,
                 "assignment_name": "Assignment 1B: Personal numeracy quiz - Attempt 2",
                 "due_at": "2022-09-19T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
@@ -110,7 +110,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34299,
                 "assignment_name": "Assignment 2: Personal reflection",
                 "due_at": "2022-09-26T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
@@ -122,7 +122,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34298,
                 "assignment_name": "Assignment 3: Personal reflection",
                 "due_at": "2022-09-26T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
@@ -186,7 +186,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34297,
                 "assignment_name": "Assignment 1B: Personal numeracy quiz - Attempt 2",
                 "due_at": "2022-09-19T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
@@ -198,7 +198,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34290,
                 "assignment_name": "Assignment 2: Personal reflection",
                 "due_at": "2022-09-26T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
@@ -210,7 +210,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34291,
                 "assignment_name": "Assignment 3: Personal reflection",
                 "due_at": "2022-09-26T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
@@ -274,7 +274,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34297,
                 "assignment_name": "Assignment 1B: Personal numeracy quiz - Attempt 2",
                 "due_at": "2022-09-19T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
@@ -286,7 +286,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34295,
                 "assignment_name": "Assignment 2: Personal reflection",
                 "due_at": "2022-09-26T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
@@ -298,7 +298,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34277,
                 "assignment_name": "Assignment 3: Personal reflection",
                 "due_at": "2022-09-26T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
