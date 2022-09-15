@@ -100,7 +100,7 @@ const student01 = {
           "weight_pct": 20,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34297,
               "assignment_name": "Assignment 2: Personal reflection",
               "due_at": "2022-09-26T13:59:00.000Z",
               "submitted": true
@@ -112,7 +112,7 @@ const student01 = {
           "weight_pct": 20,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34296,
               "assignment_name": "Assignment 3: Personal reflection",
               "due_at": "2022-09-26T13:59:00.000Z",
               "submitted": false
@@ -124,9 +124,9 @@ const student01 = {
           "weight_pct": 10,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34295,
               "assignment_name": "Assignment 4: Report",
-              "due_at": "2022-10-31T13:59:00.000Z",
+              "due_at": "2022-10-3113:59:00.000Z",
               "submitted": false
             }
           ]
@@ -136,7 +136,7 @@ const student01 = {
           "weight_pct": 30,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34293,
               "assignment_name": "Assignment 5: Final assignment",
               "due_at": "2022-11-28T13:59:00.000Z",
               "submitted": false
@@ -188,7 +188,7 @@ const student01 = {
           "weight_pct": 20,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34292,
               "assignment_name": "Assignment 2: Personal reflection",
               "due_at": "2022-09-26T13:59:00.000Z",
               "submitted": true
@@ -200,7 +200,7 @@ const student01 = {
           "weight_pct": 20,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34291,
               "assignment_name": "Assignment 3: Personal reflection",
               "due_at": "2022-09-26T13:59:00.000Z",
               "submitted": false
@@ -212,7 +212,7 @@ const student01 = {
           "weight_pct": 10,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34290,
               "assignment_name": "Assignment 4: Report",
               "due_at": "2022-10-31T13:59:00.000Z",
               "submitted": false
@@ -224,7 +224,7 @@ const student01 = {
           "weight_pct": 30,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34289,
               "assignment_name": "Assignment 5: Final assignment",
               "due_at": "2022-11-28T13:59:00.000Z",
               "submitted": false
@@ -276,7 +276,7 @@ const student01 = {
           "weight_pct": 20,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34279,
               "assignment_name": "Assignment 2: Personal reflection",
               "due_at": "2022-09-26T13:59:00.000Z",
               "submitted": true
@@ -288,7 +288,7 @@ const student01 = {
           "weight_pct": 20,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34259,
               "assignment_name": "Assignment 3: Personal reflection",
               "due_at": "2022-09-26T13:59:00.000Z",
               "submitted": false
@@ -312,7 +312,7 @@ const student01 = {
           "weight_pct": 30,
           "assignments": [
             {
-              "assignment_id": 34299,
+              "assignment_id": 34298,
               "assignment_name": "Assignment 5: Final assignment",
               "due_at": "2022-11-28T13:59:00.000Z",
               "submitted": false
