@@ -86,7 +86,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34296,
                 "assignment_name": "Assignment 1A: Personal numeracy quiz – Attempt 1 (Completion confirmation)",
                 "due_at": "2022-09-12T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
@@ -174,7 +174,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34296,
                 "assignment_name": "Assignment 1A: Personal numeracy quiz – Attempt 1 (Completion confirmation)",
                 "due_at": "2022-09-12T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
@@ -262,7 +262,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34296,
                 "assignment_name": "Assignment 1A: Personal numeracy quiz – Attempt 1 (Completion confirmation)",
                 "due_at": "2022-09-12T13:59:00.000Z",
-                "submitted": true
+                "submitted": false
               }
             ]
           },
