@@ -122,7 +122,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34298,
                 "assignment_name": "Assignment 3: Personal reflection",
                 "due_at": "2022-09-26T13:59:00.000Z",
-                "submitted": false
+                "submitted": true
               }
             ]
           },
@@ -210,7 +210,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34291,
                 "assignment_name": "Assignment 3: Personal reflection",
                 "due_at": "2022-09-26T13:59:00.000Z",
-                "submitted": false
+                "submitted": true
               }
             ]
           },
@@ -298,7 +298,7 @@ export class ProgressMockDataService {
                 "assignment_id": 34277,
                 "assignment_name": "Assignment 3: Personal reflection",
                 "due_at": "2022-09-26T13:59:00.000Z",
-                "submitted": false
+                "submitted": true
               }
             ]
           },
