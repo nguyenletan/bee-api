@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
-import * as firebaseConfig from './firebase.config.json';
+import * as firebaseConfig from './firebase.config.dev.json';
 import * as firebase from 'firebase-admin';
 
 const firebase_params = {
@@ -34,12 +34,10 @@ export class FirebaseAuthStrategy extends PassportStrategy(
   }
 
   async validate(token: string) {
-    console.log('validate:' + token);
     const firebaseUser: any = await this.defaultApp
       .auth()
       .verifyIdToken(token, true)
       .catch((err) => {
-        console.log(err);
         throw new UnauthorizedException(err.message);
       });
     if (!firebaseUser) {

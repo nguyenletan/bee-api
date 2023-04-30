@@ -143,9 +143,6 @@ export class EquipmentsService {
       },
     });
 
-    console.log('equipment:');
-    console.log(equipment);
-
     const historizedPoint = equipment.coolingSystemId
       ? '"CoolingHistorizedPoint"'
       : equipment.heatingSystemId

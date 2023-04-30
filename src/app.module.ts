@@ -11,6 +11,10 @@ import { ZonesModule } from './zones/zones.module';
 import { FirebaseAuthStrategy } from './firebase/firebase-auth.strategy';
 import { HistorizedPointsModule } from './historized-points/historized-points.module';
 import { EquipmentsModule } from './equipments/equipments.module';
+import { ImprovementModule } from './improvement/improvement.module';
+import { LightingSystemModule } from './lighting-system/lighting-system.module';
+import { LightingSystemImprovementModule } from './lighting-system-improvement/lighting-system-improvement.module';
+import { ProgressMockDataModule } from './progress-mock-data/progress-mock-data.module';
 
 @Module({
   imports: [
@@ -21,6 +25,10 @@ import { EquipmentsModule } from './equipments/equipments.module';
     ZonesModule,
     HistorizedPointsModule,
     EquipmentsModule,
+    ImprovementModule,
+    LightingSystemModule,
+    LightingSystemImprovementModule,
+    ProgressMockDataModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, PrismaService, FirebaseAuthStrategy],

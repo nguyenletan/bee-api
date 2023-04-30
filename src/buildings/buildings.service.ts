@@ -202,8 +202,7 @@ export class BuildingsService {
     equipmentGroups: IEquipmentGroup[],
   ) {
     return equipmentGroups.map((e) => {
-      console.log('equipmentId: ');
-      console.log(e);
+
       return {
         id: e.name,
         consumption: e.sum,
@@ -219,8 +218,8 @@ export class BuildingsService {
     coolingLoadConsumption: ICoolingLoadForGeneralSpace,
   ): IBreakdownConsumption[] {
     return coolingLoadConsumption.equipmentTypeGroups.map((c) => {
-      console.log('c');
-      console.log(c);
+      // console.log('c');
+      // console.log(c);
       return {
         id: c.name,
         consumption: c.sum,
@@ -391,6 +390,10 @@ export class BuildingsService {
     prop: Property,
   ): Promise<number> {
     const peakPower = solarPVSystem.installedCapacity;
+    if (!peakPower) {
+      return 0;
+    }
+
     const pvTechChoice = PVTechChoices.find(
       (x) => solarPVSystem.pvTechChoiceId === x.id,
     )?.shortName;
@@ -589,7 +592,7 @@ export class BuildingsService {
     };
   }
 
-  private async getListOfElectricConsumptionsFromHistorizedLogs(
+  public async getListOfElectricConsumptionsFromHistorizedLogs(
     propId: number,
     startDay: Date,
     endDay: Date,
@@ -737,11 +740,30 @@ export class BuildingsService {
         },
       );
 
+    const totalOfBulbs = _.sumBy(
+      createBuildingDto?.lightingSubSystemList,
+      (item) => {
+        if (item && typeof +item.numberOfBulbs === 'number') {
+          return +item.numberOfBulbs;
+        }
+        return 0;
+      },
+    );
+
     const lightingSubSystemList = createBuildingDto?.lightingSubSystemList.map(
       (item: ILightingSubSystem) => {
         return <LightingSystem>{
           lightingFittingTypeId: item.indoorLightingSystemTypeId,
-          percentageOfFittingTypeUsed: Number(item.percentage),
+          percentageOfFittingTypeUsed: +(
+            (+item.numberOfBulbs / totalOfBulbs) *
+            100
+          ).toFixed(2),
+          title: item.title,
+          numberOfBulbs: +item.numberOfBulbs,
+          lumensOfBulb: +item.lumensOfBulb,
+          wattRatingOfBulb: +item.wattRatingOfBulb,
+          numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
+          numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
         };
       },
     );
@@ -753,7 +775,7 @@ export class BuildingsService {
           usagePercentage: item.percentage,
           climateControlId: item.climateControlId,
           title: item.title,
-          fanTypeId: item.fanTypeId,
+          fanTypeId: item.fanTypeId === '' ? null : +item.fanTypeId,
           hasReheatRecovery: item.hasReheatRecovery,
         };
       },
@@ -822,7 +844,13 @@ export class BuildingsService {
 
       Property: {
         create: {
+          editedBy: user.uid,
           streetAddress: createBuildingDto.generalBuildingInformation.address,
+
+          streetName: createBuildingDto.generalBuildingInformation.streetName,
+
+          streetNumber:
+            createBuildingDto.generalBuildingInformation.streetNumber,
 
           postCode: createBuildingDto.generalBuildingInformation.postalCode,
 
@@ -989,15 +1017,17 @@ export class BuildingsService {
     // });
     // console.log(result);
     return await this.prismaService.$queryRaw`
-        SELECT p."streetAddress", p.photo, B.id, B.name, P."streetNumber", P."streetName" 
+        SELECT p."streetAddress", p.photo, B.id, B.name, P."streetNumber", P."streetName"
         FROM "Property" p
-          INNER JOIN "PropertyUser" PU ON p.id = PU."propertyId"
-          INNER JOIN "Building" B on B.id = p."buildingId"
-        WHERE "statusId" = 2 AND PU."userAuthUID" = ${user.uid} AND "buildingId" is not null
+                 INNER JOIN "PropertyUser" PU ON p.id = PU."propertyId"
+                 INNER JOIN "Building" B on B.id = p."buildingId"
+        WHERE "statusId" = 2
+          AND PU."userAuthUID" = ${user.uid}
+          AND "buildingId" is not null
         ORDER BY p.id DESC`;
   }
 
-  private static calculateOverallEnergyConsumptionInformation(
+  public static calculateOverallEnergyConsumptionInformation(
     electricConsumptionsFromHistorizedLogs: IElectricConsumptionFromHistorizedLogs,
   ): IOverallEnergyConsumptionInformation {
     let totalEnergyConsumption = 0;
@@ -1292,8 +1322,8 @@ export class BuildingsService {
         annualMechanicalVentilationSystemConsumption.annualEnergyUsage +
         annualLightingConsumption.lightingEnergyConsumption);
 
-    console.log('annualCoolingSystemConsumption');
-    console.log(annualCoolingSystemConsumption);
+    // console.log('annualCoolingSystemConsumption');
+    // console.log(annualCoolingSystemConsumption);
 
     const consumptionBreakdown = BuildingsService.calculateConsumptionBreakdown(
       annualCoolingSystemConsumption,
@@ -1389,8 +1419,9 @@ export class BuildingsService {
     const prop = await this.prismaService.$queryRaw`
         SELECT p.*, B.*, p.id as "propId"
         FROM "Property" p
-          INNER JOIN "Building" B on B.id = p."buildingId"
-        WHERE "statusId" = 2 AND B.id = ${id}`;
+                 INNER JOIN "Building" B on B.id = p."buildingId"
+        WHERE "statusId" = 2
+          AND B.id = ${id}`;
 
     const coolingSystemConsumption: ICoolingLoadForGeneralSpace = {
       coolingLoad: 0,
@@ -1485,9 +1516,6 @@ export class BuildingsService {
       );
 
     const overallElectricConsumption = tmp[0].sum;
-
-    console.log('overallElectricConsumption');
-    console.log(overallElectricConsumption);
 
     const overallOtherSystemConsumption =
       overallElectricConsumption -
@@ -1637,32 +1665,40 @@ export class BuildingsService {
 
   async findOne(id: number, startDay: string, endDay: string) {
     const prop = await this.prismaService.$queryRaw`
-        SELECT p.*, B.*, p.id as "propId", UT.name as "useTypeName",
-              SR.name as "sustainabilityRatingName",
-              SRS.name as "sustainabilityRatingSchemeName",
-              U.email
+        SELECT p.*,
+               B.*,
+               p.id     as "propId",
+               UT.name  as "useTypeName",
+               SR.name  as "sustainabilityRatingName",
+               SRS.name as "sustainabilityRatingSchemeName",
+               U.email
         FROM "Property" p
-          INNER JOIN "Building" B on B.id = p."buildingId"
-          INNER JOIN "UseType" UT on UT.id = p."useTypeId"
-          INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
-          LEFT OUTER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
-          INNER JOIN "User" U on U."externalUID" = p."editedBy"
-        WHERE "statusId" = 2 AND B.id = ${id}`;
+                 INNER JOIN "Building" B on B.id = p."buildingId"
+                 INNER JOIN "UseType" UT on UT.id = p."useTypeId"
+                 INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
+                 LEFT OUTER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
+                 INNER JOIN "User" U on U."externalUID" = p."editedBy"
+        WHERE "statusId" = 2
+          AND B.id = ${id}`;
 
     return this.calculateFromBuildingInformation(prop, startDay, endDay);
   }
 
   async findOneForEditing(id: number): Promise<ICreateBuildingDto> {
     const prop = await this.prismaService.$queryRaw`
-        SELECT p.*, B.*, p.id as "propId", UT.name as "useTypeName",
-              SR.name as "sustainabilityRatingName",
-              SRS.name as "sustainabilityRatingSchemeName"
+        SELECT p.*,
+               B.*,
+               p.id     as "propId",
+               UT.name  as "useTypeName",
+               SR.name  as "sustainabilityRatingName",
+               SRS.name as "sustainabilityRatingSchemeName"
         FROM "Property" p
-          INNER JOIN "Building" B on B.id = p."buildingId"
-          INNER JOIN "UseType" UT on UT.id = p."useTypeId"
-          INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
-          LEFT OUTER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
-       WHERE "statusId" = 2 AND B.id = ${id}`;
+                 INNER JOIN "Building" B on B.id = p."buildingId"
+                 INNER JOIN "UseType" UT on UT.id = p."useTypeId"
+                 INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
+                 LEFT OUTER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
+        WHERE "statusId" = 2
+          AND B.id = ${id}`;
 
     const building = await this.prismaService.building.findFirst({
       where: {
@@ -1853,14 +1889,32 @@ export class BuildingsService {
 
     //console.log(electricityConsumptions);
 
+    const totalOfBulbs = _.sumBy(
+      building.Property[0]?.LightingSystem,
+      (item) => {
+        if (item && typeof +item.numberOfBulbs === 'number') {
+          return +item.numberOfBulbs;
+        }
+        return 0;
+      },
+    );
+
     const lightingSubSystemList: ILightingSubSystem[] =
       building.Property[0]?.LightingSystem?.map<ILightingSubSystem>(
         (lightingSubSystem: LightingSystem) => {
           return {
             id: lightingSubSystem.id,
-            title: 'title ' + lightingSubSystem.id,
+            title: lightingSubSystem.title,
             indoorLightingSystemTypeId: lightingSubSystem.lightingFittingTypeId,
-            percentage: lightingSubSystem.percentageOfFittingTypeUsed,
+            percentage: +(
+              (+lightingSubSystem.numberOfBulbs / totalOfBulbs) *
+              100
+            ).toFixed(2),
+            lumensOfBulb: lightingSubSystem.lumensOfBulb,
+            numberOfBulbs: lightingSubSystem.numberOfBulbs,
+            wattRatingOfBulb: lightingSubSystem.wattRatingOfBulb,
+            numberOfHoursUsedPerDay: lightingSubSystem.numberOfHoursUsedPerDay,
+            numberOfDaysUsedPerWeek: lightingSubSystem.numberOfDaysUsedPerWeek,
           };
         },
       );
@@ -2030,7 +2084,10 @@ export class BuildingsService {
         usagePercentage: item.percentage,
         climateControlId: item.climateControlId,
         title: item.title,
-        fanTypeId: item.fanTypeId,
+        fanTypeId:
+          item.fanTypeId === '' || item.fanTypeId === null
+            ? null
+            : +item.fanTypeId,
         hasReheatRecovery: item.hasReheatRecovery,
       };
       //console.log(item);
@@ -2072,7 +2129,7 @@ export class BuildingsService {
 
     if (updateBuildingDto.coolingSystem?.hasCoolingSystem === true) {
       if (updateBuildingDto.coolingSystem?.id !== undefined) {
-        console.log('update');
+
         await this.prismaService.coolingSystem.update({
           where: {
             id: updateBuildingDto.coolingSystem?.id,
@@ -2098,7 +2155,6 @@ export class BuildingsService {
           },
         });
       } else {
-        console.log('create');
         await this.prismaService.coolingSystem.create({
           data: {
             coolingSystemTypeId:
@@ -2119,7 +2175,6 @@ export class BuildingsService {
       }
     } else {
       if (updateBuildingDto.coolingSystem?.id !== undefined) {
-        console.log('delete');
         await this.prismaService.coolingSystem.delete({
           where: {
             id: updateBuildingDto.coolingSystem?.id,
@@ -2130,7 +2185,6 @@ export class BuildingsService {
 
     if (updateBuildingDto.heatingSystem.hasHeatingSystem === true) {
       if (updateBuildingDto.heatingSystem?.id !== undefined) {
-        console.log('update heating');
         await this.prismaService.heatingSystem.update({
           where: {
             id: updateBuildingDto.heatingSystem?.id,
@@ -2153,7 +2207,6 @@ export class BuildingsService {
           },
         });
       } else {
-        console.log('create heating');
         await this.prismaService.heatingSystem.create({
           data: {
             heatingSystemTypeId:
@@ -2171,7 +2224,6 @@ export class BuildingsService {
       }
     } else {
       if (updateBuildingDto.heatingSystem?.id !== undefined) {
-        console.log('delete heating');
         await this.prismaService.heatingSystem.delete({
           where: {
             id: updateBuildingDto.heatingSystem?.id,
@@ -2180,12 +2232,30 @@ export class BuildingsService {
       }
     }
 
+    const totalOfBulbs = _.sumBy(
+      updateBuildingDto?.lightingSubSystemList,
+      (item) => {
+        if (item && typeof +item.numberOfBulbs === 'number') {
+          return +item.numberOfBulbs;
+        }
+        return 0;
+      },
+    );
     for (const item of updateBuildingDto?.lightingSubSystemList) {
       const lightingSystem = {
         lightingFittingTypeId: item.indoorLightingSystemTypeId,
-        percentageOfFittingTypeUsed: Number(item.percentage),
+        percentageOfFittingTypeUsed: +(
+          (+item.numberOfBulbs / totalOfBulbs) *
+          100
+        ).toFixed(2),
+        numberOfBulbs: +item.numberOfBulbs,
+        wattRatingOfBulb: +item.wattRatingOfBulb,
+        lumensOfBulb: +item.lumensOfBulb,
+        title: item.title,
+        numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
+        numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
       };
-      console.log(item);
+      //console.log(item);
       await this.prismaService.lightingSystem.upsert({
         where: {
           id: item.id,
@@ -2230,8 +2300,6 @@ export class BuildingsService {
             ? Number(item.orientationAngle)
             : null,
       };
-
-      console.log(solarPanelSystem);
 
       this.prismaService.solarPanelSystem.upsert({
         where: {
@@ -2295,6 +2363,8 @@ export class BuildingsService {
         Property: {
           update: {
             data: {
+              //editedBy: user.uid
+
               streetAddress:
                 updateBuildingDto.generalBuildingInformation.streetNumber +
                 ' ' +

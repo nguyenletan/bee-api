@@ -48,4 +48,12 @@ export const LightFittingEfficacyReference: ILightFittingEfficacyReference[] = [
     // (lm/W)
     efficacy: 30,
   },
+  {
+    id: 6,
+
+    lightFitting: 'Others',
+
+    // (lm/W)
+    efficacy: 0,
+  },
 ];
