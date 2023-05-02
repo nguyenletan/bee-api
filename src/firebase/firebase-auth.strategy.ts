@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
-import * as firebaseConfig from './firebase.config.dev.json';
+import * as firebaseConfig from './firebase.config.json';
 import * as firebase from 'firebase-admin';
 
 const firebase_params = {
