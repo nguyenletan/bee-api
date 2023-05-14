@@ -202,7 +202,6 @@ export class BuildingsService {
     equipmentGroups: IEquipmentGroup[],
   ) {
     return equipmentGroups.map((e) => {
-
       return {
         id: e.name,
         consumption: e.sum,
@@ -522,14 +521,18 @@ export class BuildingsService {
   }
 
   private calculateConsumptionsFromHistorizedLogsAndGroupBy(
-    groupByYear: unknown,
-    groupByQuarter: unknown,
-    groupByMonth: unknown,
-    groupByWeek: unknown,
-    groupByDay: unknown,
+    groupByYear: any,
+    groupByQuarter: any,
+    groupByMonth: any,
+    groupByWeek: any,
+    groupByDay: any,
   ): IElectricConsumptionFromHistorizedLogsSubSystem {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
+
+    console.log('groupByYear', groupByYear);
+    console.log('groupByMonth', groupByMonth);
+
     const electricConsumptionGroupByYear = groupByYear.map((x) => {
       return {
         value: +(x.value / 1000).toFixed(2), // convert to mWh
@@ -2129,7 +2132,6 @@ export class BuildingsService {
 
     if (updateBuildingDto.coolingSystem?.hasCoolingSystem === true) {
       if (updateBuildingDto.coolingSystem?.id !== undefined) {
-
         await this.prismaService.coolingSystem.update({
           where: {
             id: updateBuildingDto.coolingSystem?.id,

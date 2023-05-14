@@ -515,8 +515,6 @@ model Property {
   BuildingMajorOrientation              BuildingMajorOrientation?              @relation(fields: [majorOrientationId], references: [id], onDelete: Cascade, map: "property_buildingmajororientation _id_fk")
   Floor                                 Floor?                                 @relation(fields: [floorId], references: [id], onDelete: Cascade, map: "property_floor_id_fk")
   Status                                Status?                                @relation(fields: [statusId], references: [id], onDelete: Cascade, map: "property_status_id_fk")
-  SustainabilityRating                  SustainabilityRating?                  @relation(fields: [sustainabilityRatingId], references: [id], onDelete: Cascade, map: "property_sustainabilityrating_id_fk")
-  SustainabilityRatingScheme            SustainabilityRatingScheme?            @relation(fields: [sustainabilityRatingSchemeId], references: [id], onDelete: Cascade, map: "property_sustainabilityratingscheme_id_fk")
   User                                  User?                                  @relation(fields: [editedBy], references: [externalUID], onDelete: NoAction, onUpdate: NoAction, map: "property_user_externaluid_fk")
   UseType                               UseType?                               @relation(fields: [useTypeId], references: [id], onDelete: Cascade, map: "property_usetype_id_fk")
   Zone                                  Zone?                                  @relation(fields: [zoneId], references: [id], onDelete: Cascade, map: "property_zone_id_fk")
@@ -707,15 +705,13 @@ model SustainabilityRating {
   name                         String                     @db.VarChar
   description                  String?
   SustainabilityRatingSchemaId Int
-  Property                     Property[]
-  SustainabilityRatingScheme   SustainabilityRatingScheme @relation(fields: [SustainabilityRatingSchemaId], references: [id], onDelete: Cascade, map: "sustainabilityrating_sustainabilityratingscheme_id_fk")
+  SustainabilityRatingScheme   SustainabilityRatingScheme @relation(fields: [SustainabilityRatingSchemaId], references: [id], onDelete: SetNull, map: "sustainabilityrating_sustainabilityratingscheme_id_fk")
 }
 
 model SustainabilityRatingScheme {
   id                   Int                    @id(map: "sustainabilityratingscheme_pk") @default(autoincrement())
   name                 String                 @unique(map: "sustainabilityratingscheme_name_uindex") @db.VarChar
   description          String?
-  Property             Property[]
   SustainabilityRating SustainabilityRating[]
 }
 
