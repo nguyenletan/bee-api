@@ -34,6 +34,16 @@ export class BuildingsController {
     return this.buildingsService.create(createBuildingDto, req.user);
   }
 
+  @Post('create-partial')
+  @UseGuards(FirebaseAuthGuard)
+  createPartial(@Body() createBuildingDto: BuildingDto, @Req() req: any) {
+    // console.log('Create building');
+    // console.log(req.user);
+    //console.log(createBuildingDto.generalBuildingInformation);
+
+    return this.buildingsService.createPartial(createBuildingDto, req.user);
+  }
+
   @Get()
   @UseGuards(FirebaseAuthGuard)
   findAll(@Req() req: any) {
