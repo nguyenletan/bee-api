@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": "18.x.x"
+    "node": ">=16.x.x"
   },
   "scripts": {
     "prebuild": "rimraf dist",
@@ -88,6 +88,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "packageManager": "yarn@3.2.0"
+  }
 }
