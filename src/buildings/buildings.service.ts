@@ -1678,7 +1678,7 @@ export class BuildingsService {
         FROM "Property" p
                  INNER JOIN "Building" B on B.id = p."buildingId"
                  INNER JOIN "UseType" UT on UT.id = p."useTypeId"
-                 INNER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
+                 LEFT OUTER JOIN "SustainabilityRatingScheme" SRS on SRS.id = p."sustainabilityRatingSchemeId"
                  LEFT OUTER JOIN "SustainabilityRating" SR on SR.id = p."sustainabilityRatingId"
                  INNER JOIN "User" U on U."externalUID" = p."editedBy"
         WHERE "statusId" = 2 
@@ -2213,14 +2213,31 @@ export class BuildingsService {
       typeof updateBuildingDto?.envelopFacade
         ?.externalWindowInsulationTypeId !== 'number'
     ) {
-      console.log('ERROR', 3);
       statusId = 3;
     } else {
-      await this.prismaService.externalEnvelopeSubSystem.update({
+      console.log('updateBuildingDto.envelopFacade:', updateBuildingDto);
+      await this.prismaService.externalEnvelopeSubSystem.upsert({
         where: {
           id: updateBuildingDto.envelopFacade.id,
         },
-        data: {
+        create: {
+          externalWindowToWallRatio:
+            updateBuildingDto.envelopFacade?.externalWindowToWallRatio ===
+            undefined
+              ? 1
+              : updateBuildingDto.envelopFacade?.externalWindowToWallRatio,
+          externalWindowInsulationTypeId:
+            updateBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
+          roofInsulationTypeId:
+            updateBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
+          externalGroundInsulationTypeId:
+            updateBuildingDto.envelopFacade
+              ?.externalGroundFloorInsulationTypeId === undefined
+              ? 1
+              : updateBuildingDto.envelopFacade
+                  ?.externalGroundFloorInsulationTypeId,
+        },
+        update: {
           externalWindowToWallRatio:
             updateBuildingDto.envelopFacade?.externalWindowToWallRatio ===
             undefined
