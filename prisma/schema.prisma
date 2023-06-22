@@ -1,11 +1,10 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["deno"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL_BEE_DEMO")
+  url      = env("DATABASE_URL_DEMO")
 }
 
 model AuthType {
