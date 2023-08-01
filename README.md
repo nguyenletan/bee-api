@@ -81,5 +81,4 @@ Nest is [MIT licensed](LICENSE).
 
 
 
-docker build -t mortezaeghbalicenta/centabee-api:latest .
-docker run -d --name bee-api -v $(pwd)/back/.env:/app/.env -it  -p 8080:4000 -d mortezaeghbalicenta/centabee-api:latest
+
