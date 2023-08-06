@@ -745,19 +745,17 @@ export class BuildingsService {
         },
       );
 
-
-    const heatConsumptionList =
-      createBuildingDto?.heatConsumptionList.map(
-        (item: IHeatConsumption) => {
-          return <HeatConsumption>{
-            month: item.month,
-            year: item.year,
-            heattype: item.heattype,
-            monthlyValue: Number(item.value),
-            monthlyCost: Number(item.cost),
-          };
-        },
-      );
+    const heatConsumptionList = createBuildingDto?.heatConsumptionList.map(
+      (item: IHeatConsumption) => {
+        return <HeatConsumption>{
+          month: item.month,
+          year: item.year,
+          heattype: item.heattype,
+          monthlyValue: Number(item.value),
+          monthlyCost: Number(item.cost),
+        };
+      },
+    );
 
     const totalOfBulbs = _.sumBy(
       createBuildingDto?.lightingSubSystemList,
@@ -1132,17 +1130,16 @@ export class BuildingsService {
         },
       });
 
-      const heatConsumptions =
-      await this.prismaService.heatConsumption.findMany({
-        where: {
-          propId: {
-            equals: prop[0].propId,
-          },
+    const heatConsumptions = await this.prismaService.heatConsumption.findMany({
+      where: {
+        propId: {
+          equals: prop[0].propId,
         },
-        orderBy: {
-          id: 'asc',
-        },
-      });
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
 
     const operationHours =
       await this.prismaService.averageOperatingHours.findFirst({
@@ -1440,10 +1437,7 @@ export class BuildingsService {
         electricConsumptions,
         24,
       ),
-      heatConsumptions: _.take<HeatConsumption>(
-        heatConsumptions,
-        24,
-      ),
+      heatConsumptions: _.take<HeatConsumption>(heatConsumptions, 24),
     };
   }
 
@@ -1930,19 +1924,19 @@ export class BuildingsService {
 
     //console.log(electricityConsumptions);
 
-  const heatConsumptions: IHeatConsumption[] =
-    building.Property[0]?.HeatConsumption?.map<IHeatConsumption>(
-      (heatConsumption: HeatConsumption) => {
-        return {
-          id: heatConsumption.id,
-          month: heatConsumption.month,
-          year: heatConsumption.year,
-          heattype: heatConsumption.heattype,
-          value: heatConsumption.monthlyValue,
-          cost: heatConsumption.monthlyCost,
-        };
-      },
-    );
+    const heatConsumptions: IHeatConsumption[] =
+      building.Property[0]?.HeatConsumption?.map<IHeatConsumption>(
+        (heatConsumption: HeatConsumption) => {
+          return {
+            id: heatConsumption.id,
+            month: heatConsumption.month,
+            year: heatConsumption.year,
+            heattype: heatConsumption.heattype,
+            value: heatConsumption.monthlyValue,
+            cost: heatConsumption.monthlyCost,
+          };
+        },
+      );
 
     const totalOfBulbs = _.sumBy(
       building.Property[0]?.LightingSystem,
@@ -2177,18 +2171,14 @@ export class BuildingsService {
       statusId = 3;
     }
 
-    
-    
     const electricityConsumptionList =
       updateBuildingDto?.electricityConsumptionList.filter(
         (item) => Number(item.value) !== 0 && Number(item.cost) !== 0,
       );
 
-
-    const heatConsumptionList =
-      updateBuildingDto?.heatConsumptionList.filter(
-        (item) => Number(item.value) !== 0 && Number(item.cost) !== 0,
-      );  
+    const heatConsumptionList = updateBuildingDto?.heatConsumptionList.filter(
+      (item) => Number(item.value) !== 0 && Number(item.cost) !== 0,
+    );
 
     for (const item of electricityConsumptionList) {
       const electricityConsumption = {
@@ -2198,7 +2188,6 @@ export class BuildingsService {
         monthlyCost: Number(item.cost),
       };
 
-      
       // console.log(item);
       await this.prismaService.electricityConsumption.upsert({
         where: {
@@ -2212,8 +2201,6 @@ export class BuildingsService {
       });
     }
 
-
-
     for (const item of heatConsumptionList) {
       const heatConsumption = {
         month: item.month,
@@ -2223,11 +2210,10 @@ export class BuildingsService {
         monthlyCost: Number(item.cost),
       };
 
-      
       // console.log(item);
       await this.prismaService.heatConsumption.upsert({
         where: {
-          id_heattype: { id: item.id, heattype: item.heattype}
+          id_heattype: { id: item.id, heattype: item.heattype },
         },
         update: heatConsumption,
         create: {
@@ -2237,14 +2223,10 @@ export class BuildingsService {
       });
     }
 
-
-
-
     if (electricityConsumptionList.length === 0) {
       statusId = 3;
     }
 
-    
     //===================================================
     if (heatConsumptionList.length === 0) {
       statusId = 3;
@@ -2709,19 +2691,17 @@ export class BuildingsService {
       statusId = 3;
     }
 
-
-    const heatConsumptionList =
-      createBuildingDto?.heatConsumptionList
-        .filter((item) => Number(item.value) !== 0 && Number(item.cost) !== 0)
-        .map((item: IHeatConsumption) => {
-          return <HeatConsumption>{
-            month: item.month,
-            year: item.year,
-            heattype:item.heattype,
-            monthlyValue: Number(item.value),
-            monthlyCost: Number(item.cost),
-          };
-        });
+    const heatConsumptionList = createBuildingDto?.heatConsumptionList
+      .filter((item) => Number(item.value) !== 0 && Number(item.cost) !== 0)
+      .map((item: IHeatConsumption) => {
+        return <HeatConsumption>{
+          month: item.month,
+          year: item.year,
+          heattype: item.heattype,
+          monthlyValue: Number(item.value),
+          monthlyCost: Number(item.cost),
+        };
+      });
 
     if (heatConsumptionList.length === 0) {
       statusId = 3;
@@ -2933,7 +2913,7 @@ export class BuildingsService {
 
           HeatConsumption: {
             create: heatConsumptionList,
-          },          
+          },
 
           LightingSystem: {
             create: lightingSubSystemList,
