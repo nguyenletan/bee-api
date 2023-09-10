@@ -7,6 +7,7 @@ import {
   ICoolingSystem,
   ICreateBuildingDto,
   IElectricityConsumption,
+  IHeatConsumption,
   IHeatingSystem,
   ILightingSubSystem,
   ISolarPanelSystem,
@@ -16,6 +17,7 @@ import { PrismaService } from '../prisma.service';
 import {
   AverageOperatingHours,
   ElectricityConsumption,
+  HeatConsumption,
   ExternalEnvelopeSubSystem,
   LightingSystem,
   Property,
@@ -743,6 +745,18 @@ export class BuildingsService {
         },
       );
 
+    const heatConsumptionList = createBuildingDto?.heatConsumptionList.map(
+      (item: IHeatConsumption) => {
+        return <HeatConsumption>{
+          month: item.month,
+          year: item.year,
+          heattype: item.heattype,
+          monthlyValue: Number(item.value),
+          monthlyCost: Number(item.cost),
+        };
+      },
+    );
+
     const totalOfBulbs = _.sumBy(
       createBuildingDto?.lightingSubSystemList,
       (item) => {
@@ -928,6 +942,10 @@ export class BuildingsService {
             create: electricityConsumptionList,
           },
 
+          HeatConsumption: {
+            create: heatConsumptionList,
+          },
+
           LightingSystem: {
             create: lightingSubSystemList,
           },
@@ -1111,6 +1129,17 @@ export class BuildingsService {
           id: 'asc',
         },
       });
+
+    const heatConsumptions = await this.prismaService.heatConsumption.findMany({
+      where: {
+        propId: {
+          equals: prop[0].propId,
+        },
+      },
+      orderBy: {
+        id: 'asc',
+      },
+    });
 
     const operationHours =
       await this.prismaService.averageOperatingHours.findFirst({
@@ -1408,6 +1437,7 @@ export class BuildingsService {
         electricConsumptions,
         24,
       ),
+      heatConsumptions: _.take<HeatConsumption>(heatConsumptions, 24),
     };
   }
 
@@ -1715,6 +1745,8 @@ export class BuildingsService {
             AverageOperatingHours: true,
             SpaceUsage: true,
             ElectricityConsumption: true,
+            HeatConsumption: true,
+
             CoolingSystem: {
               include: {
                 Chiller: true,
@@ -1892,6 +1924,20 @@ export class BuildingsService {
 
     //console.log(electricityConsumptions);
 
+    const heatConsumptions: IHeatConsumption[] =
+      building.Property[0]?.HeatConsumption?.map<IHeatConsumption>(
+        (heatConsumption: HeatConsumption) => {
+          return {
+            id: heatConsumption.id,
+            month: heatConsumption.month,
+            year: heatConsumption.year,
+            heattype: heatConsumption.heattype,
+            value: heatConsumption.monthlyValue,
+            cost: heatConsumption.monthlyCost,
+          };
+        },
+      );
+
     const totalOfBulbs = _.sumBy(
       building.Property[0]?.LightingSystem,
       (item) => {
@@ -1981,6 +2027,7 @@ export class BuildingsService {
       heatingSystem: heatingSystem,
       lightingSubSystemList: lightingSubSystemList,
       electricityConsumptionList: electricityConsumptions,
+      heatConsumptionList: heatConsumptions,
       envelopFacade: {
         id: building.Property[0]?.ExternalEnvelopeSubSystem[0]?.id,
         externalWindowInsulationTypeId:
@@ -2050,7 +2097,7 @@ export class BuildingsService {
   }
 
   async update(id: number, updateBuildingDto: BuildingDto) {
-    //console.log(updateBuildingDto);
+    console.log(updateBuildingDto);
     let statusId = 2;
 
     if (
@@ -2129,6 +2176,10 @@ export class BuildingsService {
         (item) => Number(item.value) !== 0 && Number(item.cost) !== 0,
       );
 
+    const heatConsumptionList = updateBuildingDto?.heatConsumptionList.filter(
+      (item) => Number(item.value) !== 0 && Number(item.cost) !== 0,
+    );
+
     for (const item of electricityConsumptionList) {
       const electricityConsumption = {
         month: item.month,
@@ -2150,9 +2201,38 @@ export class BuildingsService {
       });
     }
 
+    for (const item of heatConsumptionList) {
+      const heatConsumption = {
+        month: item.month,
+        year: item.year,
+        heattype: item.heattype,
+        monthlyValue: Number(item.value),
+        monthlyCost: Number(item.cost),
+      };
+
+      // console.log(item);
+      await this.prismaService.heatConsumption.upsert({
+        where: {
+          id_heattype: { id: item.id, heattype: item.heattype },
+        },
+        update: heatConsumption,
+        create: {
+          ...heatConsumption,
+          propId: updateBuildingDto.generalBuildingInformation.propId,
+        },
+      });
+    }
+
     if (electricityConsumptionList.length === 0) {
       statusId = 3;
     }
+
+    //===================================================
+    if (heatConsumptionList.length === 0) {
+      statusId = 3;
+    }
+
+    //===================================================
 
     const totalOfBulbs = _.sumBy(
       updateBuildingDto?.lightingSubSystemList,
@@ -2611,6 +2691,22 @@ export class BuildingsService {
       statusId = 3;
     }
 
+    const heatConsumptionList = createBuildingDto?.heatConsumptionList
+      .filter((item) => Number(item.value) !== 0 && Number(item.cost) !== 0)
+      .map((item: IHeatConsumption) => {
+        return <HeatConsumption>{
+          month: item.month,
+          year: item.year,
+          heattype: item.heattype,
+          monthlyValue: Number(item.value),
+          monthlyCost: Number(item.cost),
+        };
+      });
+
+    if (heatConsumptionList.length === 0) {
+      statusId = 3;
+    }
+
     const totalOfBulbs = _.sumBy(
       createBuildingDto?.lightingSubSystemList,
       (item) => {
@@ -2813,6 +2909,10 @@ export class BuildingsService {
 
           ElectricityConsumption: {
             create: electricityConsumptionList,
+          },
+
+          HeatConsumption: {
+            create: heatConsumptionList,
           },
 
           LightingSystem: {

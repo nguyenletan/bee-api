@@ -85,6 +85,15 @@ export interface IElectricityConsumption {
   cost: number;
 }
 
+export interface IHeatConsumption {
+  id: number | null;
+  month: number;
+  year: number;
+  heattype: number;
+  value: number;
+  cost: number;
+}
+
 export interface ICoolingSystem {
   id: number | null;
   chillerId: number | null;
@@ -146,6 +155,8 @@ export interface ICreateBuildingDto {
 
   electricityConsumptionList: IElectricityConsumption[] | null;
 
+  heatConsumptionList: IHeatConsumption[] | null;
+
   coolingSystem: ICoolingSystem | null;
 
   heatingSystem: IHeatingSystem | null;
@@ -169,6 +180,9 @@ export class BuildingDto implements ICreateBuildingDto {
 
   @ApiProperty()
   electricityConsumptionList: IElectricityConsumption[];
+
+  @ApiProperty()
+  heatConsumptionList: IHeatConsumption[];
 
   @ApiProperty()
   coolingSystem: ICoolingSystem;
