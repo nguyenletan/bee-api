@@ -119,13 +119,6 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.LogScalarFieldEnum = {
-  id: 'id',
-  level: 'level',
-  message: 'message',
-  meta: 'meta'
-};
-
 exports.Prisma.AuthTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -779,13 +772,44 @@ exports.Prisma.Nc_evolutionsScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.HeatConsumptionScalarFieldEnum = {
+  id: 'id',
+  heatSupplierId: 'heatSupplierId',
+  monthlyCost: 'monthlyCost',
+  monthlyValue: 'monthlyValue',
+  month: 'month',
+  year: 'year',
+  propId: 'propId',
+  heattype: 'heattype'
+};
+
+exports.Prisma.HeatSupplierAPIScalarFieldEnum = {
+  id: 'id',
+  supplierId: 'supplierId',
+  apiUrl: 'apiUrl',
+  apiKey: 'apiKey',
+  apiFormat: 'apiFormat',
+  heatSupplierInformationId: 'heatSupplierInformationId'
+};
+
+exports.Prisma.HeatSupplierAreasScalarFieldEnum = {
+  id: 'id',
+  supplierId: 'supplierId',
+  countryService: 'countryService',
+  stateService: 'stateService',
+  cityService: 'cityService',
+  heatSupplierInformationId: 'heatSupplierInformationId'
+};
+
+exports.Prisma.HeatSupplierInformationScalarFieldEnum = {
+  id: 'id',
+  companyName: 'companyName',
+  apiKey: 'apiKey'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
-};
-
-exports.Prisma.JsonNullValueInput = {
-  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -793,24 +817,13 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
-exports.Prisma.JsonNullValueFilter = {
-  DbNull: Prisma.DbNull,
-  JsonNull: Prisma.JsonNull,
-  AnyNull: Prisma.AnyNull
-};
-
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-exports.Level = exports.$Enums.Level = {
-  Info: 'Info',
-  Warn: 'Warn',
-  Error: 'Error'
-};
+
 
 exports.Prisma.ModelName = {
-  Log: 'Log',
   AuthType: 'AuthType',
   AverageOperatingHours: 'AverageOperatingHours',
   Building: 'Building',
@@ -884,7 +897,11 @@ exports.Prisma.ModelName = {
   WallInsulationType: 'WallInsulationType',
   WindowInsulationType: 'WindowInsulationType',
   Zone: 'Zone',
-  nc_evolutions: 'nc_evolutions'
+  nc_evolutions: 'nc_evolutions',
+  HeatConsumption: 'HeatConsumption',
+  HeatSupplierAPI: 'HeatSupplierAPI',
+  HeatSupplierAreas: 'HeatSupplierAreas',
+  HeatSupplierInformation: 'HeatSupplierInformation'
 };
 
 /**
