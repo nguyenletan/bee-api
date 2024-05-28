@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
@@ -11,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { BuildingsService } from './buildings.service';
 import { BuildingDto } from './dto/building.dto';
-import { UpdateBuildingDto } from './dto/update-building.dto';
 import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
 import {
   format,

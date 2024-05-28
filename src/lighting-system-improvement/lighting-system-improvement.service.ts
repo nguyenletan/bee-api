@@ -19,7 +19,7 @@ export class LightingSystemImprovementService {
         numberOfHoursPerDay: l.numberOfHoursUsedPerDay,
         lightSystemId: l.id,
         wattRating: l.wattRatingOfBulb,
-        userExternalId: l.userExternalId
+        userExternalId: l.userExternalId,
       };
     });
 

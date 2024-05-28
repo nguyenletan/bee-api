@@ -53,6 +53,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   setupRedoc(app);
+  BigInt.prototype['toJSON'] = function () {
+    const int = Number.parseInt(this.toString());
+    return int ?? this.toString();
+  };
   //await app.listen(4000);
   const PORT = process.env.PORT || 4000;
   await app.listen(PORT);

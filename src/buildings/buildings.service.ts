@@ -409,14 +409,14 @@ export class BuildingsService {
     const aspectValue =
       solarPVSystem.trackingTypeId === 1 ? solarPVSystem.orientationAngle : 0;
 
-    const aspect: number | string =
-      aspectValue === 0
-        ? 'south'
-        : aspectValue === 90
-        ? 'west'
-        : aspectValue === -90
-        ? 'east'
-        : aspectValue;
+    // const aspect: number | string =
+    //   aspectValue === 0
+    //     ? 'south'
+    //     : aspectValue === 90
+    //       ? 'west'
+    //       : aspectValue === -90
+    //         ? 'east'
+    //         : aspectValue;
 
     const inclinedAxis = solarPVSystem.inclineAngle ? 1 : 0;
 

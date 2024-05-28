@@ -1,26 +1,11 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Param, Delete } from '@nestjs/common';
 import { HistorizedPointsService } from './historized-points.service';
-import { CreateHistorizedPointDto } from './dto/create-historized-point.dto';
-import { UpdateHistorizedPointDto } from './dto/update-historized-point.dto';
 
 @Controller('historized-points')
 export class HistorizedPointsController {
   constructor(
     private readonly historizedPointsService: HistorizedPointsService,
   ) {}
-
-  @Post()
-  create(@Body() createHistorizedPointDto: CreateHistorizedPointDto) {
-    return this.historizedPointsService.create(createHistorizedPointDto);
-  }
 
   @Get()
   findAll() {
@@ -202,14 +187,6 @@ export class HistorizedPointsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.historizedPointsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateHistorizedPointDto: UpdateHistorizedPointDto,
-  ) {
-    return this.historizedPointsService.update(+id, updateHistorizedPointDto);
   }
 
   @Delete(':id')
