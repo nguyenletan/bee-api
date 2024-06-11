@@ -2060,8 +2060,8 @@ export class BuildingsService {
         postalCode: building.Property[0].postCode,
         suburb: null,
         location: {
-          lat: parseFloat(building.Property[0].latitude.toString()),
-          lng: parseFloat(building.Property[0].longitude.toString()),
+          lat: building.Property[0].latitude ? parseFloat(building.Property[0].latitude.toString()) : 0.0,
+          lng: building.Property[0].longitude ? parseFloat(building.Property[0].longitude.toString()) : 0.0,
         },
         storeysAboveGround: building.storeysAboveGround,
         storeysBelowGround: building.storeysBelowGround,
