@@ -2597,7 +2597,7 @@ export class BuildingsService {
                 updateBuildingDto.generalBuildingInformation.useTypeId,
               ),
 
-              //photo: updateBuildingDto.generalBuildingInformation.buildingPhoto,
+              photo: updateBuildingDto.generalBuildingInformation.buildingPhoto,
 
               hasMajorRefurbishmentOrExtensionsDone:
                 updateBuildingDto.generalBuildingInformation
