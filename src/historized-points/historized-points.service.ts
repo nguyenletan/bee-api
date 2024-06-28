@@ -234,7 +234,6 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ): Promise<IEquipmentTypeGroup[]> {
-    console.log(propId);
     const equipmentTypeQueryResult: IEquipmentTypeGroup[] = await this
       .prismaService.$queryRaw`
       select et."id", et.name, "propId", sum(c.value) 

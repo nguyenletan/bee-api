@@ -55,6 +55,8 @@ export interface IGeneralBuildingInformation {
   hasMajorRefurbishmentOrExtensionsDone: boolean;
 
   latestYearForRefurbishmentOrExtension: number;
+
+  statusId?: 0 | 1 | 2 | 3;
 }
 
 export interface IBuildingActivity {
@@ -144,6 +146,7 @@ export interface ISolarPanelSystem {
   systemLoss: number;
   pvTechChoiceId: number;
   mountingTypeId: number;
+  isNewItem?: boolean;
 }
 
 export interface ICreateBuildingDto {

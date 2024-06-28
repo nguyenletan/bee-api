@@ -123,8 +123,9 @@ export class BuildingsController {
     return this.buildingsService.update(+id, updateBuildingDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.buildingsService.remove(+id);
+  @Delete(':propertyId')
+  remove(@Param('propertyId') propertyId: string) {
+    console.log(propertyId);
+    return this.buildingsService.remove(+propertyId);
   }
 }

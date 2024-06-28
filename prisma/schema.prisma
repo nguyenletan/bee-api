@@ -63,7 +63,7 @@ model BCA_CivicCommunityCulturalInstitution {
   noOfHotelRoom                 String?
   acType                        String?
   ageOfChiller                  String?
-  airConSystemEfficiency        String?
+  airConSystemEfficiency        Float?  @db.Real
   dateOfLastAuditorHealthCheck  String?
   reasonForHighEUI              String?
 }
@@ -393,14 +393,14 @@ model ExternalEnvelopeSubSystem {
   externalRoofInsulationTypeId   Int?
   externalWallInsulationTypeId   Int?
   externalWindowInsulationTypeId Int?
-  groundInsulationTypeId         Int?
+  groundInsulationTypeId         Int?                  @default(3)
   floorInsulationTypeId          Int?
   roofInsulationTypeId           Int?
   floorName                      String?               @db.VarChar
   zoneName                       String?               @db.VarChar
   propId                         Int?
   externalGroundInsulationTypeId Int?
-  GroundInsulationType           GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_groundinsulationtype_id_fk")
+  GroundInsulationType           GroundInsulationType? @relation(fields: [groundInsulationTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "externalenvelopesubsystem_groundinsulationtype__fk")
   Property                       Property?             @relation(fields: [propId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_property_id_fk")
   RoofInsulationType             RoofInsulationType?   @relation(fields: [externalRoofInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_roofinsulationtype_id_fk_2")
   RoofType                       RoofType?             @relation(fields: [roofInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_rooftype_id_fk")
