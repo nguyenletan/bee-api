@@ -1019,7 +1019,7 @@ export class BuildingsService {
       };
     }
 
-    return await this.prismaService.building.create({
+    return this.prismaService.building.create({
       data: addingBuildingObject,
     });
   }
@@ -2304,14 +2304,14 @@ export class BuildingsService {
         externalGroundInsulationTypeId:
           updateBuildingDto.envelopFacade
             ?.externalGroundFloorInsulationTypeId === undefined
-            ? 1
+            ? 3
             : updateBuildingDto.envelopFacade
                 ?.externalGroundFloorInsulationTypeId,
       };
 
       const createObject = {
         propId: updateBuildingDto.generalBuildingInformation.propId,
-        groundInsulationTypeId: 3, // using 3 for default value
+        groundInsulationTypeId: 2, // using 3 for default value
         externalWindowToWallRatio:
           updateBuildingDto.envelopFacade?.externalWindowToWallRatio ===
           undefined
@@ -2324,7 +2324,7 @@ export class BuildingsService {
         externalGroundInsulationTypeId:
           updateBuildingDto.envelopFacade
             ?.externalGroundFloorInsulationTypeId === undefined
-            ? 1
+            ? 3
             : updateBuildingDto.envelopFacade
                 ?.externalGroundFloorInsulationTypeId,
       };
