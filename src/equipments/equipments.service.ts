@@ -27,10 +27,10 @@ export class EquipmentsService {
     const historizedPoint = equipment.coolingSystemId
       ? '"CoolingHistorizedPoint"'
       : equipment.heatingSystemId
-      ? '"HeatingHistorizedPoint"'
-      : equipment.mechanicalVentilationSystemId
-      ? '"MechanicalVentilationHistorizedPoint"'
-      : '';
+        ? '"HeatingHistorizedPoint"'
+        : equipment.mechanicalVentilationSystemId
+          ? '"MechanicalVentilationHistorizedPoint"'
+          : '';
 
     return this.prismaService.$queryRawUnsafe(
       `
@@ -146,26 +146,26 @@ export class EquipmentsService {
     const historizedPoint = equipment.coolingSystemId
       ? '"CoolingHistorizedPoint"'
       : equipment.heatingSystemId
-      ? '"HeatingHistorizedPoint"'
-      : equipment.mechanicalVentilationSystemId
-      ? '"MechanicalVentilationHistorizedPoint"'
-      : '';
+        ? '"HeatingHistorizedPoint"'
+        : equipment.mechanicalVentilationSystemId
+          ? '"MechanicalVentilationHistorizedPoint"'
+          : '';
 
     const subsystemName = equipment.coolingSystemId
       ? '"CoolingSystem"'
       : equipment.heatingSystemId
-      ? '"HeatingSystem"'
-      : equipment.mechanicalVentilationSystemId
-      ? '"MechanicalVentilationSystem"'
-      : '';
+        ? '"HeatingSystem"'
+        : equipment.mechanicalVentilationSystemId
+          ? '"MechanicalVentilationSystem"'
+          : '';
 
     const subsystemId = equipment.coolingSystemId
       ? '"coolingSystemId"'
       : equipment.heatingSystemId
-      ? '"heatingSystemId"'
-      : equipment.mechanicalVentilationSystemId
-      ? '"mechanicalVentilationSystemId"'
-      : '';
+        ? '"heatingSystemId"'
+        : equipment.mechanicalVentilationSystemId
+          ? '"mechanicalVentilationSystemId"'
+          : '';
 
     if (historizedPoint === '') {
       return [];
@@ -238,10 +238,10 @@ export class EquipmentsService {
       const historizedPoint = equipment.coolingSystemId
         ? '"CoolingHistorizedPoint"'
         : equipment.heatingSystemId
-        ? '"HeatingHistorizedPoint"'
-        : equipment.mechanicalVentilationSystemId
-        ? '"MechanicalVentilationHistorizedPoint"'
-        : '';
+          ? '"HeatingHistorizedPoint"'
+          : equipment.mechanicalVentilationSystemId
+            ? '"MechanicalVentilationHistorizedPoint"'
+            : '';
       if (historizedPoint === '') {
         return [];
       }
@@ -278,10 +278,10 @@ export class EquipmentsService {
       const historizedPoint = equipment.coolingSystemId
         ? '"CoolingHistorizedPoint"'
         : equipment.heatingSystemId
-        ? '"HeatingHistorizedPoint"'
-        : equipment.mechanicalVentilationSystemId
-        ? '"MechanicalVentilationHistorizedPoint"'
-        : '';
+          ? '"HeatingHistorizedPoint"'
+          : equipment.mechanicalVentilationSystemId
+            ? '"MechanicalVentilationHistorizedPoint"'
+            : '';
       if (historizedPoint === '') {
         return [];
       }

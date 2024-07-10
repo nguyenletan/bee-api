@@ -1,11 +1,11 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["deno"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL_DEV_ACCELERATE_PROD")
+  directUrl = env("DATABASE_URL")
 }
 
 model AuthType {
@@ -260,7 +260,7 @@ model ExternalEnvelopeSubSystem {
   zoneName                       String?               @db.VarChar
   propId                         Int?
   externalGroundInsulationTypeId Int?
-  GroundInsulationType           GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_groundinsulationtype_id_fk")
+  GroundInsulationType           GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "externalenvelopesubsystem_groundinsulationtype_id_fk")
   Property                       Property?             @relation(fields: [propId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_property_id_fk")
   RoofInsulationType             RoofInsulationType?   @relation(fields: [externalRoofInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_roofinsulationtype_id_fk_2")
   RoofType                       RoofType?             @relation(fields: [roofInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_rooftype_id_fk")
@@ -293,6 +293,50 @@ model GroundInsulationType {
   uValue                    Float?
   type                      String?                     @db.VarChar
   ExternalEnvelopeSubSystem ExternalEnvelopeSubSystem[]
+}
+
+model HeatConsumption {
+  id                      Int                      @default(autoincrement())
+  heatSupplierId          Int?
+  monthlyCost             Float
+  monthlyValue            Float
+  month                   Int
+  year                    Int
+  propId                  Int?
+  heattype                Int
+  HeatSupplierInformation HeatSupplierInformation? @relation(fields: [heatSupplierId], references: [id], onDelete: Cascade, map: "heatconsumption_heatsupplierinformation_id_fk")
+  Property                Property?                @relation(fields: [propId], references: [id], onDelete: Cascade, map: "heatconsumption_property_id_fk")
+
+  @@id([id, heattype])
+}
+
+model HeatSupplierAPI {
+  id                        Int                     @id(map: "heatsupplierapi_pk") @default(autoincrement())
+  supplierId                Int?
+  apiUrl                    String?                 @db.VarChar
+  apiKey                    String?                 @db.VarChar
+  apiFormat                 String?                 @db.VarChar
+  heatSupplierInformationId Int
+  HeatSupplierInformation   HeatSupplierInformation @relation(fields: [heatSupplierInformationId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "heatsupplierapi_heatsupplierinformation_id_fk")
+}
+
+model HeatSupplierAreas {
+  id                        Int                     @id(map: "heatsupplierareas_pk") @default(autoincrement())
+  supplierId                String                  @db.VarChar
+  countryService            String?                 @db.VarChar
+  stateService              String?                 @db.VarChar
+  cityService               String?                 @db.VarChar
+  heatSupplierInformationId Int
+  HeatSupplierInformation   HeatSupplierInformation @relation(fields: [heatSupplierInformationId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "heatsupplierareas_hetasupplierinformation_id_fk")
+}
+
+model HeatSupplierInformation {
+  id                Int                 @id(map: "heatsupplierinformation_pk") @default(autoincrement())
+  companyName       String?             @db.VarChar
+  apiKey            String?             @db.VarChar
+  HeatConsumption   HeatConsumption[]
+  HeatSupplierAPI   HeatSupplierAPI[]
+  HeatSupplierAreas HeatSupplierAreas[]
 }
 
 model Heater {
@@ -808,48 +852,4 @@ model nc_evolutions {
   created     DateTime? @db.Timestamptz(6)
   created_at  DateTime? @db.Timestamptz(6)
   updated_at  DateTime? @db.Timestamptz(6)
-}
-
-model HeatConsumption {
-  id                      Int                      @default(autoincrement())
-  heatSupplierId          Int?
-  monthlyCost             Float
-  monthlyValue            Float
-  month                   Int
-  year                    Int
-  propId                  Int?
-  heattype                Int
-  HeatSupplierInformation HeatSupplierInformation? @relation(fields: [heatSupplierId], references: [id], onDelete: Cascade, map: "heatconsumption_heatsupplierinformation_id_fk")
-  Property                Property?                @relation(fields: [propId], references: [id], onDelete: Cascade, map: "heatconsumption_property_id_fk")
-
-  @@id([id, heattype])
-}
-
-model HeatSupplierAPI {
-  id                        Int                     @id(map: "heatsupplierapi_pk") @default(autoincrement())
-  supplierId                Int?
-  apiUrl                    String?                 @db.VarChar
-  apiKey                    String?                 @db.VarChar
-  apiFormat                 String?                 @db.VarChar
-  heatSupplierInformationId Int
-  HeatSupplierInformation   HeatSupplierInformation @relation(fields: [heatSupplierInformationId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "heatsupplierapi_heatsupplierinformation_id_fk")
-}
-
-model HeatSupplierAreas {
-  id                        Int                     @id(map: "heatsupplierareas_pk") @default(autoincrement())
-  supplierId                String                  @db.VarChar
-  countryService            String?                 @db.VarChar
-  stateService              String?                 @db.VarChar
-  cityService               String?                 @db.VarChar
-  heatSupplierInformationId Int
-  HeatSupplierInformation   HeatSupplierInformation @relation(fields: [heatSupplierInformationId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "heatsupplierareas_hetasupplierinformation_id_fk")
-}
-
-model HeatSupplierInformation {
-  id                Int                 @id(map: "heatsupplierinformation_pk") @default(autoincrement())
-  companyName       String?             @db.VarChar
-  apiKey            String?             @db.VarChar
-  HeatConsumption   HeatConsumption[]
-  HeatSupplierAPI   HeatSupplierAPI[]
-  HeatSupplierAreas HeatSupplierAreas[]
 }

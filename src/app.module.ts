@@ -15,6 +15,8 @@ import { ImprovementModule } from './improvement/improvement.module';
 import { LightingSystemModule } from './lighting-system/lighting-system.module';
 import { LightingSystemImprovementModule } from './lighting-system-improvement/lighting-system-improvement.module';
 import { ProgressMockDataModule } from './progress-mock-data/progress-mock-data.module';
+import { PCAF_EuropeanCommercialBuildingEmissionFactorModule } from './pcaf_european-commercial-building-emission-factor/pcaf_european-commercial-building-emission-factor.module';
+import { BcaModule } from './bca/bca.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { ProgressMockDataModule } from './progress-mock-data/progress-mock-data.
     LightingSystemModule,
     LightingSystemImprovementModule,
     ProgressMockDataModule,
+    PCAF_EuropeanCommercialBuildingEmissionFactorModule,
+    BcaModule
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, PrismaService, FirebaseAuthStrategy],

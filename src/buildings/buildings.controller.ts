@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
@@ -11,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { BuildingsService } from './buildings.service';
 import { BuildingDto } from './dto/building.dto';
-import { UpdateBuildingDto } from './dto/update-building.dto';
 import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
 import {
   format,
@@ -125,8 +123,9 @@ export class BuildingsController {
     return this.buildingsService.update(+id, updateBuildingDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.buildingsService.remove(+id);
+  @Delete(':propertyId')
+  remove(@Param('propertyId') propertyId: string) {
+    console.log(propertyId);
+    return this.buildingsService.remove(+propertyId);
   }
 }

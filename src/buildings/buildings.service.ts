@@ -409,14 +409,14 @@ export class BuildingsService {
     const aspectValue =
       solarPVSystem.trackingTypeId === 1 ? solarPVSystem.orientationAngle : 0;
 
-    const aspect: number | string =
-      aspectValue === 0
-        ? 'south'
-        : aspectValue === 90
-        ? 'west'
-        : aspectValue === -90
-        ? 'east'
-        : aspectValue;
+    // const aspect: number | string =
+    //   aspectValue === 0
+    //     ? 'south'
+    //     : aspectValue === 90
+    //       ? 'west'
+    //       : aspectValue === -90
+    //         ? 'east'
+    //         : aspectValue;
 
     const inclinedAxis = solarPVSystem.inclineAngle ? 1 : 0;
 
@@ -498,6 +498,11 @@ export class BuildingsService {
       if (uValue) {
         wallUValue = uValue.walls;
         floorUValue = uValue.floors;
+        if (externalEnvelopeSubSystem.roofInsulationTypeId === 1) {
+          roofUValue = uValue.pitchedRoof;
+        } else if (externalEnvelopeSubSystem.roofInsulationTypeId === 2) {
+          roofUValue = uValue.flatRoof;
+        }
       }
 
       if (buildingWindowUValue) {
@@ -506,11 +511,6 @@ export class BuildingsService {
 
       // console.log('externalEnvelopeSubSystem.roofInsulationTypeId: ');
       // console.log(externalEnvelopeSubSystem.roofInsulationTypeId);
-      if (externalEnvelopeSubSystem.roofInsulationTypeId === 1) {
-        roofUValue = uValue.pitchedRoof;
-      } else if (externalEnvelopeSubSystem.roofInsulationTypeId === 2) {
-        roofUValue = uValue.flatRoof;
-      }
 
       return {
         wall: wallUValue,
@@ -952,6 +952,7 @@ export class BuildingsService {
 
           ExternalEnvelopeSubSystem: {
             create: {
+              groundInsulationTypeId: 3, // using 3 for default value
               externalWindowToWallRatio:
                 createBuildingDto.envelopFacade.externalWindowToWallRatio,
               externalWindowInsulationTypeId:
@@ -1018,7 +1019,7 @@ export class BuildingsService {
       };
     }
 
-    return await this.prismaService.building.create({
+    return this.prismaService.building.create({
       data: addingBuildingObject,
     });
   }
@@ -2097,7 +2098,6 @@ export class BuildingsService {
   }
 
   async update(id: number, updateBuildingDto: BuildingDto) {
-    console.log(updateBuildingDto);
     let statusId = 2;
 
     if (
@@ -2282,11 +2282,6 @@ export class BuildingsService {
       statusId = 3;
     }
 
-    console.log(
-      'updateBuildingDto?.envelopFacade:',
-      updateBuildingDto?.envelopFacade,
-    );
-
     if (
       typeof updateBuildingDto?.envelopFacade?.externalRoofInsulationTypeId !==
         'number' ||
@@ -2295,46 +2290,58 @@ export class BuildingsService {
     ) {
       statusId = 3;
     } else {
-      console.log('updateBuildingDto.envelopFacade:', updateBuildingDto);
-      await this.prismaService.externalEnvelopeSubSystem.upsert({
-        where: {
-          id: updateBuildingDto.envelopFacade.id,
-        },
-        create: {
-          externalWindowToWallRatio:
-            updateBuildingDto.envelopFacade?.externalWindowToWallRatio ===
-            undefined
-              ? 1
-              : updateBuildingDto.envelopFacade?.externalWindowToWallRatio,
-          externalWindowInsulationTypeId:
-            updateBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
-          roofInsulationTypeId:
-            updateBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
-          externalGroundInsulationTypeId:
-            updateBuildingDto.envelopFacade
-              ?.externalGroundFloorInsulationTypeId === undefined
-              ? 1
-              : updateBuildingDto.envelopFacade
-                  ?.externalGroundFloorInsulationTypeId,
-        },
-        update: {
-          externalWindowToWallRatio:
-            updateBuildingDto.envelopFacade?.externalWindowToWallRatio ===
-            undefined
-              ? 1
-              : updateBuildingDto.envelopFacade?.externalWindowToWallRatio,
-          externalWindowInsulationTypeId:
-            updateBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
-          roofInsulationTypeId:
-            updateBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
-          externalGroundInsulationTypeId:
-            updateBuildingDto.envelopFacade
-              ?.externalGroundFloorInsulationTypeId === undefined
-              ? 1
-              : updateBuildingDto.envelopFacade
-                  ?.externalGroundFloorInsulationTypeId,
-        },
-      });
+      const updateObject = {
+        groundInsulationTypeId: 3, // using 3 for default value
+        externalWindowToWallRatio:
+          updateBuildingDto.envelopFacade?.externalWindowToWallRatio ===
+          undefined
+            ? 1
+            : updateBuildingDto.envelopFacade?.externalWindowToWallRatio,
+        externalWindowInsulationTypeId:
+          updateBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
+        roofInsulationTypeId:
+          updateBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
+        externalGroundInsulationTypeId:
+          updateBuildingDto.envelopFacade
+            ?.externalGroundFloorInsulationTypeId === undefined
+            ? 3
+            : updateBuildingDto.envelopFacade
+                ?.externalGroundFloorInsulationTypeId,
+      };
+
+      const createObject = {
+        propId: updateBuildingDto.generalBuildingInformation.propId,
+        groundInsulationTypeId: 2, // using 3 for default value
+        externalWindowToWallRatio:
+          updateBuildingDto.envelopFacade?.externalWindowToWallRatio ===
+          undefined
+            ? 1
+            : updateBuildingDto.envelopFacade?.externalWindowToWallRatio,
+        externalWindowInsulationTypeId:
+          updateBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
+        roofInsulationTypeId:
+          updateBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
+        externalGroundInsulationTypeId:
+          updateBuildingDto.envelopFacade
+            ?.externalGroundFloorInsulationTypeId === undefined
+            ? 3
+            : updateBuildingDto.envelopFacade
+                ?.externalGroundFloorInsulationTypeId,
+      };
+
+      if (updateBuildingDto.envelopFacade.id) {
+        await this.prismaService.externalEnvelopeSubSystem.upsert({
+          where: {
+            id: updateBuildingDto.envelopFacade.id,
+          },
+          update: updateObject,
+          create: createObject,
+        });
+      } else {
+        await this.prismaService.externalEnvelopeSubSystem.create({
+          data: createObject,
+        });
+      }
     }
 
     const solarPanelSystemList = updateBuildingDto?.solarPanelSystemList.filter(
@@ -2366,16 +2373,25 @@ export class BuildingsService {
             : null,
       };
 
-      this.prismaService.solarPanelSystem.upsert({
-        where: {
-          id: item.id,
-        },
-        update: solarPanelSystem,
-        create: {
-          ...solarPanelSystem,
-          propId: updateBuildingDto.generalBuildingInformation.propId,
-        },
-      });
+      if (item.isNewItem) {
+        await this.prismaService.solarPanelSystem.create({
+          data: {
+            ...solarPanelSystem,
+            propId: updateBuildingDto.generalBuildingInformation.propId,
+          },
+        });
+      } else {
+        await this.prismaService.solarPanelSystem.upsert({
+          where: {
+            id: item.id,
+          },
+          update: solarPanelSystem,
+          create: {
+            ...solarPanelSystem,
+            propId: updateBuildingDto.generalBuildingInformation.propId,
+          },
+        });
+      }
     }
 
     if (updateBuildingDto.coolingSystem?.hasCoolingSystem === true) {
@@ -2482,26 +2498,6 @@ export class BuildingsService {
       }
     }
 
-    // const solarPanelSystemList = updateBuildingDto?.solarPanelSystemList.map(
-    //   (item: ISolarPanelSystem) => {
-    //     return <SolarPanelSystem>{
-    //       systemLoss: item.systemLoss,
-    //       installedCapacity: Number(item.installedCapacity),
-    //       pvTechChoiceId: item.pvTechChoiceId,
-    //       inclineAngle:
-    //         item.trackingTypeId === 1 || item.trackingTypeId === 2
-    //           ? item.inclineAngel
-    //           : null,
-    //       trackingTypeId: item.trackingTypeId,
-    //       mountingTypeId: item.mountingTypeId,
-    //       orientationAngle:
-    //         item.trackingTypeId === 1 || item.trackingTypeId === 3
-    //           ? Number(item.orientationAngle)
-    //           : null,
-    //     };
-    //   },
-    // );
-
     return this.prismaService.building.update({
       data: {
         name: updateBuildingDto.generalBuildingInformation.buildingName,
@@ -2597,7 +2593,7 @@ export class BuildingsService {
                 updateBuildingDto.generalBuildingInformation.useTypeId,
               ),
 
-              //photo: updateBuildingDto.generalBuildingInformation.buildingPhoto,
+              photo: updateBuildingDto.generalBuildingInformation.buildingPhoto,
 
               hasMajorRefurbishmentOrExtensionsDone:
                 updateBuildingDto.generalBuildingInformation
@@ -2619,8 +2615,26 @@ export class BuildingsService {
     });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} building`;
+  remove(propertyId: number) {
+    console.log('remove propertyId:', propertyId);
+
+    // this.prismaService.property
+    //   .findFirst({
+    //     where: {
+    //       id: propertyId,
+    //     },
+    //   })
+    //   .then((res) => {
+    //     console.log('res:', res);
+    //   });
+    return this.prismaService.property.update({
+      data: {
+        statusId: 1, //archived
+      },
+      where: {
+        id: propertyId,
+      },
+    });
   }
 
   async createPartial(createBuildingDto: BuildingDto, user: any) {

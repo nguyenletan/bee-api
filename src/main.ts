@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { json, urlencoded } from 'express';
+import { setupRedoc } from './redoc.middleware';
 
 async function bootstrap() {
   const allowList = [
@@ -51,7 +52,11 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-
+  setupRedoc(app);
+  BigInt.prototype['toJSON'] = function () {
+    const int = Number.parseInt(this.toString());
+    return int ?? this.toString();
+  };
   //await app.listen(4000);
   const PORT = process.env.PORT || 4000;
   await app.listen(PORT);

@@ -1,20 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { CreateHistorizedPointDto } from './dto/create-historized-point.dto';
-import { UpdateHistorizedPointDto } from './dto/update-historized-point.dto';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma.service';
-
+import { withAccelerate } from '@prisma/extension-accelerate';
+import { SHORT_TIME_CACHE_STRATEGY } from '../shared/constants';
 import * as _ from 'lodash';
 import { IEquipmentTypeGroup } from '../shared/types/iEquipmentTypeGroup';
 import { IEquipmentGroup } from '../shared/types/iEquipmentGroup';
-import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class HistorizedPointsService {
   constructor(private prismaService: PrismaService) {}
-
-  create(createHistorizedPointDto: CreateHistorizedPointDto) {
-    return 'This action adds a new historizedPoint';
-  }
 
   findAll() {
     return `This action returns all historizedPoints`;
@@ -24,33 +19,32 @@ export class HistorizedPointsService {
     return `This action returns a #${id} historizedPoint`;
   }
 
-  update(id: number, updateHistorizedPointDto: UpdateHistorizedPointDto) {
-    return `This action updates a #${id} historizedPoint`;
-  }
-
   remove(id: number) {
     return `This action removes a #${id} historizedPoint`;
   }
 
-  async findAllOverallHistorizedPointsByPropertyId(propId: number) {
-    this.prismaService.overallHistorizedPoint.findMany({
-      where: {
-        propId: {
-          equals: propId,
+  findAllOverallHistorizedPointsByPropertyId(propId: number) {
+    this.prismaService
+      .$extends(withAccelerate())
+      .overallHistorizedPoint.findMany({
+        where: {
+          propId: {
+            equals: propId,
+          },
         },
-      },
-      orderBy: {
-        id: 'asc',
-      },
-    });
+        orderBy: {
+          id: 'asc',
+        },
+        cacheStrategy: SHORT_TIME_CACHE_STRATEGY,
+      });
   }
 
-  async getOverallHistorizedPointsByPropertyIdAndGroupByYear(
+  getOverallHistorizedPointsByPropertyIdAndGroupByYear(
     propId: number,
     startDay: Date,
     endDay: Date,
   ) {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year
         from "OverallHistorizedPoint" c
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
@@ -63,7 +57,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ) {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) as value, extract(quarter from "createdAt") as quarter, extract(year from "createdAt") as year
         from "OverallHistorizedPoint" c
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
@@ -76,7 +70,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ) {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(month from "createdAt") as month
         from "OverallHistorizedPoint" c
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
@@ -89,7 +83,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ) {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(week from "createdAt") as week
         from "OverallHistorizedPoint" c
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
@@ -102,7 +96,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ) {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(month from "createdAt") as month, extract(day from "createdAt") as day
         from "OverallHistorizedPoint" c
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
@@ -115,7 +109,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ) {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year
         from "CoolingHistorizedPoint" c
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
@@ -128,7 +122,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ) {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) as value, extract(quarter from "createdAt") as quarter, extract(year from "createdAt") as year
         from "CoolingHistorizedPoint" c
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
@@ -141,7 +135,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ) {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(month from "createdAt") as month
         from "CoolingHistorizedPoint" c
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
@@ -154,7 +148,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ) {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(week from "createdAt") as week
         from "CoolingHistorizedPoint" c
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
@@ -167,7 +161,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ) {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(month from "createdAt") as month, extract(day from "createdAt") as day
         from "CoolingHistorizedPoint" c
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}
@@ -182,7 +176,7 @@ export class HistorizedPointsService {
   ): Promise<number> {
     // console.log('propId:');
     // console.log(propId);
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) from "CoolingHistorizedPoint"
          where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
   }
@@ -230,7 +224,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ): Promise<number> {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) from "HeatingHistorizedPoint"
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
   }
@@ -240,7 +234,6 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ): Promise<IEquipmentTypeGroup[]> {
-    console.log(propId);
     const equipmentTypeQueryResult: IEquipmentTypeGroup[] = await this
       .prismaService.$queryRaw`
       select et."id", et.name, "propId", sum(c.value) 
@@ -278,7 +271,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ): Promise<number> {
-    return await this.prismaService.$queryRaw(Prisma.sql`
+    return this.prismaService.$queryRaw(Prisma.sql`
         select sum(value) from "LightingHistorizedPoint"
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`);
   }
@@ -288,7 +281,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ): Promise<number> {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) from "OverallHistorizedPoint"
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
   }
@@ -298,7 +291,7 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ): Promise<number> {
-    return await this.prismaService.$queryRaw`
+    return this.prismaService.$queryRaw`
         select sum(value) from "MechanicalVentilationHistorizedPoint"
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
   }
@@ -344,7 +337,6 @@ export class HistorizedPointsService {
   //   const minMax = await this.prismaService.$queryRaw`
   //   SELECT MAX("createdAt"), min("createdAt") FROM "LightingHistorizedPoint"
   //   WHERE "propId" = 143`;
-
 
   // }
 }
