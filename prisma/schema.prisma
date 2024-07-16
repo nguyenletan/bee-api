@@ -1,12 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["tracing"]
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL_DEV_ACCELERATE")
-  directUrl = env("DATABASE_URL_DEV")
+  url       = env("DATABASE_URL_DEV_ACCELERATE_PROD")
+  directUrl = env("DATABASE_URL")
 }
 
 model AuthType {
@@ -254,14 +254,14 @@ model ExternalEnvelopeSubSystem {
   externalRoofInsulationTypeId   Int?
   externalWallInsulationTypeId   Int?
   externalWindowInsulationTypeId Int?
-  groundInsulationTypeId         Int?                  @default(3)
+  groundInsulationTypeId         Int?
   floorInsulationTypeId          Int?
   roofInsulationTypeId           Int?
   floorName                      String?               @db.VarChar
   zoneName                       String?               @db.VarChar
   propId                         Int?
   externalGroundInsulationTypeId Int?
-  GroundInsulationType           GroundInsulationType? @relation(fields: [groundInsulationTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "externalenvelopesubsystem_groundinsulationtype__fk")
+  GroundInsulationType           GroundInsulationType? @relation(fields: [externalGroundInsulationTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "externalenvelopesubsystem_groundinsulationtype_id_fk;")
   Property                       Property?             @relation(fields: [propId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_property_id_fk")
   RoofInsulationType             RoofInsulationType?   @relation(fields: [externalRoofInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_roofinsulationtype_id_fk_2")
   RoofType                       RoofType?             @relation(fields: [roofInsulationTypeId], references: [id], onDelete: Cascade, map: "externalenvelopesubsystem_rooftype_id_fk")
@@ -853,204 +853,4 @@ model nc_evolutions {
   created     DateTime? @db.Timestamptz(6)
   created_at  DateTime? @db.Timestamptz(6)
   updated_at  DateTime? @db.Timestamptz(6)
-}
-
-model BCA_CivicCommunityCulturalInstitution {
-  id                            Int     @id(map: "bca_civiccommunityculturalinstitution_pk") @default(autoincrement())
-  buildingName                  String?
-  address                       String?
-  buildingType                  String?
-  mainFunction                  String?
-  buildingsize                  String?
-  Y2020EUI                      Int?
-  Y2020EUIQuartileOrEnergy      Int?
-  Y2021EUI                      Int?
-  Y2021EUIQuartileEnergyRanking String?
-  Y2022EUI                      String?
-  Y2022EUIQuartileEnergyRanking String?
-  topORCSCYear                  String?
-  awardGreenOrNonGreen          String?
-  yearOfGMAward                 String?
-  greenMarkVersion              String?
-  gfa                           String?
-  acArea                        String?
-  acAreaPercentage              String?
-  noOfHotelRoom                 String?
-  acType                        String?
-  ageOfChiller                  String?
-  airConSystemEfficiency        Float?  @db.Real
-  dateOfLastAuditorHealthCheck  String?
-  reasonForHighEUI              String?
-}
-
-model BCA_CommercialBuilding {
-  id                              Int     @id(map: "bca_commercialbuilding_pk") @default(autoincrement())
-  buildingName                    String?
-  address                         String?
-  buildingType                    String?
-  mainFunction                    String?
-  buildingSize                    String?
-  Y2020EUI                        Int?
-  Y2020EUIQuartileOrEnergyRanking String?
-  Y2021EUI                        Int?
-  Y2021EUIQuartileOrEnergyRanking String?
-  Y2022EUI                        Int?
-  Y2022EUIQuartileOrEnergyRanking String?
-  topORCSCYear                    String?
-  awardGreenOrNonGreen            String?
-  yearOfGMAward                   String?
-  greenMarkVersion                String?
-  gfa                             String?
-  acArea                          Float?  @db.Real
-  acAreaPercentage                String?
-  noOfHotelRoom                   String?
-  acType                          String?
-  ageOfChiller                    Float?  @db.Real
-  airConSystemEfficiency          Float?  @db.Real
-  dateOfLastAuditorHealthCheck    String?
-  reasonForHighEUI                String?
-}
-
-model BCA_EducationalInstitution {
-  id                              Int     @id(map: "bca_educationalinstitution_pk") @default(autoincrement())
-  buildingName                    String?
-  address                         String?
-  buildingType                    String?
-  mainFunction                    String?
-  buildingSize                    String?
-  Y2020EUI                        Int?
-  Y2020EUIQuartileOrEnergyRanking Int?
-  Y2021EUI                        Int?
-  Y2021EUIQuartileEnergyRanking   Int?
-  Y2022EUI                        Int?
-  Y2022EUIQuartileEnergyRanking   Int?
-  topORCSCYear                    Int?
-  awardGreenOrNonGreen            String?
-  yearOfGMAward                   String?
-  greenMarkVersion                String?
-  gfa                             Float?  @db.Real
-  acArea                          String?
-  acAreaPercentage                String?
-  noOfHotelRoom                   Float?  @db.Real
-  acType                          String?
-  ageOfChiller                    Float?  @db.Real
-  airConSystemEfficiency          String?
-  dateOfLastAuditorHealthCheck    String?
-  reasonForHighEUI                String?
-}
-
-model BCA_HealthcareFacility {
-  id                            Int     @id(map: "bca_healthcarefacility_pk") @default(autoincrement())
-  buildingName                  String?
-  address                       String?
-  buildingType                  String?
-  mainFunction                  String?
-  buildingSize                  String?
-  Y2020EUI                      Int?
-  EUIQuartileEnergyRanking      Int?    @map("2020EUIQuartileEnergyRanking")
-  Y2021EUI                      Int?
-  Y2021EUIQuartileEnergyRanking Int?
-  Y2022EUI                      Int?
-  Y2022EUIQuartileEnergyRanking Int?
-  topORCSCYear                  Int?
-  awardGreenOrNonGreen          String?
-  yearOfGMAward                 Int?
-  greenMark_Version             String? @map("greenMark Version")
-  gfa                           Float?  @db.Real
-  acArea                        Float?  @db.Real
-  acAreaPercentage              String?
-  noOfHotel_Room                Int?    @map("noOfHotel Room")
-  acType                        String?
-  ageOfChiller                  Float?  @db.Real
-  airConSystemEfficiency        Float?
-  dateOfLastAuditorHealthCheck  String?
-  reasonForHighEUI              String?
-}
-
-model BCA_SportRecreationCentre {
-  id                              Int     @id(map: "bca_sportrecreationcentre_pk") @default(autoincrement())
-  buildingName                    String?
-  address                         String?
-  buildingType                    String?
-  mainFunction                    String?
-  buildingSize                    String?
-  Y2020EUI                        Int?
-  Y2020EUIQuartileOrEnergyRanking Int?
-  Y2021EUI                        Int?
-  Y2021EUIQuartileOrEnergyRanking Int?
-  Y2022EUI                        Int?
-  Y2022EUIQuartileOrEnergyRanking Int?
-  topORCSCYear                    Int?
-  awardGreenOrNonGreen            String?
-  yearOfGMAward                   Int?
-  greenMarkVersion                String?
-  gfa                             Float?  @db.Real
-  acArea                          Float?  @db.Real
-  acAreaPercentage                String?
-  noOfHotelRoom                   Int?
-  acType                          String?
-  ageOfChiller                    Int?
-  airConSystemEfficiency          Float?  @db.Real
-  dateOfLastAuditorHealthCheck    String?
-  reasonForHighEUI                String?
-}
-
-model PCAF_EuropeanBuildingMortgageEURMetric {
-  id                                         Int     @id(map: "pcaf_europeanbuildingmortgageeurmetric_pk") @default(autoincrement())
-  assetClassName                             String?
-  emissionFactorTypeName                     String?
-  emissionFactorOptionName                   String?
-  regionName                                 String?
-  countryName                                String?
-  stateName                                  String?
-  industryClassificationName                 String?
-  industryClassificationCodeName             String?
-  dataLevel1InformationName                  String?
-  dataLevel2InformationName                  String?
-  dataLevel3InformationName                  String?
-  dataLevel4InformationName                  String?
-  dataLevel5InformationName                  String?
-  emissionFactorFunctionalUnitName           String?
-  emissionFactorFunctionalUnitUnitName       String?
-  emissionFactorName                         String?
-  emissionFactorUnitName                     String?
-  emissionFactorDataQualityName              Int?
-  scope1EmissionFactor                       String?
-  scope2EmissionFactor                       String?
-  scope3UpstreamEmissionFactor               String?
-  scope3DownstreamEmissionFactor             String?
-  unspecifiedEmissionFactor                  Float?  @db.Real
-  informationOnUnspecifiedEmissionFactorName String?
-  avoidedEmissionsEmissionFactor             String?
-  carbonSequestrationEmissionFactor          String?
-  emissionFactorMethodologyDescriptionName   String?
-  emissionFactorSources1Name                 String?
-  emissionFactorYears1Name                   Int?
-  emissionFactorSources2Name                 String?
-  emissionFactorYears2Name                   String?
-  emissionFactorSources3Name                 String?
-  emissionFactorYears3Name                   String?
-  linkToEmissionFactorName                   String?
-  statusName                                 String?
-}
-
-model PCAF_EuropeanCommercialBuildingEmissionFactor {
-  id                 BigInt  @id(map: "pcaf_europeancommercialbuildingemissionfactor_pk") @default(autoincrement())
-  sourceName         String?
-  year               Int?
-  assetClass         String?
-  dataQualityScore   Int?
-  methodologyOption  String?
-  factorType         String?
-  emissionFactorUnit String?
-  activityVariable   String?
-  dependencies       String?
-  country            String?
-  countryCode        String?
-  subdivision        String?
-  epcRating          String?
-  buildingCategory   String?
-  buildingType       String?
-  value              Float?  @db.Real
-  comments           String?
 }
