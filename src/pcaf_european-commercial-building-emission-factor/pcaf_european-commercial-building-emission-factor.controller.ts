@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { PCAF_EuropeanCommercialBuildingEmissionFactorService } from './pcaf_european-commercial-building-emission-factor.service';
 
 @Controller('pcaf-european-commercial-building-emission-factor')

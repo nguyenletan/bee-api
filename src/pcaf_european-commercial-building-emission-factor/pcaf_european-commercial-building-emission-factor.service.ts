@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { withAccelerate } from '@prisma/extension-accelerate';
-import { LONG_CACHE_STRATEGY } from '../shared/constants';
+// import { withAccelerate } from '@prisma/extension-accelerate';
+// import { LONG_CACHE_STRATEGY } from '../shared/constants';
 
 @Injectable()
 export class PCAF_EuropeanCommercialBuildingEmissionFactorService {
