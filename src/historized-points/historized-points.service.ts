@@ -11,8 +11,8 @@ import { IEquipmentGroup } from '../shared/types/iEquipmentGroup';
 export class HistorizedPointsService {
   constructor(private prismaService: PrismaService) {}
 
-  findAll() {
-    return `This action returns all historizedPoints`;
+  async findAll() {
+    return `This action returns all historizedPoints:`;
   }
 
   findOne(id: number) {
@@ -39,7 +39,7 @@ export class HistorizedPointsService {
       });
   }
 
-  getOverallHistorizedPointsByPropertyIdAndGroupByYear(
+  async getOverallHistorizedPointsByPropertyIdAndGroupByYear(
     propId: number,
     startDay: Date,
     endDay: Date,
@@ -174,8 +174,6 @@ export class HistorizedPointsService {
     startDay: Date,
     endDay: Date,
   ): Promise<number> {
-    // console.log('propId:');
-    // console.log(propId);
     return this.prismaService.$queryRaw`
         select sum(value) from "CoolingHistorizedPoint"
          where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
@@ -212,10 +210,6 @@ export class HistorizedPointsService {
         equipmentType.name,
       ]);
     }
-
-    //console.log(equipmentTypeQueryResult);
-    //console.log('equipmentQueryResult: ');
-    //console.log(equipmentQueryResult);
     return equipmentTypeQueryResult;
   }
 
@@ -260,9 +254,6 @@ export class HistorizedPointsService {
         equipmentType.name,
       ]);
     }
-
-    // console.log(equipmentTypeQueryResult);
-    // console.log(equipmentQueryResult);
     return equipmentTypeQueryResult;
   }
 
@@ -327,9 +318,6 @@ export class HistorizedPointsService {
         equipmentType.name,
       ]);
     }
-
-    // console.log(equipmentTypeQueryResult);
-    // console.log(equipmentQueryResult);
     return equipmentTypeQueryResult;
   }
 

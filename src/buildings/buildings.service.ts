@@ -32,10 +32,6 @@ import { IHeatingLoadForGeneralSpace } from '../shared/types/iHeatingLoadForGene
 import { IMechanicalVentilationForGeneralSpace } from '../shared/types/iMechanicalVentilationForGeneralSpace';
 import { ILightingLoadForSpace } from '../shared/types/iLightingLoadForSpace';
 import { IBreakdownConsumption } from '../shared/types/iBreakdownConsumption';
-// import { EnergyCostFormulas } from '../shared/formulas/energyCostFormulas';
-// import { IBreakdownCost } from '../shared/types/iBreakdownCost';
-// import { ICO2EmissionBreakdown } from '../shared/types/iCO2EmissionBreakdown';
-// import { EnergyCO2EmissionFormulas } from '../shared/formulas/energyCO2EmissionFormulas';
 import { PVGISService } from '../shared/externalAPIs/PVGIS.service';
 import { PVTechChoices } from '../shared/types/iPVTechChoice';
 import { BuildingEnvelopeUValueReferences } from '../shared/reference-tables/buildingEnvelopeUValue.reference';
@@ -49,8 +45,7 @@ import {
   IElectricConsumptionFromHistorizedLogsSubSystem,
 } from '../shared/types/IElectricConsumptionFromHistorizedLogs';
 import { IOverallEnergyConsumptionInformation } from '../shared/types/iOverallEnergyConsumptionInformation';
-
-// import { IEquipmentTypeGroup } from '../shared/types/iEquipmentTypeGroup';
+import { getRedisItem, storeJsonAsString } from '../shared/redis';
 
 @Injectable()
 export class BuildingsService {
@@ -219,8 +214,6 @@ export class BuildingsService {
     coolingLoadConsumption: ICoolingLoadForGeneralSpace,
   ): IBreakdownConsumption[] {
     return coolingLoadConsumption.equipmentTypeGroups.map((c) => {
-      // console.log('c');
-      // console.log(c);
       return {
         id: c.name,
         consumption: c.sum,
@@ -508,9 +501,6 @@ export class BuildingsService {
       if (buildingWindowUValue) {
         windowUValue = buildingWindowUValue.uValue;
       }
-
-      // console.log('externalEnvelopeSubSystem.roofInsulationTypeId: ');
-      // console.log(externalEnvelopeSubSystem.roofInsulationTypeId);
 
       return {
         wall: wallUValue,
@@ -818,13 +808,6 @@ export class BuildingsService {
       },
     );
 
-    // console.log(
-    //   'createBuildingDto.generalBuildingInformation.sustainabilityRatingId: ',
-    // );
-    // console.log(
-    //   createBuildingDto.generalBuildingInformation.sustainabilityRatingId,
-    // );
-
     if (
       createBuildingDto.generalBuildingInformation.sustainabilityRatingId ===
       null
@@ -1025,19 +1008,6 @@ export class BuildingsService {
   }
 
   async findAll(user: any) {
-    // return await this.prismaService.property.findMany({
-    //   where: {
-    //     statusId: {
-    //       equals: 2,
-    //     },
-    //     PropertyUser: {
-    //       userAuthUID : {
-    //         equals: ''
-    //       }
-    //     }
-    //   },
-    // });
-    // console.log(result);
     return this.prismaService.$queryRaw`
         SELECT DISTINCT p.id, p."streetAddress", p.photo, B.id, B.name, P."streetNumber", P."streetName", P."statusId"
         FROM "Property" p
@@ -1715,7 +1685,21 @@ export class BuildingsService {
         WHERE "statusId" = 2 
           AND B.id = ${id}`;
 
-    return this.calculateFromBuildingInformation(prop, startDay, endDay);
+    const redisKey = `energy-consumptions-from-historized-logs:${prop[0].propId}:${startDay}-${endDay}`;
+    const buildingInformationCache = await getRedisItem(redisKey);
+
+    if (buildingInformationCache) {
+      return buildingInformationCache;
+    } else {
+      const buildingInformation = await this.calculateFromBuildingInformation(
+        prop,
+        startDay,
+        endDay,
+      );
+
+      await storeJsonAsString(redisKey, buildingInformation);
+      return buildingInformation;
+    }
   }
 
   async findOneForEditing(id: number): Promise<ICreateBuildingDto> {
@@ -2061,8 +2045,12 @@ export class BuildingsService {
         postalCode: building.Property[0].postCode,
         suburb: null,
         location: {
-          lat: building.Property[0].latitude ? parseFloat(building.Property[0].latitude.toString()) : 0.0,
-          lng: building.Property[0].longitude ? parseFloat(building.Property[0].longitude.toString()) : 0.0,
+          lat: building.Property[0].latitude
+            ? parseFloat(building.Property[0].latitude.toString())
+            : 0.0,
+          lng: building.Property[0].longitude
+            ? parseFloat(building.Property[0].longitude.toString())
+            : 0.0,
         },
         storeysAboveGround: building.storeysAboveGround,
         storeysBelowGround: building.storeysBelowGround,
