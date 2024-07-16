@@ -1698,7 +1698,7 @@ export class BuildingsService {
       );
 
       await storeJsonAsString(redisKey, buildingInformation);
-      return buildingInformation;
+      return { fromCache: false, ...buildingInformation };
     }
   }
 
