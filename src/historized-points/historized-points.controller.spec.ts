@@ -11,9 +11,7 @@ describe('HistorizedPointsController', () => {
       providers: [HistorizedPointsService],
     }).compile();
 
-    controller = module.get<HistorizedPointsController>(
-      HistorizedPointsController,
-    );
+    controller = module.get<HistorizedPointsController>(HistorizedPointsController);
   });
 
   it('should be defined', () => {

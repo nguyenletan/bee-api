@@ -42,7 +42,7 @@ export class PVGISService {
     verticalAxisAngle: number | null,
 
     // twoaxis
-    twoAxis: number | null,
+    twoAxis: number | null
   ): Promise<ISolarPVAnnualEnergyProduction> {
     let apiUrl = 'https://re.jrc.ec.europa.eu/api/PVcalc?';
     // Observable<AxiosResponse<any>>
@@ -96,18 +96,12 @@ export class PVGISService {
 
     if (response?.data?.outputs?.totals?.vertical_axis) {
       return {
-        averageDailyEnergyProduction:
-          response?.data?.outputs?.totals?.fixed['E_d'],
-        averageMonthlyEnergyProduction:
-          response?.data?.outputs?.totals?.fixed['E_m'],
-        averageYearlyEnergyProduction:
-          response?.data?.outputs?.totals?.fixed['E_y'],
-        averageDailySumOfGlobalIrradiationPerM2:
-          response?.data?.outputs?.totals?.fixed['H(i)_d'],
-        averageMonthlySumOfGlobalIrradiationPerM2:
-          response?.data?.outputs?.totals?.fixed['H(i)_m'],
-        standardDeviationOfTheMonthlyEnergyProduction:
-          response?.data?.outputs?.totals?.fixed['SD_m'],
+        averageDailyEnergyProduction: response?.data?.outputs?.totals?.fixed['E_d'],
+        averageMonthlyEnergyProduction: response?.data?.outputs?.totals?.fixed['E_m'],
+        averageYearlyEnergyProduction: response?.data?.outputs?.totals?.fixed['E_y'],
+        averageDailySumOfGlobalIrradiationPerM2: response?.data?.outputs?.totals?.fixed['H(i)_d'],
+        averageMonthlySumOfGlobalIrradiationPerM2: response?.data?.outputs?.totals?.fixed['H(i)_m'],
+        standardDeviationOfTheMonthlyEnergyProduction: response?.data?.outputs?.totals?.fixed['SD_m'],
       };
     }
 

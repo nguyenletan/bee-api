@@ -18,10 +18,7 @@ const firebase_params = {
 };
 
 @Injectable()
-export class FirebaseAuthStrategy extends PassportStrategy(
-  Strategy,
-  'firebase-auth',
-) {
+export class FirebaseAuthStrategy extends PassportStrategy(Strategy, 'firebase-auth') {
   private defaultApp: any;
 
   constructor() {

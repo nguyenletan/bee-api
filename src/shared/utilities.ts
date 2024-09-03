@@ -38,10 +38,7 @@ export class Utilities {
 
   public static subtractTime(time1: string, time2: string): number {
     if (time1 && time2) {
-      return differenceInMinutes(
-        new Date('2000-01-01T' + time1),
-        new Date('2000-01-01T' + time2),
-      );
+      return differenceInMinutes(new Date('2000-01-01T' + time1), new Date('2000-01-01T' + time2));
     }
     return 0;
   }
@@ -49,7 +46,7 @@ export class Utilities {
   public static json(param: any): any {
     return JSON.stringify(
       param,
-      (key, value) => (typeof value === 'bigint' ? value.toString() : value), // return everything else unchanged
+      (key, value) => (typeof value === 'bigint' ? value.toString() : value) // return everything else unchanged
     );
   }
 }

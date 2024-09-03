@@ -22,7 +22,6 @@ export class ProgressMockDataController {
     return this.progressMockDataService.findOne(id);
   }
 
-
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProgressMockDatumDto: UpdateProgressMockDatumDto) {
     return this.progressMockDataService.update(+id, updateProgressMockDatumDto);

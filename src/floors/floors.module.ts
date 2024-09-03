@@ -4,6 +4,6 @@ import { FloorsController } from './floors.controller';
 
 @Module({
   controllers: [FloorsController],
-  providers: [FloorsService]
+  providers: [FloorsService],
 })
 export class FloorsModule {}

@@ -17,9 +17,7 @@ export interface ILightingSystemImprovementDto {
   costPerBulb: number | null;
 }
 
-export class LightingSystemImprovementDto
-  implements ILightingSystemImprovementDto
-{
+export class LightingSystemImprovementDto implements ILightingSystemImprovementDto {
   @ApiProperty()
   id: number | null;
   @ApiProperty()

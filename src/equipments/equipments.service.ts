@@ -105,7 +105,7 @@ export class EquipmentsService {
       GROUP BY month, day, "createdDate"
       ORDER BY month, day asc
     `,
-      id,
+      id
     );
   }
 
@@ -133,7 +133,7 @@ export class EquipmentsService {
     subSystemId: number,
     buildingId: number,
     startDate: Date,
-    endDate: Date,
+    endDate: Date
   ) {
     const equipment = await this.prismaService.equipments.findFirst({
       where: {
@@ -221,7 +221,7 @@ export class EquipmentsService {
       subSystemId,
       buildingId,
       startDate,
-      endDate,
+      endDate
     );
   }
 
@@ -259,7 +259,7 @@ export class EquipmentsService {
             WHERE "Equipments".id = $1
             GROUP BY "Equipments".id, "Equipments".dis, "year"
             ORDER BY "year" asc`,
-        id,
+        id
       );
     }
     return null;
@@ -301,7 +301,7 @@ export class EquipmentsService {
             GROUP BY "Equipments".id, "Equipments".dis, "day", "year"`,
         startDate,
         endDate,
-        id,
+        id
       );
     }
     return null;

@@ -11,10 +11,7 @@ describe('PCAF_EuropeanCommercialBuildingEmissionFactorController', () => {
       providers: [PCAF_EuropeanCommercialBuildingEmissionFactorService],
     }).compile();
 
-    controller =
-      module.get<PCAF_EuropeanCommercialBuildingEmissionFactorController>(
-        PCAF_EuropeanCommercialBuildingEmissionFactorController,
-      );
+    controller = module.get<PCAF_EuropeanCommercialBuildingEmissionFactorController>(PCAF_EuropeanCommercialBuildingEmissionFactorController);
   });
 
   it('should be defined', () => {

@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { ImprovementService } from './improvement.service';
 import { CreateImprovementDto } from './dto/create-improvement.dto';
 import { UpdateImprovementDto } from './dto/update-improvement.dto';
@@ -31,10 +23,7 @@ export class ImprovementController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateImprovementDto: UpdateImprovementDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateImprovementDto: UpdateImprovementDto) {
     return this.improvementService.update(+id, updateImprovementDto);
   }
 
@@ -50,14 +39,12 @@ export class ImprovementController {
 
   // New Annual Lighting System Energy Consumption (kWh) =
   // ([Total Lighting Load] * [Annual Operating Hours]) / (1000  * [New Overall Lighting Efficacy])
-  @Get(
-    '/getNewAnnualLightingSystemEnergyConsumption/:buildingId/:percentReplacement/:period/:startDate/',
-  )
+  @Get('/getNewAnnualLightingSystemEnergyConsumption/:buildingId/:percentReplacement/:period/:startDate/')
   getNewAnnualLightingSystemEnergyConsumption(
     @Param('buildingId') buildingId: string,
     @Param('percentReplacement') percentReplacement: string,
     @Param('period') period: string,
-    @Param('startDate') startDate: string,
+    @Param('startDate') startDate: string
   ) {
     return 0;
     // return this.improvementService.getNewAnnualLightingSystemEnergyConsumption(
@@ -83,63 +70,43 @@ export class ImprovementController {
       percentReplacement: string;
       period: string;
       startDate: string;
-    },
+    }
   ) {
     return this.improvementService.getAnnualEnergySavings(
       +data.buildingId,
       +data.percentReplacement,
       +data.period,
       new Date(data.startDate),
-      data.lightingSystem,
+      data.lightingSystem
     );
   }
 
-  @Get(
-    '/getAnnualEnergyCostSavings/:buildingId/:percentReplacement/:period/:startDate/',
-  )
+  @Get('/getAnnualEnergyCostSavings/:buildingId/:percentReplacement/:period/:startDate/')
   getAnnualEnergyCostSavings(
     @Param('buildingId') buildingId: string,
     @Param('percentReplacement') percentReplacement: string,
     @Param('period') period: string,
-    @Param('startDate') startDate: string,
+    @Param('startDate') startDate: string
   ) {
-    return this.improvementService.getAnnualEnergyCostSavings(
-      +buildingId,
-      +percentReplacement,
-      +period,
-      new Date(startDate),
-    );
+    return this.improvementService.getAnnualEnergyCostSavings(+buildingId, +percentReplacement, +period, new Date(startDate));
   }
 
   // Annual Carbon Emissions Avoided (Tons/Yr) = [Energy Savings] * [Grid Emission Rate]
-  @Get(
-    '/getAnnualCarbonEmissionsAvoided/:buildingId/:percentReplacement/:period/:startDate/',
-  )
+  @Get('/getAnnualCarbonEmissionsAvoided/:buildingId/:percentReplacement/:period/:startDate/')
   getAnnualCarbonEmissionsAvoided(
     @Param('buildingId') buildingId: string,
     @Param('percentReplacement') percentReplacement: string,
     @Param('period') period: string,
-    @Param('startDate') startDate: string,
+    @Param('startDate') startDate: string
   ) {
-    return this.improvementService.getAnnualCarbonEmissionsAvoided(
-      +buildingId,
-      +percentReplacement,
-      +period,
-      new Date(startDate),
-    );
+    return this.improvementService.getAnnualCarbonEmissionsAvoided(+buildingId, +percentReplacement, +period, new Date(startDate));
   }
 
   // Cost of Improvement ($) =
   // [Total Lighting Load] * [(100% -%LED Usage)*(%Replacement)] * [LED Bulb Cost ($/W)] / [LED Efficacy RoT]
   @Get('/getCostOfImprovement/:buildingId/:percentReplacement')
-  getCostOfImprovement(
-    @Param('buildingId') buildingId: string,
-    @Param('percentReplacement') percentReplacement: string,
-  ) {
-    return this.improvementService.getCostOfImprovement(
-      +buildingId,
-      +percentReplacement,
-    );
+  getCostOfImprovement(@Param('buildingId') buildingId: string, @Param('percentReplacement') percentReplacement: string) {
+    return this.improvementService.getCostOfImprovement(+buildingId, +percentReplacement);
   }
 
   // Payback (Yr) = [Cost of Improvement] / [Annual Energy Cost Savings]
@@ -148,13 +115,8 @@ export class ImprovementController {
     @Param('buildingId') buildingId: string,
     @Param('percentReplacement') percentReplacement: string,
     @Param('period') period: string,
-    @Param('startDate') startDate: string,
+    @Param('startDate') startDate: string
   ) {
-    return this.improvementService.getPayback(
-      +buildingId,
-      +percentReplacement,
-      +period,
-      new Date(startDate),
-    );
+    return this.improvementService.getPayback(+buildingId, +percentReplacement, +period, new Date(startDate));
   }
 }

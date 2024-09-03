@@ -37,462 +37,461 @@ export interface ISpaceUsageActivityDetailReference {
   heatingLoad: number;
 }
 
-export const SpaceUsageActivityDetailReference: ISpaceUsageActivityDetailReference[] =
-  [
-    {
-      id: 1,
+export const SpaceUsageActivityDetailReference: ISpaceUsageActivityDetailReference[] = [
+  {
+    id: 1,
 
-      spaceUsageActivityAbbreviation: 'Store Room',
+    spaceUsageActivityAbbreviation: 'Store Room',
 
-      fullName: 'Store Room',
+    fullName: 'Store Room',
 
-      // (Person/m2)
-      occupancyDens: 0.025,
+    // (Person/m2)
+    occupancyDens: 0.025,
 
-      // (W/Person)
-      metabolicRate: 140,
+    // (W/Person)
+    metabolicRate: 140,
 
-      //(L/s/Person)
-      oaFlowPerson: 10,
+    //(L/s/Person)
+    oaFlowPerson: 10,
 
-      // (lm/m2)
-      lightingLux: 50,
+    // (lm/m2)
+    lightingLux: 50,
 
-      equipmentWM2: 0,
+    equipmentWM2: 0,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 0,
+    externalHeatGain: 0,
 
-      solarGainCheck: 0,
+    solarGainCheck: 0,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: null,
+    otherGainsSch: null,
 
-      hwShowerFraction: 0,
+    hwShowerFraction: 0,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 2,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 2,
 
-      spaceUsageActivityAbbreviation: 'Circulation Area',
+    spaceUsageActivityAbbreviation: 'Circulation Area',
 
-      fullName: 'Circulation area (corridors and stairways)',
+    fullName: 'Circulation area (corridors and stairways)',
 
-      // (Person/m2)
-      occupancyDens: 0.117333333,
+    // (Person/m2)
+    occupancyDens: 0.117333333,
 
-      // (W/Person)
-      metabolicRate: 140,
+    // (W/Person)
+    metabolicRate: 140,
 
-      //(L/s/Person)
-      oaFlowPerson: 10,
+    //(L/s/Person)
+    oaFlowPerson: 10,
 
-      // (lm/m2)
-      lightingLux: 100,
+    // (lm/m2)
+    lightingLux: 100,
 
-      equipmentWM2: 1.85,
+    equipmentWM2: 1.85,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 0,
+    externalHeatGain: 0,
 
-      solarGainCheck: 0,
+    solarGainCheck: 0,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: null,
+    otherGainsSch: null,
 
-      hwShowerFraction: 0,
+    hwShowerFraction: 0,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 3,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 3,
 
-      spaceUsageActivityAbbreviation: 'Toilet',
+    spaceUsageActivityAbbreviation: 'Toilet',
 
-      fullName: 'Toilet',
+    fullName: 'Toilet',
 
-      // (Person/m2)
-      occupancyDens: 0.112444444,
+    // (Person/m2)
+    occupancyDens: 0.112444444,
 
-      // (W/Person)
-      metabolicRate: 140,
+    // (W/Person)
+    metabolicRate: 140,
 
-      //(L/s/Person)
-      oaFlowPerson: 12,
+    //(L/s/Person)
+    oaFlowPerson: 12,
 
-      // (lm/m2)
-      lightingLux: 200,
+    // (lm/m2)
+    lightingLux: 200,
 
-      equipmentWM2: 5.84,
+    equipmentWM2: 5.84,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 0,
+    externalHeatGain: 0,
 
-      solarGainCheck: 0,
+    solarGainCheck: 0,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: null,
+    otherGainsSch: null,
 
-      hwShowerFraction: 0,
+    hwShowerFraction: 0,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 4,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 4,
 
-      spaceUsageActivityAbbreviation: 'Reception',
+    spaceUsageActivityAbbreviation: 'Reception',
 
-      fullName: 'Reception',
+    fullName: 'Reception',
 
-      // (Person/m2)
-      occupancyDens: 0.100833333,
+    // (Person/m2)
+    occupancyDens: 0.100833333,
 
-      // (W/Person)
-      metabolicRate: 140,
+    // (W/Person)
+    metabolicRate: 140,
 
-      //(L/s/Person)
-      oaFlowPerson: 10,
+    //(L/s/Person)
+    oaFlowPerson: 10,
 
-      // (lm/m2)
-      lightingLux: 200,
+    // (lm/m2)
+    lightingLux: 200,
 
-      equipmentWM2: 6.19,
+    equipmentWM2: 6.19,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 52,
+    externalHeatGain: 52,
 
-      solarGainCheck: 1,
+    solarGainCheck: 1,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: null,
+    otherGainsSch: null,
 
-      hwShowerFraction: 0,
+    hwShowerFraction: 0,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 5,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 5,
 
-      spaceUsageActivityAbbreviation: 'Plant Room',
+    spaceUsageActivityAbbreviation: 'Plant Room',
 
-      fullName: 'Light plant room',
+    fullName: 'Light plant room',
 
-      // (Person/m2)
-      occupancyDens: 0.11,
+    // (Person/m2)
+    occupancyDens: 0.11,
 
-      // (W/Person)
-      metabolicRate: 180,
+    // (W/Person)
+    metabolicRate: 180,
 
-      //(L/s/Person)
-      oaFlowPerson: 10,
+    //(L/s/Person)
+    oaFlowPerson: 10,
 
-      // (lm/m2)
-      lightingLux: 200,
+    // (lm/m2)
+    lightingLux: 200,
 
-      equipmentWM2: 52.5,
+    equipmentWM2: 52.5,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 0,
+    externalHeatGain: 0,
 
-      solarGainCheck: 0,
+    solarGainCheck: 0,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: null,
+    otherGainsSch: null,
 
-      hwShowerFraction: 0,
+    hwShowerFraction: 0,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 6,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 6,
 
-      spaceUsageActivityAbbreviation: 'Office',
+    spaceUsageActivityAbbreviation: 'Office',
 
-      fullName: 'Generic Office Area',
+    fullName: 'Generic Office Area',
 
-      // (Person/m2)
-      occupancyDens: 0.111,
+    // (Person/m2)
+    occupancyDens: 0.111,
 
-      // (W/Person)
-      metabolicRate: 123,
+    // (W/Person)
+    metabolicRate: 123,
 
-      //(L/s/Person)
-      oaFlowPerson: 10,
+    //(L/s/Person)
+    oaFlowPerson: 10,
 
-      // (lm/m2)
-      lightingLux: 400,
+    // (lm/m2)
+    lightingLux: 400,
 
-      equipmentWM2: 11.77,
+    equipmentWM2: 11.77,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 52,
+    externalHeatGain: 52,
 
-      solarGainCheck: 1,
+    solarGainCheck: 1,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: null,
+    otherGainsSch: null,
 
-      hwShowerFraction: 0.12,
+    hwShowerFraction: 0.12,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 7,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 7,
 
-      spaceUsageActivityAbbreviation: 'Gym',
+    spaceUsageActivityAbbreviation: 'Gym',
 
-      fullName: 'Fitness suite/gym',
+    fullName: 'Fitness suite/gym',
 
-      // (Person/m2)
-      occupancyDens: 0.164848485,
+    // (Person/m2)
+    occupancyDens: 0.164848485,
 
-      // (W/Person)
-      metabolicRate: 300,
+    // (W/Person)
+    metabolicRate: 300,
 
-      //(L/s/Person)
-      oaFlowPerson: 30,
+    //(L/s/Person)
+    oaFlowPerson: 30,
 
-      // (lm/m2)
-      lightingLux: 150,
+    // (lm/m2)
+    lightingLux: 150,
 
-      equipmentWM2: 15,
+    equipmentWM2: 15,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 52,
+    externalHeatGain: 52,
 
-      solarGainCheck: 1,
+    solarGainCheck: 1,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: 0,
+    otherGainsSch: 0,
 
-      hwShowerFraction: 0,
+    hwShowerFraction: 0,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 8,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 8,
 
-      spaceUsageActivityAbbreviation: 'Changing Room with Showers',
+    spaceUsageActivityAbbreviation: 'Changing Room with Showers',
 
-      fullName: 'Changing facilities with showers',
+    fullName: 'Changing facilities with showers',
 
-      // (Person/m2)
-      occupancyDens: 0.1,
+    // (Person/m2)
+    occupancyDens: 0.1,
 
-      // (W/Person)
-      metabolicRate: 140,
+    // (W/Person)
+    metabolicRate: 140,
 
-      //(L/s/Person)
-      oaFlowPerson: 10,
+    //(L/s/Person)
+    oaFlowPerson: 10,
 
-      // (lm/m2)
-      lightingLux: 100,
+    // (lm/m2)
+    lightingLux: 100,
 
-      equipmentWM2: 5,
+    equipmentWM2: 5,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 0,
+    externalHeatGain: 0,
 
-      solarGainCheck: 0,
+    solarGainCheck: 0,
 
-      otherGainsWM2: 60,
+    otherGainsWM2: 60,
 
-      otherPercLat: 100,
+    otherPercLat: 100,
 
-      otherGainsSch: 'Occupancy',
+    otherGainsSch: 'Occupancy',
 
-      hwShowerFraction: 0.88,
+    hwShowerFraction: 0.88,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 9,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 9,
 
-      spaceUsageActivityAbbreviation: 'Food Preperation Area',
+    spaceUsageActivityAbbreviation: 'Food Preperation Area',
 
-      fullName: 'Food Preperation Area',
+    fullName: 'Food Preperation Area',
 
-      // (Person/m2)
-      occupancyDens: 0.108035714,
+    // (Person/m2)
+    occupancyDens: 0.108035714,
 
-      // (W/Person)
-      metabolicRate: 180,
+    // (W/Person)
+    metabolicRate: 180,
 
-      //(L/s/Person)
-      oaFlowPerson: 25,
+    //(L/s/Person)
+    oaFlowPerson: 25,
 
-      // (lm/m2)
-      lightingLux: 500,
+    // (lm/m2)
+    lightingLux: 500,
 
-      equipmentWM2: 42.24,
+    equipmentWM2: 42.24,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 0,
+    externalHeatGain: 0,
 
-      solarGainCheck: 0,
+    solarGainCheck: 0,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: null,
+    otherGainsSch: null,
 
-      hwShowerFraction: 0.12,
+    hwShowerFraction: 0.12,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 10,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 10,
 
-      spaceUsageActivityAbbreviation: 'Eating/drinking area',
+    spaceUsageActivityAbbreviation: 'Eating/drinking area',
 
-      fullName: 'Eating/drinking area',
+    fullName: 'Eating/drinking area',
 
-      // (Person/m2)
-      occupancyDens: 0.288888889,
+    // (Person/m2)
+    occupancyDens: 0.288888889,
 
-      // (W/Person)
-      metabolicRate: 110,
+    // (W/Person)
+    metabolicRate: 110,
 
-      //(L/s/Person)
-      oaFlowPerson: 10,
+    //(L/s/Person)
+    oaFlowPerson: 10,
 
-      // (lm/m2)
-      lightingLux: 150,
+    // (lm/m2)
+    lightingLux: 150,
 
-      equipmentWM2: 14.72,
+    equipmentWM2: 14.72,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 52,
+    externalHeatGain: 52,
 
-      solarGainCheck: 1,
+    solarGainCheck: 1,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: null,
+    otherGainsSch: null,
 
-      hwShowerFraction: 0.12,
+    hwShowerFraction: 0.12,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 11,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 11,
 
-      spaceUsageActivityAbbreviation: 'Workshop - small scale',
+    spaceUsageActivityAbbreviation: 'Workshop - small scale',
 
-      fullName: 'Workshop - small scale',
+    fullName: 'Workshop - small scale',
 
-      // (Person/m2)
-      occupancyDens: 0.05,
+    // (Person/m2)
+    occupancyDens: 0.05,
 
-      // (W/Person)
-      metabolicRate: 180,
+    // (W/Person)
+    metabolicRate: 180,
 
-      //(L/s/Person)
-      oaFlowPerson: 10,
+    //(L/s/Person)
+    oaFlowPerson: 10,
 
-      // (lm/m2)
-      lightingLux: 300,
+    // (lm/m2)
+    lightingLux: 300,
 
-      equipmentWM2: 5,
+    equipmentWM2: 5,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 52,
+    externalHeatGain: 52,
 
-      solarGainCheck: 1,
+    solarGainCheck: 1,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: null,
+    otherGainsSch: null,
 
-      hwShowerFraction: 0.12,
+    hwShowerFraction: 0.12,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-    {
-      id: 12,
+    // (W/m2)
+    heatingLoad: 70,
+  },
+  {
+    id: 12,
 
-      spaceUsageActivityAbbreviation: 'Car Park',
+    spaceUsageActivityAbbreviation: 'Car Park',
 
-      fullName: 'Car Park',
+    fullName: 'Car Park',
 
-      // (Person/m2)
-      occupancyDens: 0.005894737,
+    // (Person/m2)
+    occupancyDens: 0.005894737,
 
-      // (W/Person)
-      metabolicRate: 140,
+    // (W/Person)
+    metabolicRate: 140,
 
-      //(L/s/Person)
-      oaFlowPerson: 10,
+    //(L/s/Person)
+    oaFlowPerson: 10,
 
-      // (lm/m2)
-      lightingLux: 100,
+    // (lm/m2)
+    lightingLux: 100,
 
-      equipmentWM2: 0,
+    equipmentWM2: 0,
 
-      heatGainFromLighting: 12,
+    heatGainFromLighting: 12,
 
-      externalHeatGain: 0,
+    externalHeatGain: 0,
 
-      solarGainCheck: 0,
+    solarGainCheck: 0,
 
-      otherGainsWM2: 0,
+    otherGainsWM2: 0,
 
-      otherPercLat: 0,
+    otherPercLat: 0,
 
-      otherGainsSch: null,
+    otherGainsSch: null,
 
-      hwShowerFraction: 0.12,
+    hwShowerFraction: 0.12,
 
-      // (W/m2)
-      heatingLoad: 70,
-    },
-  ];
+    // (W/m2)
+    heatingLoad: 70,
+  },
+];

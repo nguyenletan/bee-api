@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Property as PropertyModel, Prisma } from '@prisma/client';
 import { PropertiesService } from './properties.service';
@@ -17,7 +9,7 @@ import { UpdatePropertyDto } from './dto/update-property.dto';
 export class PropertiesController {
   constructor(
     private readonly propertiesService: PropertiesService,
-    private readonly prismaService: PrismaService,
+    private readonly prismaService: PrismaService
   ) {}
 
   @Post()
@@ -37,10 +29,7 @@ export class PropertiesController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updatePropertyDto: UpdatePropertyDto,
-  ) {
+  update(@Param('id') id: string, @Body() updatePropertyDto: UpdatePropertyDto) {
     return this.propertiesService.update(+id, updatePropertyDto);
   }
 

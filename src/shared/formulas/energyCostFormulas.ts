@@ -1,9 +1,6 @@
 export class EnergyCostFormulas {
   // Tariff Rate = Annual Total Energy Cost ($/Yr) / Annual Total Energy Consumption (kWh/Yr)
-  static calculateTariffRate(
-    annualTotalEnergyCost: number,
-    annualTotalEnergyConsumption: number,
-  ): number {
+  static calculateTariffRate(annualTotalEnergyCost: number, annualTotalEnergyConsumption: number): number {
     return annualTotalEnergyCost / annualTotalEnergyConsumption;
   }
 
@@ -11,14 +8,8 @@ export class EnergyCostFormulas {
   static calculateEnergyCostForEachSubSystem(
     annualTotalEnergyCost: number,
     annualTotalEnergyConsumption: number,
-    annualEnergyConsumptionForOneSpace: number,
+    annualEnergyConsumptionForOneSpace: number
   ): number {
-    return (
-      annualEnergyConsumptionForOneSpace *
-      this.calculateTariffRate(
-        annualTotalEnergyCost,
-        annualTotalEnergyConsumption,
-      )
-    );
+    return annualEnergyConsumptionForOneSpace * this.calculateTariffRate(annualTotalEnergyCost, annualTotalEnergyConsumption);
   }
 }

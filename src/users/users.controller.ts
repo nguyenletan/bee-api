@@ -19,7 +19,7 @@ export class UsersController {
     userData: {
       password: string;
       email: string;
-    },
+    }
   ): Promise<UserModel> {
     const saltOrRounds = 10;
 
@@ -48,7 +48,7 @@ export class UsersController {
     userData: {
       password: string;
       email: string;
-    },
+    }
   ): Promise<UserModel> {
     const saltOrRounds = 10;
     const hash = await bcrypt.hash(userData.password, saltOrRounds);
@@ -96,7 +96,7 @@ export class UsersController {
     trackingData: {
       externalUID: string;
       pageName: string;
-    },
+    }
   ): Promise<UserTracking> {
     return this.prismaService.userTracking.create({
       data: {

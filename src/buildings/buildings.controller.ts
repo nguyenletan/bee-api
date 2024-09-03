@@ -1,22 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  UseGuards,
-  Req,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { BuildingsService } from './buildings.service';
 import { BuildingDto } from './dto/building.dto';
 import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
-import {
-  format,
-  lastDayOfMonth,
-  lastDayOfQuarter,
-  startOfQuarter,
-} from 'date-fns';
+import { format, lastDayOfMonth, lastDayOfQuarter, startOfQuarter } from 'date-fns';
 
 @Controller('buildings')
 export class BuildingsController {
@@ -51,11 +37,7 @@ export class BuildingsController {
 
   @Get(':id/:startday/:endday')
   @UseGuards(FirebaseAuthGuard)
-  findOne(
-    @Param('id') id: string,
-    @Param('startday') startDay: string,
-    @Param('endday') endDay: string,
-  ) {
+  findOne(@Param('id') id: string, @Param('startday') startDay: string, @Param('endday') endDay: string) {
     // console.log(startDay);
     // console.log(endDay);
 
@@ -73,16 +55,14 @@ export class BuildingsController {
     @Param('type') type: string,
     @Param('firstDayParam') firstDayParam: string,
     @Param('secondDayParam') secondDayParam: string,
-    @Param('thirdDayParam') thirdDayParam: string,
+    @Param('thirdDayParam') thirdDayParam: string
   ) {
     let startDay: Date;
     let endDay: Date;
 
     switch (type) {
       case 'day':
-        startDay = endDay = new Date(
-          firstDayParam + '-' + secondDayParam + '-' + thirdDayParam,
-        );
+        startDay = endDay = new Date(firstDayParam + '-' + secondDayParam + '-' + thirdDayParam);
         break;
       // case 'week':
       //   startDay = endDay = new Date(
@@ -91,12 +71,8 @@ export class BuildingsController {
       //   break;
       case 'quarter':
         const month = +secondDayParam * 3;
-        startDay = startOfQuarter(
-          new Date(firstDayParam + '-' + month + '-' + '01'),
-        );
-        endDay = lastDayOfQuarter(
-          new Date(firstDayParam + '-' + month + '-' + '01'),
-        );
+        startDay = startOfQuarter(new Date(firstDayParam + '-' + month + '-' + '01'));
+        endDay = lastDayOfQuarter(new Date(firstDayParam + '-' + month + '-' + '01'));
         break;
       case 'year':
         startDay = new Date(firstDayParam + '-' + '01' + '-' + '01');
@@ -105,17 +81,11 @@ export class BuildingsController {
       case 'month':
       default:
         startDay = new Date(firstDayParam + '-' + secondDayParam + '-' + '01');
-        endDay = lastDayOfMonth(
-          new Date(firstDayParam + '-' + secondDayParam + '-' + '01'),
-        );
+        endDay = lastDayOfMonth(new Date(firstDayParam + '-' + secondDayParam + '-' + '01'));
         break;
     }
 
-    return this.buildingsService.calculateBreakdownByTime(
-      +id,
-      format(startDay, 'yyyy-MM-dd'),
-      format(endDay, 'yyyy-MM-dd'),
-    );
+    return this.buildingsService.calculateBreakdownByTime(+id, format(startDay, 'yyyy-MM-dd'), format(endDay, 'yyyy-MM-dd'));
   }
 
   @Post('edit/:id')

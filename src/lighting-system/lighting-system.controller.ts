@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { LightingSystemService } from './lighting-system.service';
 import { CreateLightingSystemDto } from './dto/create-lighting-system.dto';
 import { UpdateLightingSystemDto } from './dto/update-lighting-system.dto';
@@ -36,10 +28,7 @@ export class LightingSystemController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateLightingSystemDto: UpdateLightingSystemDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateLightingSystemDto: UpdateLightingSystemDto) {
     return this.lightingSystemService.update(+id, updateLightingSystemDto);
   }
 

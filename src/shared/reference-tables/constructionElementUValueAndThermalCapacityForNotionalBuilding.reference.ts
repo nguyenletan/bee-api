@@ -66,8 +66,7 @@ export const ConstructionElementUValueAndThermalCapacityForNotionalBuildingRefer
     },
     {
       id: 7,
-      element:
-        'Pedestrian doors and high usage  access and similar large doors',
+      element: 'Pedestrian doors and high usage  access and similar large doors',
       uValue: 2.2,
       getThermal() {
         return 54.6;

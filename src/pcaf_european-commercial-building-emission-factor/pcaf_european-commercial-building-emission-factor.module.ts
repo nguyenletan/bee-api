@@ -5,9 +5,6 @@ import { PrismaService } from '../prisma.service';
 
 @Module({
   controllers: [PCAF_EuropeanCommercialBuildingEmissionFactorController],
-  providers: [
-    PCAF_EuropeanCommercialBuildingEmissionFactorService,
-    PrismaService,
-  ],
+  providers: [PCAF_EuropeanCommercialBuildingEmissionFactorService, PrismaService],
 })
 export class PCAF_EuropeanCommercialBuildingEmissionFactorModule {}

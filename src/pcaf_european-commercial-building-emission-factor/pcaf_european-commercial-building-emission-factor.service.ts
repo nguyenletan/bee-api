@@ -13,48 +13,40 @@ export class PCAF_EuropeanCommercialBuildingEmissionFactorService {
   }
 
   findAllBySourceName(sourceName: string) {
-    return this.prismaService
-      .$extends(withAccelerate())
-      .pCAF_EuropeanCommercialBuildingEmissionFactor.findMany({
-        where: {
-          sourceName: sourceName,
-        },
-        cacheStrategy: LONG_CACHE_STRATEGY,
-      });
+    return this.prismaService.$extends(withAccelerate()).pCAF_EuropeanCommercialBuildingEmissionFactor.findMany({
+      where: {
+        sourceName: sourceName,
+      },
+      cacheStrategy: LONG_CACHE_STRATEGY,
+    });
   }
 
   findAllBySourceAndBuildingType(sourceName: string, buildingType: string) {
-    return this.prismaService
-      .$extends(withAccelerate())
-      .pCAF_EuropeanCommercialBuildingEmissionFactor.findMany({
-        where: {
-          sourceName: sourceName,
-          buildingType: buildingType,
-        },
-        cacheStrategy: LONG_CACHE_STRATEGY,
-      });
+    return this.prismaService.$extends(withAccelerate()).pCAF_EuropeanCommercialBuildingEmissionFactor.findMany({
+      where: {
+        sourceName: sourceName,
+        buildingType: buildingType,
+      },
+      cacheStrategy: LONG_CACHE_STRATEGY,
+    });
   }
 
   findAllBySourceNameAndCountry(sourceName: string, country: string) {
-    return this.prismaService
-      .$extends(withAccelerate())
-      .pCAF_EuropeanCommercialBuildingEmissionFactor.findMany({
-        where: {
-          sourceName: sourceName,
-          country: country,
-        },
-        cacheStrategy: LONG_CACHE_STRATEGY,
-      });
+    return this.prismaService.$extends(withAccelerate()).pCAF_EuropeanCommercialBuildingEmissionFactor.findMany({
+      where: {
+        sourceName: sourceName,
+        country: country,
+      },
+      cacheStrategy: LONG_CACHE_STRATEGY,
+    });
   }
 
   findOne(id: number) {
-    return this.prismaService
-      .$extends(withAccelerate())
-      .pCAF_EuropeanCommercialBuildingEmissionFactor.findMany({
-        where: {
-          id: id,
-        },
-        cacheStrategy: LONG_CACHE_STRATEGY,
-      });
+    return this.prismaService.$extends(withAccelerate()).pCAF_EuropeanCommercialBuildingEmissionFactor.findMany({
+      where: {
+        id: id,
+      },
+      cacheStrategy: LONG_CACHE_STRATEGY,
+    });
   }
 }

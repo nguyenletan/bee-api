@@ -9,9 +9,7 @@ describe('PCAF_EuropeanCommercialBuildingEmissionFactorService', () => {
       providers: [PCAF_EuropeanCommercialBuildingEmissionFactorService],
     }).compile();
 
-    service = module.get<PCAF_EuropeanCommercialBuildingEmissionFactorService>(
-      PCAF_EuropeanCommercialBuildingEmissionFactorService,
-    );
+    service = module.get<PCAF_EuropeanCommercialBuildingEmissionFactorService>(PCAF_EuropeanCommercialBuildingEmissionFactorService);
   });
 
   it('should be defined', () => {

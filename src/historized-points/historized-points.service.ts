@@ -24,26 +24,20 @@ export class HistorizedPointsService {
   }
 
   findAllOverallHistorizedPointsByPropertyId(propId: number) {
-    this.prismaService
-      .$extends(withAccelerate())
-      .overallHistorizedPoint.findMany({
-        where: {
-          propId: {
-            equals: propId,
-          },
+    this.prismaService.$extends(withAccelerate()).overallHistorizedPoint.findMany({
+      where: {
+        propId: {
+          equals: propId,
         },
-        orderBy: {
-          id: 'asc',
-        },
-        cacheStrategy: SHORT_TIME_CACHE_STRATEGY,
-      });
+      },
+      orderBy: {
+        id: 'asc',
+      },
+      cacheStrategy: SHORT_TIME_CACHE_STRATEGY,
+    });
   }
 
-  async getOverallHistorizedPointsByPropertyIdAndGroupByYear(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ) {
+  async getOverallHistorizedPointsByPropertyIdAndGroupByYear(propId: number, startDay: Date, endDay: Date) {
     return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year
         from "OverallHistorizedPoint" c
@@ -52,11 +46,7 @@ export class HistorizedPointsService {
         order by "year"`;
   }
 
-  async getOverallHistorizedPointsByPropertyIdAndGroupByQuarter(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ) {
+  async getOverallHistorizedPointsByPropertyIdAndGroupByQuarter(propId: number, startDay: Date, endDay: Date) {
     return this.prismaService.$queryRaw`
         select sum(value) as value, extract(quarter from "createdAt") as quarter, extract(year from "createdAt") as year
         from "OverallHistorizedPoint" c
@@ -65,11 +55,7 @@ export class HistorizedPointsService {
         order by "year" , "quarter"`;
   }
 
-  async getOverallHistorizedPointsByPropertyIdAndGroupByMonth(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ) {
+  async getOverallHistorizedPointsByPropertyIdAndGroupByMonth(propId: number, startDay: Date, endDay: Date) {
     return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(month from "createdAt") as month
         from "OverallHistorizedPoint" c
@@ -78,11 +64,7 @@ export class HistorizedPointsService {
         order by "year" asc, "month" asc`;
   }
 
-  async getOverallHistorizedPointsByPropertyIdAndGroupByWeek(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ) {
+  async getOverallHistorizedPointsByPropertyIdAndGroupByWeek(propId: number, startDay: Date, endDay: Date) {
     return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(week from "createdAt") as week
         from "OverallHistorizedPoint" c
@@ -91,11 +73,7 @@ export class HistorizedPointsService {
         order by "year" asc, "week" asc;`;
   }
 
-  async getOverallHistorizedPointsByPropertyIdAndGroupByDay(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ) {
+  async getOverallHistorizedPointsByPropertyIdAndGroupByDay(propId: number, startDay: Date, endDay: Date) {
     return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(month from "createdAt") as month, extract(day from "createdAt") as day
         from "OverallHistorizedPoint" c
@@ -104,11 +82,7 @@ export class HistorizedPointsService {
         order by "year" asc, "month", "day" asc`;
   }
 
-  async getCoolingHistorizedPointsByPropertyIdAndGroupByYear(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ) {
+  async getCoolingHistorizedPointsByPropertyIdAndGroupByYear(propId: number, startDay: Date, endDay: Date) {
     return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year
         from "CoolingHistorizedPoint" c
@@ -117,11 +91,7 @@ export class HistorizedPointsService {
         order by "year"`;
   }
 
-  async getCoolingHistorizedPointsByPropertyIdAndGroupByQuarter(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ) {
+  async getCoolingHistorizedPointsByPropertyIdAndGroupByQuarter(propId: number, startDay: Date, endDay: Date) {
     return this.prismaService.$queryRaw`
         select sum(value) as value, extract(quarter from "createdAt") as quarter, extract(year from "createdAt") as year
         from "CoolingHistorizedPoint" c
@@ -130,11 +100,7 @@ export class HistorizedPointsService {
         order by "year" , "quarter"`;
   }
 
-  async getCoolingHistorizedPointsByPropertyIdAndGroupByMonth(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ) {
+  async getCoolingHistorizedPointsByPropertyIdAndGroupByMonth(propId: number, startDay: Date, endDay: Date) {
     return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(month from "createdAt") as month
         from "CoolingHistorizedPoint" c
@@ -143,11 +109,7 @@ export class HistorizedPointsService {
         order by "year" asc, "month" asc`;
   }
 
-  async getCoolingHistorizedPointsByPropertyIdAndGroupByWeek(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ) {
+  async getCoolingHistorizedPointsByPropertyIdAndGroupByWeek(propId: number, startDay: Date, endDay: Date) {
     return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(week from "createdAt") as week
         from "CoolingHistorizedPoint" c
@@ -156,11 +118,7 @@ export class HistorizedPointsService {
         order by "year" asc, "week" asc;`;
   }
 
-  async getCoolingHistorizedPointsByPropertyIdAndGroupByDay(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ) {
+  async getCoolingHistorizedPointsByPropertyIdAndGroupByDay(propId: number, startDay: Date, endDay: Date) {
     return this.prismaService.$queryRaw`
         select sum(value) as value, extract(year from "createdAt") as year, extract(month from "createdAt") as month, extract(day from "createdAt") as day
         from "CoolingHistorizedPoint" c
@@ -169,11 +127,7 @@ export class HistorizedPointsService {
         order by "year" asc, "month", "day" asc`;
   }
 
-  async sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ): Promise<number> {
+  async sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(propId: number, startDay: Date, endDay: Date): Promise<number> {
     return this.prismaService.$queryRaw`
         select sum(value) from "CoolingHistorizedPoint"
          where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
@@ -182,10 +136,9 @@ export class HistorizedPointsService {
   async getAllEquipmentTypeOfCoolingHistorizedPointsByPropertyIdAndDateRange(
     propId: number,
     startDay: Date,
-    endDay: Date,
+    endDay: Date
   ): Promise<IEquipmentTypeGroup[]> {
-    const equipmentTypeQueryResult: IEquipmentTypeGroup[] = await this
-      .prismaService.$queryRaw`
+    const equipmentTypeQueryResult: IEquipmentTypeGroup[] = await this.prismaService.$queryRaw`
       select et."id", et.name, "propId", sum(c.value) 
       from "CoolingHistorizedPoint" c
         inner join "Points" P on P.id = c."pointId"
@@ -194,8 +147,7 @@ export class HistorizedPointsService {
       where "propId" = ${propId} and c."createdAt" >= ${startDay} and c."createdAt" <= ${endDay}
       group by "propId", et."id", et.name`;
 
-    const equipmentQueryResult: IEquipmentGroup[] = await this.prismaService
-      .$queryRaw`
+    const equipmentQueryResult: IEquipmentGroup[] = await this.prismaService.$queryRaw`
       select et."id" as "typeId", et.name as "typeName", E."equipId", E.id as id, E.dis as name, "propId", sum(c.value)
       from "CoolingHistorizedPoint" c
         inner join "Points" P on P.id = c."pointId"
@@ -205,19 +157,12 @@ export class HistorizedPointsService {
       group by "propId", et."id", et.name, E.id, E."equipId", E.dis`;
 
     for (const equipmentType of equipmentTypeQueryResult) {
-      equipmentType.equipmentGroups = _.filter(equipmentQueryResult, [
-        'typeName',
-        equipmentType.name,
-      ]);
+      equipmentType.equipmentGroups = _.filter(equipmentQueryResult, ['typeName', equipmentType.name]);
     }
     return equipmentTypeQueryResult;
   }
 
-  async sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ): Promise<number> {
+  async sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(propId: number, startDay: Date, endDay: Date): Promise<number> {
     return this.prismaService.$queryRaw`
         select sum(value) from "HeatingHistorizedPoint"
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
@@ -226,10 +171,9 @@ export class HistorizedPointsService {
   async getAllEquipmentTypeOfHeatingHistorizedPointsByPropertyIdAndDateRange(
     propId: number,
     startDay: Date,
-    endDay: Date,
+    endDay: Date
   ): Promise<IEquipmentTypeGroup[]> {
-    const equipmentTypeQueryResult: IEquipmentTypeGroup[] = await this
-      .prismaService.$queryRaw`
+    const equipmentTypeQueryResult: IEquipmentTypeGroup[] = await this.prismaService.$queryRaw`
       select et."id", et.name, "propId", sum(c.value) 
       from "HeatingHistorizedPoint" c
         inner join "Points" P on P.id = c."pointId"
@@ -238,8 +182,7 @@ export class HistorizedPointsService {
       where "propId" = ${propId} and c."createdAt" >= ${startDay} and c."createdAt" <= ${endDay}
       group by "propId", et."id", et.name`;
 
-    const equipmentQueryResult: IEquipmentGroup[] = await this.prismaService
-      .$queryRaw`
+    const equipmentQueryResult: IEquipmentGroup[] = await this.prismaService.$queryRaw`
       select et."id" as "typeId", et.name as "typeName", E.id, E."equipId", E.id as id, E.dis as name, "propId", sum(c.value)
       from "HeatingHistorizedPoint" c
         inner join "Points" P on P.id = c."pointId"
@@ -249,39 +192,24 @@ export class HistorizedPointsService {
       group by "propId", et."id", et.name, E.id, E."equipId", E.dis`;
 
     for (const equipmentType of equipmentTypeQueryResult) {
-      equipmentType.equipmentGroups = _.filter(equipmentQueryResult, [
-        'typeName',
-        equipmentType.name,
-      ]);
+      equipmentType.equipmentGroups = _.filter(equipmentQueryResult, ['typeName', equipmentType.name]);
     }
     return equipmentTypeQueryResult;
   }
 
-  async sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ): Promise<number> {
+  async sumAllLightingHistorizedPointsByPropertyIdAndDateRange(propId: number, startDay: Date, endDay: Date): Promise<number> {
     return this.prismaService.$queryRaw(Prisma.sql`
         select sum(value) from "LightingHistorizedPoint"
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`);
   }
 
-  async sumAllOverallHistorizedPointsByPropertyIdAndDateRange(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ): Promise<number> {
+  async sumAllOverallHistorizedPointsByPropertyIdAndDateRange(propId: number, startDay: Date, endDay: Date): Promise<number> {
     return this.prismaService.$queryRaw`
         select sum(value) from "OverallHistorizedPoint"
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
   }
 
-  async sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
-    propId: number,
-    startDay: Date,
-    endDay: Date,
-  ): Promise<number> {
+  async sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(propId: number, startDay: Date, endDay: Date): Promise<number> {
     return this.prismaService.$queryRaw`
         select sum(value) from "MechanicalVentilationHistorizedPoint"
         where "propId" = ${propId} and "createdAt" >= ${startDay} and "createdAt" <= ${endDay}`;
@@ -290,10 +218,9 @@ export class HistorizedPointsService {
   async getAllEquipmentTypeOfMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
     propId: number,
     startDay: Date,
-    endDay: Date,
+    endDay: Date
   ): Promise<IEquipmentTypeGroup[]> {
-    const equipmentTypeQueryResult: IEquipmentTypeGroup[] = await this
-      .prismaService.$queryRaw`
+    const equipmentTypeQueryResult: IEquipmentTypeGroup[] = await this.prismaService.$queryRaw`
       select et."id", et.name, "propId", sum(c.value) 
       from "MechanicalVentilationHistorizedPoint" c
         inner join "Points" P on P.id = c."pointId"
@@ -302,8 +229,7 @@ export class HistorizedPointsService {
       where "propId" = ${propId} and c."createdAt" >= ${startDay} and c."createdAt" <= ${endDay}
       group by "propId", et."id", et.name`;
 
-    const equipmentQueryResult: IEquipmentGroup[] = await this.prismaService
-      .$queryRaw`
+    const equipmentQueryResult: IEquipmentGroup[] = await this.prismaService.$queryRaw`
       select et."id" as "typeId", et.name as "typeName", E."equipId", E.id as id, E.dis as name, "propId", sum(c.value)
       from "MechanicalVentilationHistorizedPoint" c
         inner join "Points" P on P.id = c."pointId"
@@ -313,10 +239,7 @@ export class HistorizedPointsService {
       group by "propId", et."id", et.name, E.id, E."equipId", E.dis`;
 
     for (const equipmentType of equipmentTypeQueryResult) {
-      equipmentType.equipmentGroups = _.filter(equipmentQueryResult, [
-        'typeName',
-        equipmentType.name,
-      ]);
+      equipmentType.equipmentGroups = _.filter(equipmentQueryResult, ['typeName', equipmentType.name]);
     }
     return equipmentTypeQueryResult;
   }

@@ -37,10 +37,7 @@ export class LightingSystemService {
           x.wattRatingOfBulb *
           x.numberOfDaysUsedPerWeek *
           x.numberOfHoursUsedPerDay *
-          -differenceInCalendarWeeks(
-            new Date(new Date().getFullYear(), 1, 1),
-            new Date(new Date().getFullYear(), 12, 31),
-          )) /
+          -differenceInCalendarWeeks(new Date(new Date().getFullYear(), 1, 1), new Date(new Date().getFullYear(), 12, 31))) /
         1000;
       const energyCost = energyConsumption * tariffRate;
       const emissions = energyConsumption * gridEmissionRate;

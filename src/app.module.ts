@@ -32,7 +32,7 @@ import { BcaModule } from './bca/bca.module';
     LightingSystemImprovementModule,
     ProgressMockDataModule,
     PCAF_EuropeanCommercialBuildingEmissionFactorModule,
-    BcaModule
+    BcaModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, PrismaService, FirebaseAuthStrategy],

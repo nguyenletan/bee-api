@@ -8,9 +8,7 @@ import { PrismaService } from '../prisma.service';
 export class LightingSystemImprovementService {
   constructor(private prismaService: PrismaService) {}
 
-  async createOrUpdate(
-    lightingSystemImprovementDto: LightingSystemImprovementDto[],
-  ) {
+  async createOrUpdate(lightingSystemImprovementDto: LightingSystemImprovementDto[]) {
     const data = lightingSystemImprovementDto.map((l) => {
       return {
         costOfEachBulb: l.costPerBulb,
@@ -25,10 +23,9 @@ export class LightingSystemImprovementService {
 
     console.log(data);
 
-    const lightingSystemImprovement =
-      await this.prismaService.lightingSystemImprovement.createMany({
-        data: data,
-      });
+    const lightingSystemImprovement = await this.prismaService.lightingSystemImprovement.createMany({
+      data: data,
+    });
 
     console.log('lightingSystemImprovement: ', lightingSystemImprovement);
 
@@ -43,9 +40,7 @@ export class LightingSystemImprovementService {
     return `This action returns a #${id} lightingSystemImprovement`;
   }
 
-  update(
-    updateLightingSystemImprovementDto: UpdateLightingSystemImprovementDto[],
-  ) {
+  update(updateLightingSystemImprovementDto: UpdateLightingSystemImprovementDto[]) {
     return `This action updates a  lightingSystemImprovement`;
   }
 

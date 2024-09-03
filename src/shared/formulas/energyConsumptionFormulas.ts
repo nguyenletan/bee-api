@@ -1,8 +1,4 @@
-import {
-  SpaceUsage,
-  LightingSystem,
-  AverageOperatingHours,
-} from '@prisma/client';
+import { SpaceUsage, LightingSystem, AverageOperatingHours } from '@prisma/client';
 import { SpaceUsageActivityDetailReference } from '../reference-tables/spaceUsageActivityDetail.reference';
 import { CorrespondingEfficiencyRatios } from '../reference-tables/correspondingEfficiencyRatio.reference';
 import { ICoolingLoadForGeneralSpace } from '../types/iCoolingLoadForGeneralSpace';
@@ -21,30 +17,20 @@ export class EnergyConsumptionFormulas {
     spaceUsage: SpaceUsage,
     totalInternalFloorArea: number,
     percentageOfTotalInternalFloorArea: number,
-    annualTotalOperatingHours: number,
+    annualTotalOperatingHours: number
   ): ICoolingLoadForGeneralSpace {
     if (spaceUsage) {
-      const correspondingEfficiencyRatio = CorrespondingEfficiencyRatios.find(
-        (x) => x.id === spaceUsage.climateControlId,
-      );
+      const correspondingEfficiencyRatio = CorrespondingEfficiencyRatios.find((x) => x.id === spaceUsage.climateControlId);
 
-      const efficiencyRatioOfCooledOrBoth = correspondingEfficiencyRatio
-        ? correspondingEfficiencyRatio.cooling
-        : 0;
+      const efficiencyRatioOfCooledOrBoth = correspondingEfficiencyRatio ? correspondingEfficiencyRatio.cooling : 0;
 
       const spaceCoolingLoad = this.calculateCoolingLoad(spaceUsage);
 
-      if (
-        efficiencyRatioOfCooledOrBoth &&
-        efficiencyRatioOfCooledOrBoth !== 0
-      ) {
+      if (efficiencyRatioOfCooledOrBoth && efficiencyRatioOfCooledOrBoth !== 0) {
         return <ICoolingLoadForGeneralSpace>{
           coolingLoad: spaceCoolingLoad,
           coolingLoadForSpace:
-            (spaceCoolingLoad *
-              totalInternalFloorArea *
-              (percentageOfTotalInternalFloorArea / 100) *
-              annualTotalOperatingHours) /
+            (spaceCoolingLoad * totalInternalFloorArea * (percentageOfTotalInternalFloorArea / 100) * annualTotalOperatingHours) /
             (1000 * efficiencyRatioOfCooledOrBoth),
         };
       }
@@ -55,14 +41,11 @@ export class EnergyConsumptionFormulas {
   // Cooling Load = (OCCUPANCY_DENS * METABOLIC_RATE) + EQUIPMENT_W_M2 + Heat Gain from Lighting + External Heat Gain + OTHER_GAINS_W_M2
   static calculateCoolingLoad(spaceUsage: SpaceUsage): number {
     if (spaceUsage) {
-      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find(
-        (x) => x.id === spaceUsage.usageTypeId,
-      );
+      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find((x) => x.id === spaceUsage.usageTypeId);
 
       if (spaceUsageActivityDetail) {
         return (
-          spaceUsageActivityDetail.occupancyDens *
-            spaceUsageActivityDetail.metabolicRate +
+          spaceUsageActivityDetail.occupancyDens * spaceUsageActivityDetail.metabolicRate +
           spaceUsageActivityDetail.equipmentWM2 +
           spaceUsageActivityDetail.heatGainFromLighting +
           spaceUsageActivityDetail.externalHeatGain +
@@ -76,9 +59,7 @@ export class EnergyConsumptionFormulas {
   // Heating Load = Heating Load (W/m2)
   static calculateHeatingLoad(spaceUsage: SpaceUsage): number {
     if (spaceUsage) {
-      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find(
-        (x) => x.id === spaceUsage.usageTypeId,
-      );
+      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find((x) => x.id === spaceUsage.usageTypeId);
 
       if (spaceUsageActivityDetail) {
         return spaceUsageActivityDetail.heatingLoad;
@@ -97,37 +78,23 @@ export class EnergyConsumptionFormulas {
     totalInternalFloorArea: number,
     percentageOfTotalInternalFloorArea: number,
     annualTotalOperatingHours: number,
-    heatingSystem: any,
+    heatingSystem: any
   ): IHeatingLoadForGeneralSpace {
     if (spaceUsage) {
-      const correspondingEfficiencyRatio = CorrespondingEfficiencyRatios.find(
-        (x) => x.id === spaceUsage.climateControlId,
-      );
+      const correspondingEfficiencyRatio = CorrespondingEfficiencyRatios.find((x) => x.id === spaceUsage.climateControlId);
 
-      const efficiencyRatioOfCooledOrBoth = correspondingEfficiencyRatio
-        ? correspondingEfficiencyRatio.heating
-        : 0;
+      const efficiencyRatioOfCooledOrBoth = correspondingEfficiencyRatio ? correspondingEfficiencyRatio.heating : 0;
 
       const spaceHeatingLoad = this.calculateHeatingLoad(spaceUsage);
 
-      if (
-        efficiencyRatioOfCooledOrBoth &&
-        efficiencyRatioOfCooledOrBoth !== 0
-      ) {
-        if (
-          heatingSystem.Heater[0].heaterTypeId === 1 ||
-          heatingSystem.Heater[0].heaterTypeId === 2 ||
-          heatingSystem.Heater[0].heaterTypeId === 6
-        ) {
+      if (efficiencyRatioOfCooledOrBoth && efficiencyRatioOfCooledOrBoth !== 0) {
+        if (heatingSystem.Heater[0].heaterTypeId === 1 || heatingSystem.Heater[0].heaterTypeId === 2 || heatingSystem.Heater[0].heaterTypeId === 6) {
           //console.log(heatingSystem.Heater[0]);
 
           return <IHeatingLoadForGeneralSpace>{
             heatingLoad: spaceHeatingLoad,
             heatingLoadForSpace:
-              (spaceHeatingLoad *
-                totalInternalFloorArea *
-                (percentageOfTotalInternalFloorArea / 100) *
-                annualTotalOperatingHours) /
+              (spaceHeatingLoad * totalInternalFloorArea * (percentageOfTotalInternalFloorArea / 100) * annualTotalOperatingHours) /
               (1000 * efficiencyRatioOfCooledOrBoth),
           };
         }
@@ -140,22 +107,12 @@ export class EnergyConsumptionFormulas {
   // [Air Change Rate for Activity] * [Occupancy Density] *
   // [Total Floor Area (Internal)] * [% of Total Floor Area (Internal)]
   // Air Change Rate for Activity = OA_FLOW_PERSON
-  static calculateAirVolumeFlowRateForEachMechanicallyVentilatedSpace(
-    spaceUsage: SpaceUsage,
-    totalFloorArea: number,
-  ): number {
+  static calculateAirVolumeFlowRateForEachMechanicallyVentilatedSpace(spaceUsage: SpaceUsage, totalFloorArea: number): number {
     if (spaceUsage) {
-      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find(
-        (x) => x.id === spaceUsage.usageTypeId,
-      );
+      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find((x) => x.id === spaceUsage.usageTypeId);
 
       if (spaceUsageActivityDetail) {
-        return (
-          spaceUsageActivityDetail.oaFlowPerson *
-          spaceUsageActivityDetail.occupancyDens *
-          totalFloorArea *
-          (spaceUsage.usagePercentage / 100)
-        );
+        return spaceUsageActivityDetail.oaFlowPerson * spaceUsageActivityDetail.occupancyDens * totalFloorArea * (spaceUsage.usagePercentage / 100);
       }
     }
     return 0;
@@ -168,29 +125,19 @@ export class EnergyConsumptionFormulas {
   static calculateAnnualEnergyUsageForEachMechanicallyVentilatedSpace(
     spaceUsage: SpaceUsage,
     totalFloorArea: number,
-    annualTotalOperatingHours: number,
+    annualTotalOperatingHours: number
   ): IMechanicalVentilationForGeneralSpace {
     if (spaceUsage) {
-      const airVolumeFlowRate =
-        this.calculateAirVolumeFlowRateForEachMechanicallyVentilatedSpace(
-          spaceUsage,
-          totalFloorArea,
-        );
+      const airVolumeFlowRate = this.calculateAirVolumeFlowRateForEachMechanicallyVentilatedSpace(spaceUsage, totalFloorArea);
 
       const specificFanPowerItem = MechanicalVentilationSpecificFanPowers.find(
-        (x) =>
-          x.fanTypeId === spaceUsage.fanTypeId &&
-          x.hasHeatRecovery === spaceUsage.hasReheatRecovery,
+        (x) => x.fanTypeId === spaceUsage.fanTypeId && x.hasHeatRecovery === spaceUsage.hasReheatRecovery
       );
-      const specificFanPower = specificFanPowerItem
-        ? specificFanPowerItem.specificFanPower
-        : 1;
+      const specificFanPower = specificFanPowerItem ? specificFanPowerItem.specificFanPower : 1;
 
       return {
         airVolumeFlowRate: airVolumeFlowRate,
-        annualEnergyUsage:
-          (airVolumeFlowRate * specificFanPower * annualTotalOperatingHours) /
-          1000000,
+        annualEnergyUsage: (airVolumeFlowRate * specificFanPower * annualTotalOperatingHours) / 1000000,
         equipmentTypeGroups: null,
       };
     }
@@ -203,20 +150,14 @@ export class EnergyConsumptionFormulas {
   // + ([%Fluorescent T5 Tube Usage] * [Fluorescent T5 Tube Efficacy RoT]) +
   // ([%Fluorescent T8 Tube Usage] * [Fluorescent T8 Tube Efficacy RoT]) +
   // ([%Fluorescent T12 Tube Usage] * [Fluorescent T12 Tube Efficacy RoT])
-  static calculateOverallLightingEfficacy(
-    lightingSystems: LightingSystem[],
-  ): number {
+  static calculateOverallLightingEfficacy(lightingSystems: LightingSystem[]): number {
     let result = 0;
     if (lightingSystems) {
       for (const lightingSystem of lightingSystems) {
-        const lightFittingEfficacy = LightFittingEfficacyReference.find(
-          (x) => x.id === lightingSystem.lightingFittingTypeId,
-        );
+        const lightFittingEfficacy = LightFittingEfficacyReference.find((x) => x.id === lightingSystem.lightingFittingTypeId);
         if (lightFittingEfficacy) {
           //const ledEfficacyRoT = lightFittingEfficacy.efficacy;
-          result +=
-            (lightingSystem.percentageOfFittingTypeUsed / 100) *
-            lightFittingEfficacy.efficacy;
+          result += (lightingSystem.percentageOfFittingTypeUsed / 100) * lightFittingEfficacy.efficacy;
         }
       }
       //const result = lightingSystem.percentageOfFittingTypeUsed;
@@ -231,28 +172,19 @@ export class EnergyConsumptionFormulas {
   // ([%Fluorescent T8 Tube Usage] * [100% - %Replacement] *
   // [Fluorescent T8 Tube Efficacy RoT]) + ([%Fluorescent T12 Tube Usage] *
   // [100% - %Replacement] * [Fluorescent T12 Tube Efficacy RoT])
-  static calculateNewOverallLightingEfficacy(
-    lightingSystems: LightingSystem[],
-    percentReplacement: number,
-  ): number {
+  static calculateNewOverallLightingEfficacy(lightingSystems: LightingSystem[], percentReplacement: number): number {
     let result = 0;
     if (lightingSystems) {
       for (const lightingSystem of lightingSystems) {
-        const lightFittingEfficacy = LightFittingEfficacyReference.find(
-          (x) => x.id === lightingSystem.lightingFittingTypeId,
-        );
+        const lightFittingEfficacy = LightFittingEfficacyReference.find((x) => x.id === lightingSystem.lightingFittingTypeId);
         if (lightFittingEfficacy) {
           //const ledEfficacyRoT = lightFittingEfficacy.efficacy;
           if (lightFittingEfficacy.lightFitting === 'LED') {
             result +=
               lightingSystem.percentageOfFittingTypeUsed / 100 +
-              ((100 - lightingSystem.percentageOfFittingTypeUsed) / 100) *
-                (percentReplacement / 100);
+              ((100 - lightingSystem.percentageOfFittingTypeUsed) / 100) * (percentReplacement / 100);
           } else {
-            result +=
-              (lightingSystem.percentageOfFittingTypeUsed / 100) *
-              ((100 - percentReplacement) / 100) *
-              lightFittingEfficacy.efficacy;
+            result += (lightingSystem.percentageOfFittingTypeUsed / 100) * ((100 - percentReplacement) / 100) * lightFittingEfficacy.efficacy;
           }
         }
       }
@@ -264,53 +196,30 @@ export class EnergyConsumptionFormulas {
   // Lighting Load = LIGHTING_LUX (lm/m2)
   // Lighting Load for Space (lm) = [Space Lighting Load RoT] *
   // [Total Floor Area (Internal)] * [% of Total Floor Area (Internal)]
-  static calculateLightingLoadForSpace(
-    spaceUsage: SpaceUsage,
-    totalFloorArea,
-  ): number {
+  static calculateLightingLoadForSpace(spaceUsage: SpaceUsage, totalFloorArea): number {
     if (spaceUsage) {
-      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find(
-        (x) => x.id === spaceUsage.usageTypeId,
-      );
+      const spaceUsageActivityDetail = SpaceUsageActivityDetailReference.find((x) => x.id === spaceUsage.usageTypeId);
       if (spaceUsageActivityDetail) {
-        return (
-          spaceUsageActivityDetail.lightingLux *
-          (totalFloorArea * (spaceUsage.usagePercentage / 100))
-        );
+        return spaceUsageActivityDetail.lightingLux * (totalFloorArea * (spaceUsage.usagePercentage / 100));
       }
     }
     return 0;
   }
 
   // Lighting Energy Use for Space (W) = Lighting Load for Space (lm) / [Overall Lighting Efficacy (lm/W)]
-  static calculateLightingEnergyUseForSpace(
-    spaceUsage: SpaceUsage,
-    totalFloorArea,
-    lightingSystems: LightingSystem[],
-  ): number {
+  static calculateLightingEnergyUseForSpace(spaceUsage: SpaceUsage, totalFloorArea, lightingSystems: LightingSystem[]): number {
     if (spaceUsage && lightingSystems) {
-      return (
-        this.calculateLightingLoadForSpace(spaceUsage, totalFloorArea) /
-        this.calculateOverallLightingEfficacy(lightingSystems)
-      );
+      return this.calculateLightingLoadForSpace(spaceUsage, totalFloorArea) / this.calculateOverallLightingEfficacy(lightingSystems);
     }
     return 0;
   }
 
-  private static calculateTotalLightLoad(
-    spaceUsages: SpaceUsage[],
-    totalFloorArea: number,
-    lightingSystems: LightingSystem[],
-  ): number {
+  private static calculateTotalLightLoad(spaceUsages: SpaceUsage[], totalFloorArea: number, lightingSystems: LightingSystem[]): number {
     let totalLoad = 0;
     if (spaceUsages) {
       // W
       for (const spaceUsage of spaceUsages) {
-        totalLoad += this.calculateLightingEnergyUseForSpace(
-          spaceUsage,
-          totalFloorArea,
-          lightingSystems,
-        );
+        totalLoad += this.calculateLightingEnergyUseForSpace(spaceUsage, totalFloorArea, lightingSystems);
       }
     }
     return totalLoad;
@@ -322,16 +231,11 @@ export class EnergyConsumptionFormulas {
     spaceUsages: SpaceUsage[],
     totalFloorArea: number,
     operationHours: AverageOperatingHours,
-    lightingSystems: LightingSystem[],
+    lightingSystems: LightingSystem[]
   ): number {
     if (lightingSystems) {
       return (
-        (this.calculateTotalLightLoad(
-          spaceUsages,
-          totalFloorArea,
-          lightingSystems,
-        ) *
-          this.calculateTotalOperatingHours(operationHours)) /
+        (this.calculateTotalLightLoad(spaceUsages, totalFloorArea, lightingSystems) * this.calculateTotalOperatingHours(operationHours)) /
         (1000 * this.calculateOverallLightingEfficacy(lightingSystems))
       );
     }
@@ -349,21 +253,12 @@ export class EnergyConsumptionFormulas {
     totalFloorArea,
     operationHours: AverageOperatingHours,
     percentReplacement: number,
-    lightingSystems: LightingSystem[],
+    lightingSystems: LightingSystem[]
   ): number {
     if (lightingSystems) {
       return (
-        (this.calculateTotalLightLoad(
-          spaceUsages,
-          totalFloorArea,
-          lightingSystems,
-        ) *
-          this.calculateTotalOperatingHours(operationHours)) /
-        (1000 *
-          this.calculateNewOverallLightingEfficacy(
-            lightingSystems,
-            percentReplacement,
-          ))
+        (this.calculateTotalLightLoad(spaceUsages, totalFloorArea, lightingSystems) * this.calculateTotalOperatingHours(operationHours)) /
+        (1000 * this.calculateNewOverallLightingEfficacy(lightingSystems, percentReplacement))
       );
     }
     return 0;
@@ -376,23 +271,12 @@ export class EnergyConsumptionFormulas {
     totalFloorArea,
     operationHours: AverageOperatingHours,
     percentReplacement: number,
-    lightingSystems: LightingSystem[],
+    lightingSystems: LightingSystem[]
   ): number {
     if (lightingSystems) {
       return (
-        this.calculateAnnualLightingSystemEnergyConsumption(
-          spaceUsages,
-          totalFloorArea,
-          operationHours,
-          lightingSystems,
-        ) -
-        this.calculateNewAnnualLightingSystemEnergyConsumption(
-          spaceUsages,
-          totalFloorArea,
-          operationHours,
-          percentReplacement,
-          lightingSystems,
-        )
+        this.calculateAnnualLightingSystemEnergyConsumption(spaceUsages, totalFloorArea, operationHours, lightingSystems) -
+        this.calculateNewAnnualLightingSystemEnergyConsumption(spaceUsages, totalFloorArea, operationHours, percentReplacement, lightingSystems)
       );
     }
     return 0;
@@ -405,18 +289,10 @@ export class EnergyConsumptionFormulas {
     operationHours: AverageOperatingHours,
     percentReplacement: number,
     tariffRate: number,
-    lightingSystems: LightingSystem[],
+    lightingSystems: LightingSystem[]
   ): number {
     if (lightingSystems) {
-      return (
-        this.calculateAnnualEnergySavings(
-          spaceUsages,
-          totalFloorArea,
-          operationHours,
-          percentReplacement,
-          lightingSystems,
-        ) * tariffRate
-      );
+      return this.calculateAnnualEnergySavings(spaceUsages, totalFloorArea, operationHours, percentReplacement, lightingSystems) * tariffRate;
     }
     return 0;
   }
@@ -428,20 +304,11 @@ export class EnergyConsumptionFormulas {
     operationHours: AverageOperatingHours,
     percentReplacement: number,
     countryCode: string,
-    lightingSystems: LightingSystem[],
+    lightingSystems: LightingSystem[]
   ): number {
     if (lightingSystems) {
-      const annualEnergySavings = this.calculateAnnualEnergySavings(
-        spaceUsages,
-        totalFloorArea,
-        operationHours,
-        percentReplacement,
-        lightingSystems,
-      );
-      return EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(
-        annualEnergySavings,
-        countryCode,
-      );
+      const annualEnergySavings = this.calculateAnnualEnergySavings(spaceUsages, totalFloorArea, operationHours, percentReplacement, lightingSystems);
+      return EnergyCO2EmissionFormulas.calculateC02EmissionForEachSystem(annualEnergySavings, countryCode);
     }
     return 0;
   }
@@ -453,14 +320,10 @@ export class EnergyConsumptionFormulas {
     totalFloorArea,
     percentLEDUsage: number,
     percentReplacement: number,
-    lightingSystems: LightingSystem[],
+    lightingSystems: LightingSystem[]
   ): number {
     return (
-      (this.calculateTotalLightLoad(
-        spaceUsages,
-        totalFloorArea,
-        lightingSystems,
-      ) *
+      (this.calculateTotalLightLoad(spaceUsages, totalFloorArea, lightingSystems) *
         (100 - percentLEDUsage) *
         (percentReplacement / 100) *
         LEDBulbCost) /
@@ -476,7 +339,7 @@ export class EnergyConsumptionFormulas {
     percentReplacement: number,
     operationHours: AverageOperatingHours,
     tariffRate: number,
-    lightingSystems: LightingSystem[],
+    lightingSystems: LightingSystem[]
   ): number {
     // console.log(
     //   this.calculateCostOfImprovement(
@@ -500,61 +363,25 @@ export class EnergyConsumptionFormulas {
     // );
 
     return (
-      this.calculateCostOfImprovement(
-        spaceUsages,
-        totalFloorArea,
-        percentLEDUsage,
-        percentReplacement,
-        lightingSystems,
-      ) /
-      this.calculateAnnualEnergyCostSavings(
-        spaceUsages,
-        totalFloorArea,
-        operationHours,
-        percentReplacement,
-        tariffRate,
-        lightingSystems,
-      )
+      this.calculateCostOfImprovement(spaceUsages, totalFloorArea, percentLEDUsage, percentReplacement, lightingSystems) /
+      this.calculateAnnualEnergyCostSavings(spaceUsages, totalFloorArea, operationHours, percentReplacement, tariffRate, lightingSystems)
     );
   }
 
-  public static calculateTotalOperatingHours(
-    operationHours: AverageOperatingHours,
-  ): number {
-    const mondayHours = Utilities.subtractTime(
-      operationHours.mondayEnd,
-      operationHours.mondayStart,
-    );
+  public static calculateTotalOperatingHours(operationHours: AverageOperatingHours): number {
+    const mondayHours = Utilities.subtractTime(operationHours.mondayEnd, operationHours.mondayStart);
 
-    const tuesdayHours = Utilities.subtractTime(
-      operationHours.tuesdayEnd,
-      operationHours.tuesdayStart,
-    );
+    const tuesdayHours = Utilities.subtractTime(operationHours.tuesdayEnd, operationHours.tuesdayStart);
 
-    const wednesdayHours = Utilities.subtractTime(
-      operationHours.wednesdayEnd,
-      operationHours.wednesdayStart,
-    );
+    const wednesdayHours = Utilities.subtractTime(operationHours.wednesdayEnd, operationHours.wednesdayStart);
 
-    const thursdayHours = Utilities.subtractTime(
-      operationHours.thursdayEnd,
-      operationHours.thursdayStart,
-    );
+    const thursdayHours = Utilities.subtractTime(operationHours.thursdayEnd, operationHours.thursdayStart);
 
-    const fridayHours = Utilities.subtractTime(
-      operationHours.fridayEnd,
-      operationHours.fridayStart,
-    );
+    const fridayHours = Utilities.subtractTime(operationHours.fridayEnd, operationHours.fridayStart);
 
-    const saturdayHours = Utilities.subtractTime(
-      operationHours.saturdayEnd,
-      operationHours.saturdayStart,
-    );
+    const saturdayHours = Utilities.subtractTime(operationHours.saturdayEnd, operationHours.saturdayStart);
 
-    const sundayHours = Utilities.subtractTime(
-      operationHours.sundayEnd,
-      operationHours.saturdayStart,
-    );
+    const sundayHours = Utilities.subtractTime(operationHours.sundayEnd, operationHours.saturdayStart);
 
     ///TODO: we will calculate it late
     // const publicHoliday = this.subtractTime(
@@ -562,16 +389,6 @@ export class EnergyConsumptionFormulas {
     //   operationHours.publicHolidayStart,
     // );
 
-    return (
-      ((mondayHours +
-        tuesdayHours +
-        wednesdayHours +
-        thursdayHours +
-        fridayHours +
-        saturdayHours +
-        sundayHours) *
-        52.1428571) /
-      60
-    );
+    return ((mondayHours + tuesdayHours + wednesdayHours + thursdayHours + fridayHours + saturdayHours + sundayHours) * 52.1428571) / 60;
   }
 }

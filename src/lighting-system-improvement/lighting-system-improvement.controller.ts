@@ -1,29 +1,17 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { LightingSystemImprovementService } from './lighting-system-improvement.service';
 import { LightingSystemImprovementDto } from './dto/lighting-system-improvement.dto';
 
 @Controller('lighting-system-improvement')
 export class LightingSystemImprovementController {
-  constructor(
-    private readonly lightingSystemImprovementService: LightingSystemImprovementService,
-  ) {}
+  constructor(private readonly lightingSystemImprovementService: LightingSystemImprovementService) {}
 
   @Post()
   createOrUpdate(
     @Body()
-    lightingSystemImprovementDto: LightingSystemImprovementDto[],
+    lightingSystemImprovementDto: LightingSystemImprovementDto[]
   ) {
-    return this.lightingSystemImprovementService.createOrUpdate(
-      lightingSystemImprovementDto,
-    );
+    return this.lightingSystemImprovementService.createOrUpdate(lightingSystemImprovementDto);
   }
 
   @Get()
@@ -39,15 +27,10 @@ export class LightingSystemImprovementController {
   @Patch()
   update(
     @Body()
-    lightingSystemImprovementDto: LightingSystemImprovementDto[],
+    lightingSystemImprovementDto: LightingSystemImprovementDto[]
   ) {
-    console.log(
-      'updateLightingSystemImprovementDto: ',
-      lightingSystemImprovementDto,
-    );
-    return this.lightingSystemImprovementService.update(
-      lightingSystemImprovementDto,
-    );
+    console.log('updateLightingSystemImprovementDto: ', lightingSystemImprovementDto);
+    return this.lightingSystemImprovementService.update(lightingSystemImprovementDto);
   }
 
   @Delete(':id')

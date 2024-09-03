@@ -4,6 +4,6 @@ import { ProgressMockDataController } from './progress-mock-data.controller';
 
 @Module({
   controllers: [ProgressMockDataController],
-  providers: [ProgressMockDataService]
+  providers: [ProgressMockDataService],
 })
 export class ProgressMockDataModule {}

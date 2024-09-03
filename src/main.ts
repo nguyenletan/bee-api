@@ -44,12 +44,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
 
-  const config = new DocumentBuilder()
-    .setTitle('BEE API')
-    .setDescription('The BEE API description')
-    .setVersion('1.0')
-    .addTag('BEE')
-    .build();
+  const config = new DocumentBuilder().setTitle('BEE API').setDescription('The BEE API description').setVersion('1.0').addTag('BEE').build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   setupRedoc(app);
