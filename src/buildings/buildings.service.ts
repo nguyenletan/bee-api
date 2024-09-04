@@ -428,12 +428,6 @@ export class BuildingsService {
     groupByWeek: any,
     groupByDay: any
   ): IElectricConsumptionFromHistorizedLogsSubSystem {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-
-    console.log('groupByYear', groupByYear);
-    console.log('groupByMonth', groupByMonth);
-
     const electricConsumptionGroupByYear = groupByYear.map((x) => {
       return {
         value: +(x.value / 1000).toFixed(2), // convert to mWh
@@ -556,19 +550,6 @@ export class BuildingsService {
   }
 
   async create(createBuildingDto: BuildingDto, user: any) {
-    //console.log(createBuildingDto);
-
-    // if (
-    //   await this.prismaService.building.findUnique({
-    //     where: {
-    //       name: createBuildingDto.generalBuildingInformation.buildingName,
-    //     },
-    //   })
-    // ) {
-    //   console.log('Existing building');
-    //   throw new HttpException('Existing building', 406);
-    // }
-
     /// mapping for averageOperatingHours
     const averageOperatingHours: AverageOperatingHours = <AverageOperatingHours>{};
 
@@ -843,9 +824,6 @@ export class BuildingsService {
     const prev12MonthsEndDay = subDays(new Date(startDay), 1);
     const prev12MonthsStartDay = subYears(new Date(startDay), 1);
 
-    // console.log(prev12MonthsStartDay);
-    // console.log(prev12MonthsEndDay);
-
     const prev12MonthsElectricityConsumptionsFromHistorizedLogs = await this.getListOfElectricConsumptionsFromHistorizedLogs(
       prop[0].propId,
       prev12MonthsStartDay,
@@ -981,9 +959,6 @@ export class BuildingsService {
         new Date(endDay)
       );
 
-    // console.log('annualCoolingSystemConsumption.equipmentTypeGroups');
-    // console.log(annualCoolingSystemConsumption.equipmentTypeGroups);
-
     const heatingSystem = await this.prismaService.heatingSystem.findFirst({
       where: {
         propId: {
@@ -1074,9 +1049,6 @@ export class BuildingsService {
         annualMechanicalVentilationSystemConsumption.annualEnergyUsage +
         annualLightingConsumption.lightingEnergyConsumption);
 
-    // console.log('annualCoolingSystemConsumption');
-    // console.log(annualCoolingSystemConsumption);
-
     const consumptionBreakdown = BuildingsService.calculateConsumptionBreakdown(
       annualCoolingSystemConsumption,
       annualHeatingSystemConsumption,
@@ -1145,16 +1117,34 @@ export class BuildingsService {
     };
   }
 
+  // private async getSystemConsumption(propertyId: number, startDay: string, endDay: string, systemType: string) {
+  //   const sumMethod = `sumAll${systemType}HistorizedPointsByPropertyIdAndDateRange`;
+  //   const equipmentMethod = `getAllEquipmentTypeOf${systemType}HistorizedPointsByPropertyIdAndDateRange`;
+  //
+  //   const sumOfSystemConsumption = await this.historizedPointsService[sumMethod](propertyId, new Date(startDay), new Date(endDay));
+  //
+  //   const equipmentTypeGroups = await this.historizedPointsService[equipmentMethod](propertyId, new Date(startDay), new Date(endDay));
+  //
+  //   return {
+  //     loadForSpace: sumOfSystemConsumption[0].sum || 0,
+  //     equipmentTypeGroups: equipmentTypeGroups || null,
+  //   };
+  // }
+
   public async calculateBreakdownByTime(id: number, startDay: string, endDay: string) {
-    // console.log('calculateBreakdownByTime');
-    // console.log(startDay);
-    // console.log(endDay);
     const prop = await this.prismaService.$queryRaw`
         SELECT p.*, B.*, p.id as "propId"
         FROM "Property" p
                  INNER JOIN "Building" B on B.id = p."buildingId"
         WHERE "statusId" = 2
           AND B.id = ${id}`;
+
+    const propertyId = prop[0].propId as number;
+
+    // const coolingSystem = await this.getSystemConsumption(propertyId, startDay, endDay, 'Cooling');
+    // const heatingSystem = await this.getSystemConsumption(propertyId, startDay, endDay, 'Heating');
+    // const mechanicalVentilationSystem = await this.getSystemConsumption(propertyId, startDay, endDay, 'MechanicalVentilation');
+    // const lightingSystem = await this.getSystemConsumption(propertyId, startDay, endDay, 'Lighting');
 
     const coolingSystemConsumption: ICoolingLoadForGeneralSpace = {
       coolingLoad: 0,
@@ -1163,16 +1153,17 @@ export class BuildingsService {
     };
 
     const sumOfCoolingSystemConsumption = await this.historizedPointsService.sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
-      prop[0].propId as number,
+      propertyId,
       new Date(startDay),
       new Date(endDay)
     );
+
     if (sumOfCoolingSystemConsumption[0].sum) {
       coolingSystemConsumption.coolingLoadForSpace = sumOfCoolingSystemConsumption[0].sum;
     }
     coolingSystemConsumption.equipmentTypeGroups =
       await this.historizedPointsService.getAllEquipmentTypeOfCoolingHistorizedPointsByPropertyIdAndDateRange(
-        prop[0].propId as number,
+        propertyId,
         new Date(startDay),
         new Date(endDay)
       );
@@ -1183,7 +1174,7 @@ export class BuildingsService {
       equipmentTypeGroups: null,
     };
     const sumOfHeatingSystemConsumption = await this.historizedPointsService.sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(
-      prop[0].propId as number,
+      propertyId,
       new Date(startDay),
       new Date(endDay)
     );
@@ -1192,7 +1183,7 @@ export class BuildingsService {
     }
     heatingSystemConsumption.equipmentTypeGroups =
       await this.historizedPointsService.getAllEquipmentTypeOfHeatingHistorizedPointsByPropertyIdAndDateRange(
-        prop[0].propId as number,
+        propertyId,
         new Date(startDay),
         new Date(endDay)
       );
@@ -1204,7 +1195,7 @@ export class BuildingsService {
     };
     const sumOfMechanicalVentilationSystemConsumption =
       await this.historizedPointsService.sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
-        prop[0].propId as number,
+        propertyId,
         new Date(startDay),
         new Date(endDay)
       );
@@ -1213,7 +1204,7 @@ export class BuildingsService {
     }
     mechanicalVentilationSystemConsumption.equipmentTypeGroups =
       await this.historizedPointsService.getAllEquipmentTypeOfMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
-        prop[0].propId as number,
+        propertyId,
         new Date(startDay),
         new Date(endDay)
       );
@@ -1225,7 +1216,7 @@ export class BuildingsService {
     };
 
     const sumOfLightingSystemConsumption = await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
-      prop[0].propId as number,
+      propertyId,
       new Date(startDay),
       new Date(endDay)
     );
@@ -1234,19 +1225,22 @@ export class BuildingsService {
     }
 
     const tmp = await this.historizedPointsService.sumAllOverallHistorizedPointsByPropertyIdAndDateRange(
-      prop[0].propId,
+      propertyId,
       new Date(startDay),
       new Date(endDay)
     );
 
     const overallElectricConsumption = tmp[0].sum;
 
-    const overallOtherSystemConsumption =
+    // if overallElectricConsumption is < 0, set it to 0, but there are invalid data in the database
+    const overallOtherSystemConsumption = Math.max(
       overallElectricConsumption -
-      (coolingSystemConsumption.coolingLoadForSpace +
-        heatingSystemConsumption.heatingLoadForSpace +
-        mechanicalVentilationSystemConsumption.annualEnergyUsage +
-        lightingConsumption.lightingEnergyConsumption);
+        (coolingSystemConsumption.coolingLoadForSpace +
+          heatingSystemConsumption.heatingLoadForSpace +
+          mechanicalVentilationSystemConsumption.annualEnergyUsage +
+          lightingConsumption.lightingEnergyConsumption),
+      0
+    );
 
     const consumptionBreakdown = BuildingsService.calculateConsumptionBreakdown(
       coolingSystemConsumption,
@@ -1445,8 +1439,6 @@ export class BuildingsService {
       },
     });
 
-    // console.log(building.Property[0]?.AverageOperatingHours);
-
     const buildingActivity: IBuildingActivity[] = [
       {
         id: 1,
@@ -1546,8 +1538,6 @@ export class BuildingsService {
       }
     );
 
-    //console.log(electricityConsumptions);
-
     const heatConsumptions: IHeatConsumption[] = building.Property[0]?.HeatConsumption?.map<IHeatConsumption>((heatConsumption: HeatConsumption) => {
       return {
         id: heatConsumption.id,
@@ -1598,7 +1588,6 @@ export class BuildingsService {
       }
     );
 
-    // console.log(building.Property[0]?.CoolingSystem[0]);
     let coolingSystem: ICoolingSystem;
     if (building.Property[0]?.CoolingSystem[0] !== undefined) {
       coolingSystem = {
@@ -1698,8 +1687,6 @@ export class BuildingsService {
       }
     }
 
-    // console.log(averageOperatingHours);
-
     await this.prismaService.averageOperatingHours.update({
       where: {
         id: updateBuildingDto.buildingActivity[0].averageOperatingHoursId,
@@ -1720,7 +1707,7 @@ export class BuildingsService {
         fanTypeId: item.fanTypeId === '' || item.fanTypeId === null ? null : +item.fanTypeId,
         hasReheatRecovery: item.hasReheatRecovery,
       };
-      //console.log(item);
+
       await this.prismaService.spaceUsage.upsert({
         where: {
           id: item.id,
@@ -1751,7 +1738,6 @@ export class BuildingsService {
         monthlyCost: Number(item.cost),
       };
 
-      // console.log(item);
       await this.prismaService.electricityConsumption.upsert({
         where: {
           id: item.id,
@@ -1773,7 +1759,6 @@ export class BuildingsService {
         monthlyCost: Number(item.cost),
       };
 
-      // console.log(item);
       await this.prismaService.heatConsumption.upsert({
         where: {
           id_heattype: { id: item.id, heattype: item.heattype },
@@ -2096,17 +2081,6 @@ export class BuildingsService {
   }
 
   remove(propertyId: number) {
-    console.log('remove propertyId:', propertyId);
-
-    // this.prismaService.property
-    //   .findFirst({
-    //     where: {
-    //       id: propertyId,
-    //     },
-    //   })
-    //   .then((res) => {
-    //     console.log('res:', res);
-    //   });
     return this.prismaService.property.update({
       data: {
         statusId: 1, //archived
@@ -2392,10 +2366,6 @@ export class BuildingsService {
         },
       };
     }
-
-    //console.log('addingBuildingObject:', addingBuildingObject);
-
-    //return null;
 
     console.log('Create one partial building object', addingBuildingObject.name);
     return this.prismaService.building.create({
