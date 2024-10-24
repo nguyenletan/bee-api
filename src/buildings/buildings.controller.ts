@@ -8,23 +8,9 @@ import { format, lastDayOfMonth, lastDayOfQuarter, startOfQuarter } from 'date-f
 export class BuildingsController {
   constructor(private readonly buildingsService: BuildingsService) {}
 
-  @Post()
-  @UseGuards(FirebaseAuthGuard)
-  create(@Body() createBuildingDto: BuildingDto, @Req() req: any) {
-    // console.log('Create building');
-    // console.log(req.user);
-    //console.log(createBuildingDto.generalBuildingInformation);
-
-    return this.buildingsService.create(createBuildingDto, req.user);
-  }
-
   @Post('create-partial')
   @UseGuards(FirebaseAuthGuard)
   createPartial(@Body() createBuildingDto: BuildingDto, @Req() req: any) {
-    // console.log('Create building');
-    // console.log(req.user);
-    //console.log(createBuildingDto.generalBuildingInformation);
-
     return this.buildingsService.createPartial(createBuildingDto, req.user);
   }
 

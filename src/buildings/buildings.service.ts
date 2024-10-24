@@ -549,236 +549,6 @@ export class BuildingsService {
     };
   }
 
-  async create(createBuildingDto: BuildingDto, user: any) {
-    /// mapping for averageOperatingHours
-    const averageOperatingHours: AverageOperatingHours = <AverageOperatingHours>{};
-
-    for (const item of createBuildingDto?.buildingActivity) {
-      if (item.isEnable) {
-        averageOperatingHours[item.codeName + 'Start'] = format(new Date(item.startTime), 'HH:mm');
-        averageOperatingHours[item.codeName + 'End'] = format(new Date(item.endTime), 'HH:mm');
-      } else {
-        averageOperatingHours[item.codeName + 'Start'] = null;
-        averageOperatingHours[item.codeName + 'End'] = null;
-      }
-    }
-
-    const electricityConsumptionList = createBuildingDto?.electricityConsumptionList.map((item: IElectricityConsumption) => {
-      return <ElectricityConsumption>{
-        month: item.month,
-        year: item.year,
-        monthlyValue: Number(item.value),
-        monthlyCost: Number(item.cost),
-      };
-    });
-
-    const heatConsumptionList = createBuildingDto?.heatConsumptionList.map((item: IHeatConsumption) => {
-      return <HeatConsumption>{
-        month: item.month,
-        year: item.year,
-        heattype: item.heattype,
-        monthlyValue: Number(item.value),
-        monthlyCost: Number(item.cost),
-      };
-    });
-
-    const totalOfBulbs = _.sumBy(createBuildingDto?.lightingSubSystemList, (item) => {
-      if (item && typeof +item.numberOfBulbs === 'number') {
-        return +item.numberOfBulbs;
-      }
-      return 0;
-    });
-
-    const lightingSubSystemList = createBuildingDto?.lightingSubSystemList.map((item: ILightingSubSystem) => {
-      return <LightingSystem>{
-        lightingFittingTypeId: item.indoorLightingSystemTypeId,
-        percentageOfFittingTypeUsed: +((+item.numberOfBulbs / totalOfBulbs) * 100).toFixed(2),
-        title: item.title,
-        numberOfBulbs: +item.numberOfBulbs,
-        lumensOfBulb: +item.lumensOfBulb,
-        wattRatingOfBulb: +item.wattRatingOfBulb,
-        numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
-        numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
-      };
-    });
-
-    const spaceUsageGFAList = createBuildingDto?.spaceUsageGFAList.map((item: ISpaceUsageGFA) => {
-      return <SpaceUsage>{
-        usageTypeId: item.typeId,
-        usagePercentage: item.percentage,
-        climateControlId: item.climateControlId,
-        title: item.title,
-        fanTypeId: item.fanTypeId === '' ? null : +item.fanTypeId,
-        hasReheatRecovery: item.hasReheatRecovery,
-      };
-    });
-
-    const solarPanelSystemList = createBuildingDto?.solarPanelSystemList.map((item: ISolarPanelSystem) => {
-      return <SolarPanelSystem>{
-        systemLoss: item.systemLoss,
-        installedCapacity: Number(item.installedCapacity),
-        pvTechChoiceId: item.pvTechChoiceId,
-        inclineAngle: item.trackingTypeId === 1 || item.trackingTypeId === 2 ? item.inclineAngel : null,
-        trackingTypeId: item.trackingTypeId,
-        mountingTypeId: item.mountingTypeId,
-        orientationAngle: item.trackingTypeId === 1 || item.trackingTypeId === 3 ? Number(item.orientationAngle) : null,
-      };
-    });
-
-    if (createBuildingDto.generalBuildingInformation.sustainabilityRatingId === null) {
-      //Empty value
-      createBuildingDto.generalBuildingInformation.sustainabilityRatingId = 86;
-    }
-
-    const addingBuildingObject = {
-      name: createBuildingDto.generalBuildingInformation.buildingName,
-
-      storeysBelowGround: Number(createBuildingDto.generalBuildingInformation.storeysBelowGround),
-
-      storeysAboveGround: Number(createBuildingDto.generalBuildingInformation.storeysAboveGround),
-
-      numberOfFloorAboveGroundLvl: 0,
-
-      numberOfFloorBelowGroundLvl: 0,
-
-      buildingMajorOrientationId: 1,
-
-      averageInternalFloorToCeilingHeight: Number(createBuildingDto.generalBuildingInformation.avgInternalFloorToCeilingHeight),
-
-      averageInternalFloorToCeilingHeightUnit: createBuildingDto.generalBuildingInformation.avgInternalFloorToCeilingHeightUnit,
-
-      Property: {
-        create: {
-          editedBy: user.uid,
-          streetAddress: createBuildingDto.generalBuildingInformation.address,
-
-          streetName: createBuildingDto.generalBuildingInformation.streetName,
-
-          streetNumber: createBuildingDto.generalBuildingInformation.streetNumber,
-
-          postCode: createBuildingDto.generalBuildingInformation.postalCode,
-
-          state: createBuildingDto.generalBuildingInformation.state,
-
-          city: createBuildingDto.generalBuildingInformation.city,
-
-          countryCode: createBuildingDto.generalBuildingInformation.countryCode,
-
-          grossFloorArea: 0,
-
-          grossInteriorArea: Number(createBuildingDto.generalBuildingInformation.grossInteriorArea),
-
-          grossInteriorAreaUnit: createBuildingDto.generalBuildingInformation.grossInteriorAreaUnit,
-
-          netUsableArea: Number(createBuildingDto.generalBuildingInformation.netUsableArea),
-
-          netUsableAreaUnit: createBuildingDto.generalBuildingInformation.netUsableAreaUnit,
-
-          latitude: createBuildingDto.generalBuildingInformation.location?.lat,
-
-          longitude: createBuildingDto.generalBuildingInformation.location?.lng,
-
-          majorOrientationId: createBuildingDto.generalBuildingInformation.buildingOrientedId,
-
-          completionYear: Number(createBuildingDto.generalBuildingInformation.constructionPeriodValue),
-
-          sustainabilityRatingSchemeId: Number(createBuildingDto.generalBuildingInformation.sustainabilityRatingSchemeId),
-
-          sustainabilityRatingId: Number(createBuildingDto.generalBuildingInformation.sustainabilityRatingId),
-
-          useTypeId: Number(createBuildingDto.generalBuildingInformation.useTypeId),
-
-          photo: createBuildingDto.generalBuildingInformation.buildingPhoto,
-
-          hasMajorRefurbishmentOrExtensionsDone: createBuildingDto.generalBuildingInformation.hasMajorRefurbishmentOrExtensionsDone,
-
-          latestYearForRefurbishmentOrExtension: createBuildingDto.generalBuildingInformation.latestYearForRefurbishmentOrExtension,
-
-          AverageOperatingHours: {
-            create: {
-              ...averageOperatingHours,
-            },
-          },
-
-          SpaceUsage: {
-            create: spaceUsageGFAList,
-          },
-
-          ElectricityConsumption: {
-            create: electricityConsumptionList,
-          },
-
-          HeatConsumption: {
-            create: heatConsumptionList,
-          },
-
-          LightingSystem: {
-            create: lightingSubSystemList,
-          },
-
-          ExternalEnvelopeSubSystem: {
-            create: {
-              groundInsulationTypeId: 3, // using 3 for default value
-              externalWindowToWallRatio: createBuildingDto.envelopFacade.externalWindowToWallRatio,
-              externalWindowInsulationTypeId: createBuildingDto.envelopFacade.externalWindowInsulationTypeId,
-              roofInsulationTypeId: createBuildingDto.envelopFacade.externalRoofInsulationTypeId,
-              externalGroundInsulationTypeId: createBuildingDto.envelopFacade.externalGroundFloorInsulationTypeId,
-            },
-          },
-
-          SolarPanelSystem: {
-            create: solarPanelSystemList,
-          },
-
-          PropertyUser: {
-            create: {
-              userAuthUID: user.uid,
-            },
-          },
-        },
-      },
-    };
-
-    if (createBuildingDto.coolingSystem.hasCoolingSystem) {
-      addingBuildingObject.Property.create = <any>{
-        ...addingBuildingObject.Property.create,
-        CoolingSystem: {
-          create: {
-            coolingSystemTypeId: createBuildingDto.coolingSystem.coolingSystemTypeId,
-            Chiller: {
-              create: {
-                compressorTypeId: createBuildingDto.coolingSystem.compressorTypeId,
-                refrigerantTypeId: createBuildingDto.coolingSystem.refrigerantTypeId,
-                chillerEnergySourceTypeId: createBuildingDto.coolingSystem.chillerEnergySourceTypeId,
-              },
-            },
-          },
-        },
-      };
-    }
-
-    if (createBuildingDto.heatingSystem.hasHeatingSystem) {
-      addingBuildingObject.Property.create = <any>{
-        ...addingBuildingObject.Property.create,
-        HeatingSystem: {
-          create: {
-            heatingSystemTypeId: createBuildingDto.heatingSystem.heatingSystemTypeId,
-            Heater: {
-              create: {
-                heaterTypeId: createBuildingDto.heatingSystem.heaterTypeId,
-                heaterEnergySourceId: createBuildingDto.heatingSystem.heaterEnergySourceTypeId,
-              },
-            },
-          },
-        },
-      };
-    }
-
-    return this.prismaService.building.create({
-      data: addingBuildingObject,
-    });
-  }
-
   async findAll(user: any) {
     return this.prismaService.$queryRaw`
         SELECT DISTINCT p.id, p."streetAddress", p.photo, B.id, B.name, P."streetNumber", P."streetName", P."statusId"
@@ -1263,102 +1033,102 @@ export class BuildingsService {
     };
   }
 
-  private async findOneByTime(id: number, prop: any, groupBy: string, startDay: string, endDay: string): Promise<IBreakdownConsumption[]> {
-    let overallElectricConsumption,
-      coolingElectricConsumption,
-      heatingElectricConsumption,
-      lightingElectricConsumption,
-      mechanicalVentilationElectricConsumption = 0;
-
-    switch (groupBy) {
-      case 'month':
-      default:
-        overallElectricConsumption = await this.historizedPointsService.sumAllOverallHistorizedPointsByPropertyIdAndDateRange(
-          prop.propId,
-          new Date(startDay),
-          new Date(endDay)
-        );
-
-        coolingElectricConsumption = await this.historizedPointsService.sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
-          prop.propId,
-          new Date(startDay),
-          new Date(endDay)
-        );
-
-        heatingElectricConsumption = await this.historizedPointsService.sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(
-          prop.propId,
-          new Date(startDay),
-          new Date(endDay)
-        );
-
-        lightingElectricConsumption = await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
-          prop.propId,
-          new Date(startDay),
-          new Date(endDay)
-        );
-
-        mechanicalVentilationElectricConsumption =
-          await this.historizedPointsService.sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
-            prop.propId,
-            new Date(startDay),
-            new Date(endDay)
-          );
-
-        break;
-    }
-
-    // const otherElectricConsumption =
-    //   overallElectricConsumption -
-    //   (coolingElectricConsumption +
-    //     heatingElectricConsumption +
-    //     lightingElectricConsumption +
-    //     mechanicalVentilationElectricConsumption);
-
-    const percentageOfCoolingElectricConsumption = +((coolingElectricConsumption * 100) / overallElectricConsumption).toFixed(0);
-    const percentageOfHeatingElectricConsumption = +((coolingElectricConsumption * 100) / overallElectricConsumption).toFixed(0);
-    const percentageOfLightingElectricConsumption = +(lightingElectricConsumption * 100) / overallElectricConsumption.toFixed(0);
-    const percentageOfMechanicalVenlitlationElectricConsumption = +(
-      (mechanicalVentilationElectricConsumption * 100) /
-      overallElectricConsumption
-    ).toFixed(0);
-    // const percentageOfOtherElectricConsumption =
-    //   100 -
-    //   percentageOfCoolingElectricConsumption +
-    //   percentageOfHeatingElectricConsumption +
-    //   percentageOfMechanicalVenlitlationElectricConsumption +
-    //   percentageOfLightingElectricConsumption;
-
-    return [
-      {
-        id: 'cooling',
-        value: percentageOfCoolingElectricConsumption,
-        consumption: coolingElectricConsumption,
-        color: null,
-        subBreakdown: BuildingsService.calculateCoolingConsumptionBreakdown(coolingElectricConsumption),
-      },
-      {
-        id: 'heating',
-        value: percentageOfHeatingElectricConsumption,
-        consumption: heatingElectricConsumption,
-        color: null,
-        subBreakdown: null,
-      },
-      {
-        id: 'lighting',
-        value: percentageOfLightingElectricConsumption,
-        consumption: lightingElectricConsumption,
-        color: null,
-        subBreakdown: null,
-      },
-      {
-        id: 'mechanical ventilation',
-        value: percentageOfMechanicalVenlitlationElectricConsumption,
-        consumption: mechanicalVentilationElectricConsumption,
-        color: null,
-        subBreakdown: null,
-      },
-    ];
-  }
+  // private async findOneByTime(id: number, prop: any, groupBy: string, startDay: string, endDay: string): Promise<IBreakdownConsumption[]> {
+  //   let overallElectricConsumption,
+  //     coolingElectricConsumption,
+  //     heatingElectricConsumption,
+  //     lightingElectricConsumption,
+  //     mechanicalVentilationElectricConsumption = 0;
+  //
+  //   switch (groupBy) {
+  //     case 'month':
+  //     default:
+  //       overallElectricConsumption = await this.historizedPointsService.sumAllOverallHistorizedPointsByPropertyIdAndDateRange(
+  //         prop.propId,
+  //         new Date(startDay),
+  //         new Date(endDay)
+  //       );
+  //
+  //       coolingElectricConsumption = await this.historizedPointsService.sumAllCoolingHistorizedPointsByPropertyIdAndDateRange(
+  //         prop.propId,
+  //         new Date(startDay),
+  //         new Date(endDay)
+  //       );
+  //
+  //       heatingElectricConsumption = await this.historizedPointsService.sumAllHeatingHistorizedPointsByPropertyIdAndDateRange(
+  //         prop.propId,
+  //         new Date(startDay),
+  //         new Date(endDay)
+  //       );
+  //
+  //       lightingElectricConsumption = await this.historizedPointsService.sumAllLightingHistorizedPointsByPropertyIdAndDateRange(
+  //         prop.propId,
+  //         new Date(startDay),
+  //         new Date(endDay)
+  //       );
+  //
+  //       mechanicalVentilationElectricConsumption =
+  //         await this.historizedPointsService.sumAllMechanicalVentilationHistorizedPointsByPropertyIdAndDateRange(
+  //           prop.propId,
+  //           new Date(startDay),
+  //           new Date(endDay)
+  //         );
+  //
+  //       break;
+  //   }
+  //
+  //   // const otherElectricConsumption =
+  //   //   overallElectricConsumption -
+  //   //   (coolingElectricConsumption +
+  //   //     heatingElectricConsumption +
+  //   //     lightingElectricConsumption +
+  //   //     mechanicalVentilationElectricConsumption);
+  //
+  //   const percentageOfCoolingElectricConsumption = +((coolingElectricConsumption * 100) / overallElectricConsumption).toFixed(0);
+  //   const percentageOfHeatingElectricConsumption = +((coolingElectricConsumption * 100) / overallElectricConsumption).toFixed(0);
+  //   const percentageOfLightingElectricConsumption = +(lightingElectricConsumption * 100) / overallElectricConsumption.toFixed(0);
+  //   const percentageOfMechanicalVenlitlationElectricConsumption = +(
+  //     (mechanicalVentilationElectricConsumption * 100) /
+  //     overallElectricConsumption
+  //   ).toFixed(0);
+  //   // const percentageOfOtherElectricConsumption =
+  //   //   100 -
+  //   //   percentageOfCoolingElectricConsumption +
+  //   //   percentageOfHeatingElectricConsumption +
+  //   //   percentageOfMechanicalVenlitlationElectricConsumption +
+  //   //   percentageOfLightingElectricConsumption;
+  //
+  //   return [
+  //     {
+  //       id: 'cooling',
+  //       value: percentageOfCoolingElectricConsumption,
+  //       consumption: coolingElectricConsumption,
+  //       color: null,
+  //       subBreakdown: BuildingsService.calculateCoolingConsumptionBreakdown(coolingElectricConsumption),
+  //     },
+  //     {
+  //       id: 'heating',
+  //       value: percentageOfHeatingElectricConsumption,
+  //       consumption: heatingElectricConsumption,
+  //       color: null,
+  //       subBreakdown: null,
+  //     },
+  //     {
+  //       id: 'lighting',
+  //       value: percentageOfLightingElectricConsumption,
+  //       consumption: lightingElectricConsumption,
+  //       color: null,
+  //       subBreakdown: null,
+  //     },
+  //     {
+  //       id: 'mechanical ventilation',
+  //       value: percentageOfMechanicalVenlitlationElectricConsumption,
+  //       consumption: mechanicalVentilationElectricConsumption,
+  //       color: null,
+  //       subBreakdown: null,
+  //     },
+  //   ];
+  // }
 
   async findOne(id: number, startDay: string, endDay: string) {
     const prop = await this.prismaService.$queryRaw`
@@ -1667,249 +1437,401 @@ export class BuildingsService {
     };
   }
 
-  async update(id: number, updateBuildingDto: BuildingDto) {
+  async createPartial(createBuildingDto: BuildingDto, user: any) {
     let statusId = 2;
 
-    if (updateBuildingDto?.generalBuildingInformation.sustainabilityRatingId === null) {
-      //Empty value
-      updateBuildingDto.generalBuildingInformation.sustainabilityRatingId = 86;
+    // Set sustainability rating if null
+    if (createBuildingDto.generalBuildingInformation.sustainabilityRatingId === null) {
+      createBuildingDto.generalBuildingInformation.sustainabilityRatingId = 86;
     }
 
+    // Calculate average operating hours
     const averageOperatingHours: AverageOperatingHours = <AverageOperatingHours>{};
 
-    for (const item of updateBuildingDto?.buildingActivity) {
-      if (item.isEnable) {
-        averageOperatingHours[item.codeName + 'Start'] = format(new Date(item.startTime), 'HH:mm');
-        averageOperatingHours[item.codeName + 'End'] = format(new Date(item.endTime), 'HH:mm');
-      } else {
-        averageOperatingHours[item.codeName + 'Start'] = null;
-        averageOperatingHours[item.codeName + 'End'] = null;
-      }
-    }
-
-    await this.prismaService.averageOperatingHours.update({
-      where: {
-        id: updateBuildingDto.buildingActivity[0].averageOperatingHoursId,
-      },
-      data: averageOperatingHours,
+    createBuildingDto?.buildingActivity?.forEach((item) => {
+      averageOperatingHours[`${item.codeName}Start`] = item.isEnable ? format(new Date(item.startTime), 'HH:mm') : null;
+      averageOperatingHours[`${item.codeName}End`] = item.isEnable ? format(new Date(item.endTime), 'HH:mm') : null;
     });
 
-    const spaceUsageGFAList = updateBuildingDto?.spaceUsageGFAList.filter(
-      (item) => typeof item.typeId === 'number' && typeof item.percentage === 'number'
-    );
-
-    for (const item of spaceUsageGFAList) {
-      const spaceUsage = {
+    // Process space usage list
+    const spaceUsageGFAList = createBuildingDto?.spaceUsageGFAList
+      .filter((item) => typeof item.typeId === 'number' && typeof item.percentage === 'number')
+      .map((item: ISpaceUsageGFA) => ({
         usageTypeId: item.typeId,
         usagePercentage: item.percentage,
         climateControlId: item.climateControlId,
         title: item.title,
-        fanTypeId: item.fanTypeId === '' || item.fanTypeId === null ? null : +item.fanTypeId,
+        fanTypeId: item.fanTypeId === '' ? null : +item.fanTypeId,
         hasReheatRecovery: item.hasReheatRecovery,
-      };
+      }));
+    if (spaceUsageGFAList.length === 0) statusId = 3;
 
-      await this.prismaService.spaceUsage.upsert({
-        where: {
-          id: item.id,
-        },
-        update: spaceUsage,
-        create: {
-          ...spaceUsage,
-          propId: updateBuildingDto.generalBuildingInformation.propId,
-        },
-      });
-    }
-
-    if (spaceUsageGFAList.length === 0) {
-      statusId = 3;
-    }
-
-    const electricityConsumptionList = updateBuildingDto?.electricityConsumptionList.filter(
-      (item) => Number(item.value) !== 0 && Number(item.cost) !== 0
-    );
-
-    const heatConsumptionList = updateBuildingDto?.heatConsumptionList.filter((item) => Number(item.value) !== 0 && Number(item.cost) !== 0);
-
-    for (const item of electricityConsumptionList) {
-      const electricityConsumption = {
+    // Process electricity consumption list
+    const electricityConsumptionList = createBuildingDto?.electricityConsumptionList
+      .filter((item) => Number(item.value) !== 0 && Number(item.cost) !== 0)
+      .map((item: IElectricityConsumption) => ({
         month: item.month,
         year: item.year,
         monthlyValue: Number(item.value),
         monthlyCost: Number(item.cost),
-      };
+      }));
+    if (electricityConsumptionList.length === 0) statusId = 3;
 
-      await this.prismaService.electricityConsumption.upsert({
-        where: {
-          id: item.id,
-        },
-        update: electricityConsumption,
-        create: {
-          ...electricityConsumption,
-          propId: updateBuildingDto.generalBuildingInformation.propId,
-        },
-      });
-    }
-
-    for (const item of heatConsumptionList) {
-      const heatConsumption = {
+    // Process heat consumption list
+    const heatConsumptionList = createBuildingDto?.heatConsumptionList
+      .filter((item) => Number(item.value) !== 0 && Number(item.cost) !== 0)
+      .map((item: IHeatConsumption) => ({
         month: item.month,
         year: item.year,
         heattype: item.heattype,
         monthlyValue: Number(item.value),
         monthlyCost: Number(item.cost),
-      };
+      }));
+    if (heatConsumptionList.length === 0) statusId = 3;
 
-      await this.prismaService.heatConsumption.upsert({
-        where: {
-          id_heattype: { id: item.id, heattype: item.heattype },
-        },
-        update: heatConsumption,
-        create: {
-          ...heatConsumption,
-          propId: updateBuildingDto.generalBuildingInformation.propId,
-        },
-      });
-    }
-
-    if (electricityConsumptionList.length === 0) {
-      statusId = 3;
-    }
-
-    //===================================================
-    if (heatConsumptionList.length === 0) {
-      statusId = 3;
-    }
-
-    //===================================================
-
-    const totalOfBulbs = _.sumBy(updateBuildingDto?.lightingSubSystemList, (item) => {
-      if (item && typeof +item.numberOfBulbs === 'number') {
-        return +item.numberOfBulbs;
-      }
-      return 0;
-    });
-
-    const lightingSubSystemList = updateBuildingDto?.lightingSubSystemList.filter(
-      (l) => typeof l.indoorLightingSystemTypeId === 'number' && l.title !== '' && l.title
+    // Calculate total number of bulbs
+    const totalOfBulbs = _.sumBy(createBuildingDto?.lightingSubSystemList, (item) =>
+      item && typeof +item.numberOfBulbs === 'number' ? +item.numberOfBulbs : 0
     );
 
-    for (const item of lightingSubSystemList) {
-      const lightingSystem = {
+    // Process lighting sub-system list
+    const lightingSubSystemList = createBuildingDto?.lightingSubSystemList
+      .filter((l) => typeof l.indoorLightingSystemTypeId === 'number' && l.title)
+      .map((item: ILightingSubSystem) => ({
         lightingFittingTypeId: item.indoorLightingSystemTypeId,
         percentageOfFittingTypeUsed: totalOfBulbs == 0 ? 0 : +((+item.numberOfBulbs / totalOfBulbs) * 100).toFixed(2),
-        numberOfBulbs: +item.numberOfBulbs,
-        wattRatingOfBulb: +item.wattRatingOfBulb,
-        lumensOfBulb: +item.lumensOfBulb,
         title: item.title,
-        numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
+        numberOfBulbs: +item.numberOfBulbs,
+        lumensOfBulb: +item.lumensOfBulb,
+        wattRatingOfBulb: +item.wattRatingOfBulb,
         numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
-      };
-      await this.prismaService.lightingSystem.upsert({
-        where: {
-          id: item.id,
-        },
-        update: lightingSystem,
+        numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
+      }));
+    if (lightingSubSystemList.length === 0) statusId = 3;
+
+    // Process external envelope subsystem
+    let externalEnvelopeSubSystem = {
+      externalWindowToWallRatio: createBuildingDto.envelopFacade?.externalWindowToWallRatio,
+      externalWindowInsulationTypeId: createBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
+      roofInsulationTypeId: createBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
+      externalGroundInsulationTypeId: createBuildingDto.envelopFacade?.externalGroundFloorInsulationTypeId,
+    };
+    if (
+      typeof createBuildingDto?.envelopFacade?.externalRoofInsulationTypeId !== 'number' ||
+      typeof createBuildingDto?.envelopFacade?.externalWindowInsulationTypeId !== 'number'
+    ) {
+      externalEnvelopeSubSystem = null;
+      statusId = 3;
+    }
+
+    // Process solar panel system list
+    const solarPanelSystemList = createBuildingDto?.solarPanelSystemList
+      .filter(
+        (item) =>
+          typeof item.installedCapacity === 'number' &&
+          typeof item.trackingTypeId === 'number' &&
+          typeof item.pvTechChoiceId === 'number' &&
+          typeof item.mountingTypeId === 'number'
+      )
+      .map((item: ISolarPanelSystem) => ({
+        systemLoss: item.systemLoss,
+        installedCapacity: Number(item.installedCapacity),
+        pvTechChoiceId: item.pvTechChoiceId,
+        inclineAngle: [1, 2].includes(item.trackingTypeId) ? item.inclineAngel : null,
+        trackingTypeId: item.trackingTypeId,
+        mountingTypeId: item.mountingTypeId,
+        orientationAngle: [1, 3].includes(item.trackingTypeId) ? Number(item.orientationAngle) : null,
+      }));
+    if (solarPanelSystemList.length === 0) statusId = 3;
+
+    // Construct building object
+    const addingBuildingObject = {
+      name: createBuildingDto.generalBuildingInformation.buildingName,
+      storeysBelowGround: Number(createBuildingDto.generalBuildingInformation.storeysBelowGround),
+      storeysAboveGround: Number(createBuildingDto.generalBuildingInformation.storeysAboveGround),
+      numberOfFloorAboveGroundLvl: 0,
+      numberOfFloorBelowGroundLvl: 0,
+      buildingMajorOrientationId: 1,
+      averageInternalFloorToCeilingHeight: Number(createBuildingDto.generalBuildingInformation.avgInternalFloorToCeilingHeight),
+      averageInternalFloorToCeilingHeightUnit: createBuildingDto.generalBuildingInformation.avgInternalFloorToCeilingHeightUnit,
+      Property: {
         create: {
-          ...lightingSystem,
+          statusId,
+          editedBy: user.uid,
+          streetAddress: createBuildingDto.generalBuildingInformation.address,
+          streetName: createBuildingDto.generalBuildingInformation.streetName,
+          streetNumber: createBuildingDto.generalBuildingInformation.streetNumber,
+          postCode: createBuildingDto.generalBuildingInformation.postalCode,
+          state: createBuildingDto.generalBuildingInformation.state,
+          city: createBuildingDto.generalBuildingInformation.city,
+          countryCode: createBuildingDto.generalBuildingInformation.countryCode,
+          grossFloorArea: 0,
+          grossInteriorArea: Number(createBuildingDto.generalBuildingInformation.grossInteriorArea),
+          grossInteriorAreaUnit: createBuildingDto.generalBuildingInformation.grossInteriorAreaUnit,
+          netUsableArea: Number(createBuildingDto.generalBuildingInformation.netUsableArea),
+          netUsableAreaUnit: createBuildingDto.generalBuildingInformation.netUsableAreaUnit,
+          latitude: createBuildingDto.generalBuildingInformation.location?.lat,
+          longitude: createBuildingDto.generalBuildingInformation.location?.lng,
+          majorOrientationId: createBuildingDto.generalBuildingInformation.buildingOrientedId,
+          completionYear: Number(createBuildingDto.generalBuildingInformation.constructionPeriodValue),
+          sustainabilityRatingSchemeId: Number(createBuildingDto.generalBuildingInformation.sustainabilityRatingSchemeId),
+          sustainabilityRatingId: Number(createBuildingDto.generalBuildingInformation.sustainabilityRatingId),
+          useTypeId: Number(createBuildingDto.generalBuildingInformation.useTypeId),
+          photo: createBuildingDto.generalBuildingInformation.buildingPhoto,
+          hasMajorRefurbishmentOrExtensionsDone: createBuildingDto.generalBuildingInformation.hasMajorRefurbishmentOrExtensionsDone,
+          latestYearForRefurbishmentOrExtension: createBuildingDto.generalBuildingInformation.latestYearForRefurbishmentOrExtension,
+          AverageOperatingHours: { create: averageOperatingHours },
+          SpaceUsage: { create: spaceUsageGFAList },
+          ElectricityConsumption: { create: electricityConsumptionList },
+          HeatConsumption: { create: heatConsumptionList },
+          LightingSystem: { create: lightingSubSystemList },
+          ExternalEnvelopeSubSystem: externalEnvelopeSubSystem ? { create: externalEnvelopeSubSystem } : {},
+          SolarPanelSystem: { create: solarPanelSystemList },
+          PropertyUser: { create: { userAuthUID: user.uid } },
+        },
+      },
+    };
+
+    // Add the cooling system if exists
+    if (createBuildingDto.coolingSystem.hasCoolingSystem) {
+      addingBuildingObject.Property.create = <any>{
+        ...addingBuildingObject.Property.create,
+        CoolingSystem: {
+          create: {
+            coolingSystemTypeId: createBuildingDto.coolingSystem.coolingSystemTypeId,
+            Chiller: {
+              create: {
+                compressorTypeId: createBuildingDto.coolingSystem.compressorTypeId,
+                refrigerantTypeId: createBuildingDto.coolingSystem.refrigerantTypeId,
+                chillerEnergySourceTypeId: createBuildingDto.coolingSystem.chillerEnergySourceTypeId,
+              },
+            },
+          },
+        },
+      };
+    }
+
+    // Add the heating system if exists
+    if (createBuildingDto.heatingSystem.hasHeatingSystem) {
+      addingBuildingObject.Property.create = <any>{
+        ...addingBuildingObject.Property.create,
+        HeatingSystem: {
+          create: {
+            heatingSystemTypeId: createBuildingDto.heatingSystem.heatingSystemTypeId,
+            Heater: {
+              create: {
+                heaterTypeId: createBuildingDto.heatingSystem.heaterTypeId,
+                heaterEnergySourceId: createBuildingDto.heatingSystem.heaterEnergySourceTypeId,
+              },
+            },
+          },
+        },
+      };
+    }
+
+    console.log('Create one partial building object', addingBuildingObject.name);
+    return this.prismaService.building.create({
+      data: addingBuildingObject,
+    });
+  }
+
+  async update(id: number, updateBuildingDto: BuildingDto) {
+    let statusId = 2;
+
+    // Set sustainability rating if null
+    updateBuildingDto.generalBuildingInformation.sustainabilityRatingId ??= 86;
+
+    // Calculate average operating hours
+    const averageOperatingHours: AverageOperatingHours = <AverageOperatingHours>{};
+    updateBuildingDto.buildingActivity?.forEach((item) => {
+      averageOperatingHours[`${item.codeName}Start`] = item.isEnable ? format(new Date(item.startTime), 'HH:mm') : null;
+      averageOperatingHours[`${item.codeName}End`] = item.isEnable ? format(new Date(item.endTime), 'HH:mm') : null;
+    });
+
+    // Update average operating hours
+    await this.prismaService.averageOperatingHours.update({
+      where: { id: updateBuildingDto.buildingActivity[0].averageOperatingHoursId },
+      data: averageOperatingHours,
+    });
+
+    // Process and upsert space usage list
+    const spaceUsageGFAList =
+      updateBuildingDto.spaceUsageGFAList?.filter((item) => typeof item.typeId === 'number' && typeof item.percentage === 'number') ?? [];
+    if (spaceUsageGFAList.length === 0) statusId = 3;
+
+    for (const item of spaceUsageGFAList) {
+      await this.prismaService.spaceUsage.upsert({
+        where: { id: item.id },
+        update: {
+          usageTypeId: item.typeId,
+          usagePercentage: item.percentage,
+          climateControlId: item.climateControlId,
+          title: item.title,
+          fanTypeId: item.fanTypeId === '' || item.fanTypeId === null ? null : +item.fanTypeId,
+          hasReheatRecovery: item.hasReheatRecovery,
+        },
+        create: {
+          usageTypeId: item.typeId,
+          usagePercentage: item.percentage,
+          climateControlId: item.climateControlId,
+          title: item.title,
+          fanTypeId: item.fanTypeId === '' || item.fanTypeId === null ? null : +item.fanTypeId,
+          hasReheatRecovery: item.hasReheatRecovery,
           propId: updateBuildingDto.generalBuildingInformation.propId,
         },
       });
     }
 
-    if (lightingSubSystemList.length === 0) {
-      statusId = 3;
+    // Process and upsert electricity consumption list
+    const electricityConsumptionList =
+      updateBuildingDto.electricityConsumptionList?.filter((item) => Number(item.value) !== 0 && Number(item.cost) !== 0) ?? [];
+    if (electricityConsumptionList.length === 0) statusId = 3;
+
+    for (const item of electricityConsumptionList) {
+      await this.prismaService.electricityConsumption.upsert({
+        where: { id: item.id },
+        update: {
+          month: item.month,
+          year: item.year,
+          monthlyValue: Number(item.value),
+          monthlyCost: Number(item.cost),
+        },
+        create: {
+          month: item.month,
+          year: item.year,
+          monthlyValue: Number(item.value),
+          monthlyCost: Number(item.cost),
+          propId: updateBuildingDto.generalBuildingInformation.propId,
+        },
+      });
     }
 
+    // Process and upsert heat consumption list
+    const heatConsumptionList = updateBuildingDto.heatConsumptionList?.filter((item) => Number(item.value) !== 0 && Number(item.cost) !== 0) ?? [];
+    if (heatConsumptionList.length === 0) statusId = 3;
+
+    for (const item of heatConsumptionList) {
+      await this.prismaService.heatConsumption.upsert({
+        where: { id_heattype: { id: item.id, heattype: item.heattype } },
+        update: {
+          month: item.month,
+          year: item.year,
+          heattype: item.heattype,
+          monthlyValue: Number(item.value),
+          monthlyCost: Number(item.cost),
+        },
+        create: {
+          month: item.month,
+          year: item.year,
+          heattype: item.heattype,
+          monthlyValue: Number(item.value),
+          monthlyCost: Number(item.cost),
+          propId: updateBuildingDto.generalBuildingInformation.propId,
+        },
+      });
+    }
+
+    // Calculate total number of bulbs
+    const totalOfBulbs = _.sumBy(updateBuildingDto.lightingSubSystemList, (item) =>
+      item && typeof +item.numberOfBulbs === 'number' ? +item.numberOfBulbs : 0
+    );
+
+    // Process and upsert lighting sub-system list
+    const lightingSubSystemList =
+      updateBuildingDto.lightingSubSystemList?.filter((l) => typeof l.indoorLightingSystemTypeId === 'number' && l.title) ?? [];
+    if (lightingSubSystemList.length === 0) statusId = 3;
+
+    for (const item of lightingSubSystemList) {
+      await this.prismaService.lightingSystem.upsert({
+        where: { id: item.id },
+        update: {
+          lightingFittingTypeId: item.indoorLightingSystemTypeId,
+          percentageOfFittingTypeUsed: totalOfBulbs === 0 ? 0 : +((+item.numberOfBulbs / totalOfBulbs) * 100).toFixed(2),
+          numberOfBulbs: +item.numberOfBulbs,
+          wattRatingOfBulb: +item.wattRatingOfBulb,
+          lumensOfBulb: +item.lumensOfBulb,
+          title: item.title,
+          numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
+          numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
+        },
+        create: {
+          lightingFittingTypeId: item.indoorLightingSystemTypeId,
+          percentageOfFittingTypeUsed: totalOfBulbs === 0 ? 0 : +((+item.numberOfBulbs / totalOfBulbs) * 100).toFixed(2),
+          numberOfBulbs: +item.numberOfBulbs,
+          wattRatingOfBulb: +item.wattRatingOfBulb,
+          lumensOfBulb: +item.lumensOfBulb,
+          title: item.title,
+          numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
+          numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
+          propId: updateBuildingDto.generalBuildingInformation.propId,
+        },
+      });
+    }
+
+    // Process external envelope subsystem
     if (
-      typeof updateBuildingDto?.envelopFacade?.externalRoofInsulationTypeId !== 'number' ||
-      typeof updateBuildingDto?.envelopFacade?.externalWindowInsulationTypeId !== 'number'
+      typeof updateBuildingDto.envelopFacade?.externalRoofInsulationTypeId !== 'number' ||
+      typeof updateBuildingDto.envelopFacade?.externalWindowInsulationTypeId !== 'number'
     ) {
       statusId = 3;
     } else {
       const updateObject = {
-        groundInsulationTypeId: 3, // using 3 for default value
-        externalWindowToWallRatio:
-          updateBuildingDto.envelopFacade?.externalWindowToWallRatio === undefined ? 1 : updateBuildingDto.envelopFacade?.externalWindowToWallRatio,
+        groundInsulationTypeId: 3, // default value
+        externalWindowToWallRatio: updateBuildingDto.envelopFacade?.externalWindowToWallRatio ?? 1,
         externalWindowInsulationTypeId: updateBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
         roofInsulationTypeId: updateBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
-        externalGroundInsulationTypeId:
-          updateBuildingDto.envelopFacade?.externalGroundFloorInsulationTypeId === undefined
-            ? 3
-            : updateBuildingDto.envelopFacade?.externalGroundFloorInsulationTypeId,
+        externalGroundInsulationTypeId: updateBuildingDto.envelopFacade?.externalGroundFloorInsulationTypeId ?? 3,
       };
 
       const createObject = {
         propId: updateBuildingDto.generalBuildingInformation.propId,
-        groundInsulationTypeId: 2, // using 3 for default value
-        externalWindowToWallRatio:
-          updateBuildingDto.envelopFacade?.externalWindowToWallRatio === undefined ? 1 : updateBuildingDto.envelopFacade?.externalWindowToWallRatio,
+        groundInsulationTypeId: 2, // default value
+        externalWindowToWallRatio: updateBuildingDto.envelopFacade?.externalWindowToWallRatio ?? 1,
         externalWindowInsulationTypeId: updateBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
         roofInsulationTypeId: updateBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
-        externalGroundInsulationTypeId:
-          updateBuildingDto.envelopFacade?.externalGroundFloorInsulationTypeId === undefined
-            ? 3
-            : updateBuildingDto.envelopFacade?.externalGroundFloorInsulationTypeId,
+        externalGroundInsulationTypeId: updateBuildingDto.envelopFacade?.externalGroundFloorInsulationTypeId ?? 3,
       };
 
-      if (updateBuildingDto.envelopFacade.id) {
-        await this.prismaService.externalEnvelopeSubSystem.upsert({
-          where: {
-            id: updateBuildingDto.envelopFacade.id,
-          },
-          update: updateObject,
-          create: createObject,
-        });
-      } else {
-        await this.prismaService.externalEnvelopeSubSystem.create({
-          data: createObject,
-        });
-      }
+      await this.prismaService.externalEnvelopeSubSystem.upsert({
+        where: { id: updateBuildingDto.envelopFacade.id ?? 0 },
+        update: updateObject,
+        create: createObject,
+      });
     }
 
-    const solarPanelSystemList = updateBuildingDto?.solarPanelSystemList.filter(
-      (item) =>
-        typeof item.installedCapacity === 'number' &&
-        typeof item.trackingTypeId === 'number' &&
-        typeof item.pvTechChoiceId === 'number' &&
-        typeof item.mountingTypeId === 'number'
-    );
-
-    if (solarPanelSystemList.length === 0) {
-      statusId = 3;
-    }
+    // Process solar panel system list
+    const solarPanelSystemList =
+      updateBuildingDto.solarPanelSystemList?.filter(
+        (item) =>
+          typeof item.installedCapacity === 'number' &&
+          typeof item.trackingTypeId === 'number' &&
+          typeof item.pvTechChoiceId === 'number' &&
+          typeof item.mountingTypeId === 'number'
+      ) ?? [];
+    if (solarPanelSystemList.length === 0) statusId = 3;
 
     for (const item of solarPanelSystemList) {
       const solarPanelSystem = {
         systemLoss: item.systemLoss,
         installedCapacity: Number(item.installedCapacity),
         pvTechChoiceId: item.pvTechChoiceId,
-        inclineAngle: item.trackingTypeId === 1 || item.trackingTypeId === 2 ? item.inclineAngel : null,
+        inclineAngle: [1, 2].includes(item.trackingTypeId) ? item.inclineAngel : null,
         trackingTypeId: item.trackingTypeId,
         mountingTypeId: item.mountingTypeId,
-        orientationAngle: item.trackingTypeId === 1 || item.trackingTypeId === 3 ? Number(item.orientationAngle) : null,
+        orientationAngle: [1, 3].includes(item.trackingTypeId) ? Number(item.orientationAngle) : null,
       };
 
-      if (item.isNewItem) {
-        await this.prismaService.solarPanelSystem.create({
-          data: {
-            ...solarPanelSystem,
-            propId: updateBuildingDto.generalBuildingInformation.propId,
-          },
-        });
-      } else {
-        await this.prismaService.solarPanelSystem.upsert({
-          where: {
-            id: item.id,
-          },
-          update: solarPanelSystem,
-          create: {
-            ...solarPanelSystem,
-            propId: updateBuildingDto.generalBuildingInformation.propId,
-          },
-        });
-      }
+      await this.prismaService.solarPanelSystem.upsert({
+        where: { id: item.id ?? 0 },
+        update: solarPanelSystem,
+        create: {
+          ...solarPanelSystem,
+          propId: updateBuildingDto.generalBuildingInformation.propId,
+        },
+      });
     }
 
+    // Process cooling system
     if (updateBuildingDto.coolingSystem?.hasCoolingSystem === true) {
       if (updateBuildingDto.coolingSystem?.id !== undefined) {
         await this.prismaService.coolingSystem.update({
@@ -1957,6 +1879,7 @@ export class BuildingsService {
       }
     }
 
+    // Process heating system
     if (updateBuildingDto.heatingSystem.hasHeatingSystem === true) {
       if (updateBuildingDto.heatingSystem?.id !== undefined) {
         await this.prismaService.heatingSystem.update({
@@ -2002,81 +1925,49 @@ export class BuildingsService {
       }
     }
 
+    // Update building information
     return this.prismaService.building.update({
       data: {
         name: updateBuildingDto.generalBuildingInformation.buildingName,
-
         storeysBelowGround: Number(updateBuildingDto.generalBuildingInformation.storeysBelowGround),
-
         storeysAboveGround: Number(updateBuildingDto.generalBuildingInformation.storeysAboveGround),
-
         numberOfFloorAboveGroundLvl: 0,
-
         numberOfFloorBelowGroundLvl: 0,
-
         buildingMajorOrientationId: 1,
-
         averageInternalFloorToCeilingHeight: Number(updateBuildingDto.generalBuildingInformation.avgInternalFloorToCeilingHeight),
-
         averageInternalFloorToCeilingHeightUnit: updateBuildingDto.generalBuildingInformation.avgInternalFloorToCeilingHeightUnit,
-
         Property: {
           update: {
+            where: { id: updateBuildingDto.generalBuildingInformation.propId },
             data: {
-              //editedBy: user.uid
-              statusId: statusId,
-              streetAddress:
-                updateBuildingDto.generalBuildingInformation.streetNumber + ' ' + updateBuildingDto.generalBuildingInformation.streetNumber,
+              statusId,
+              streetAddress: `${updateBuildingDto.generalBuildingInformation.streetNumber} ${updateBuildingDto.generalBuildingInformation.streetName}`,
               streetName: updateBuildingDto.generalBuildingInformation.streetName,
               streetNumber: updateBuildingDto.generalBuildingInformation.streetNumber,
-
               postCode: updateBuildingDto.generalBuildingInformation.postalCode,
-
               state: updateBuildingDto.generalBuildingInformation.state,
-
               city: updateBuildingDto.generalBuildingInformation.city,
-
               countryCode: updateBuildingDto.generalBuildingInformation.countryCode,
-
               grossFloorArea: 0,
-
               grossInteriorArea: Number(updateBuildingDto.generalBuildingInformation.grossInteriorArea),
-
               grossInteriorAreaUnit: updateBuildingDto.generalBuildingInformation.grossInteriorAreaUnit,
-
               netUsableArea: Number(updateBuildingDto.generalBuildingInformation.netUsableArea),
-
               netUsableAreaUnit: updateBuildingDto.generalBuildingInformation.netUsableAreaUnit,
-
               latitude: updateBuildingDto.generalBuildingInformation.location?.lat,
-
               longitude: updateBuildingDto.generalBuildingInformation.location?.lng,
-
               majorOrientationId: updateBuildingDto.generalBuildingInformation.buildingOrientedId,
-
               completionYear: Number(updateBuildingDto.generalBuildingInformation.constructionPeriodValue),
-
               sustainabilityRatingSchemeId: Number(updateBuildingDto.generalBuildingInformation.sustainabilityRatingSchemeId),
-
               sustainabilityRatingId: Number(updateBuildingDto.generalBuildingInformation.sustainabilityRatingId),
-
               useTypeId: Number(updateBuildingDto.generalBuildingInformation.useTypeId),
-
               photo: updateBuildingDto.generalBuildingInformation.buildingPhoto,
-
               hasMajorRefurbishmentOrExtensionsDone: updateBuildingDto.generalBuildingInformation.hasMajorRefurbishmentOrExtensionsDone,
-
               latestYearForRefurbishmentOrExtension: updateBuildingDto.generalBuildingInformation.latestYearForRefurbishmentOrExtension,
-            },
-            where: {
-              id: updateBuildingDto.generalBuildingInformation.propId,
             },
           },
         },
       },
-      where: {
-        id: id,
-      },
+      where: { id },
     });
   }
 
@@ -2088,288 +1979,6 @@ export class BuildingsService {
       where: {
         id: propertyId,
       },
-    });
-  }
-
-  async createPartial(createBuildingDto: BuildingDto, user: any) {
-    let statusId = 2;
-
-    if (createBuildingDto.generalBuildingInformation.sustainabilityRatingId === null) {
-      //Empty value
-      createBuildingDto.generalBuildingInformation.sustainabilityRatingId = 86;
-    }
-
-    const averageOperatingHours: AverageOperatingHours = <AverageOperatingHours>{};
-
-    for (const item of createBuildingDto?.buildingActivity) {
-      if (item.isEnable) {
-        averageOperatingHours[item.codeName + 'Start'] = format(new Date(item.startTime), 'HH:mm');
-        averageOperatingHours[item.codeName + 'End'] = format(new Date(item.endTime), 'HH:mm');
-      } else {
-        averageOperatingHours[item.codeName + 'Start'] = null;
-        averageOperatingHours[item.codeName + 'End'] = null;
-      }
-    }
-
-    const spaceUsageGFAList = createBuildingDto?.spaceUsageGFAList
-      .filter((item) => typeof item.typeId === 'number' && typeof item.percentage === 'number')
-      .map((item: ISpaceUsageGFA) => {
-        return <SpaceUsage>{
-          usageTypeId: item.typeId,
-          usagePercentage: item.percentage,
-          climateControlId: item.climateControlId,
-          title: item.title,
-          fanTypeId: item.fanTypeId === '' ? null : +item.fanTypeId,
-          hasReheatRecovery: item.hasReheatRecovery,
-        };
-      });
-
-    if (spaceUsageGFAList.length === 0) {
-      statusId = 3;
-    }
-
-    const electricityConsumptionList = createBuildingDto?.electricityConsumptionList
-      .filter((item) => Number(item.value) !== 0 && Number(item.cost) !== 0)
-      .map((item: IElectricityConsumption) => {
-        return <ElectricityConsumption>{
-          month: item.month,
-          year: item.year,
-          monthlyValue: Number(item.value),
-          monthlyCost: Number(item.cost),
-        };
-      });
-
-    if (electricityConsumptionList.length === 0) {
-      statusId = 3;
-    }
-
-    const heatConsumptionList = createBuildingDto?.heatConsumptionList
-      .filter((item) => Number(item.value) !== 0 && Number(item.cost) !== 0)
-      .map((item: IHeatConsumption) => {
-        return <HeatConsumption>{
-          month: item.month,
-          year: item.year,
-          heattype: item.heattype,
-          monthlyValue: Number(item.value),
-          monthlyCost: Number(item.cost),
-        };
-      });
-
-    if (heatConsumptionList.length === 0) {
-      statusId = 3;
-    }
-
-    const totalOfBulbs = _.sumBy(createBuildingDto?.lightingSubSystemList, (item) => {
-      if (item && typeof +item.numberOfBulbs === 'number') {
-        return +item.numberOfBulbs;
-      }
-      return 0;
-    });
-
-    const lightingSubSystemList = createBuildingDto?.lightingSubSystemList
-      .filter((l) => typeof l.indoorLightingSystemTypeId === 'number' && l.title !== '' && l.title)
-      .map((item: ILightingSubSystem) => {
-        return <LightingSystem>{
-          lightingFittingTypeId: item.indoorLightingSystemTypeId,
-          percentageOfFittingTypeUsed: totalOfBulbs == 0 ? 0 : +((+item.numberOfBulbs / totalOfBulbs) * 100).toFixed(2),
-          title: item.title,
-          numberOfBulbs: +item.numberOfBulbs,
-          lumensOfBulb: +item.lumensOfBulb,
-          wattRatingOfBulb: +item.wattRatingOfBulb,
-          numberOfHoursUsedPerDay: +item.numberOfHoursUsedPerDay,
-          numberOfDaysUsedPerWeek: +item.numberOfDaysUsedPerWeek,
-        };
-      });
-    if (lightingSubSystemList.length === 0) {
-      statusId = 3;
-    }
-
-    let externalEnvelopeSubSystem = {
-      externalWindowToWallRatio: createBuildingDto.envelopFacade?.externalWindowToWallRatio,
-      externalWindowInsulationTypeId: createBuildingDto.envelopFacade?.externalWindowInsulationTypeId,
-      roofInsulationTypeId: createBuildingDto.envelopFacade?.externalRoofInsulationTypeId,
-      externalGroundInsulationTypeId: createBuildingDto.envelopFacade?.externalGroundFloorInsulationTypeId,
-    };
-    if (
-      typeof createBuildingDto?.envelopFacade?.externalRoofInsulationTypeId !== 'number' ||
-      typeof createBuildingDto?.envelopFacade?.externalWindowInsulationTypeId !== 'number'
-    ) {
-      externalEnvelopeSubSystem = null;
-      statusId = 3;
-    }
-
-    const solarPanelSystemList = createBuildingDto?.solarPanelSystemList
-      .filter(
-        (item) =>
-          typeof item.installedCapacity === 'number' &&
-          typeof item.trackingTypeId === 'number' &&
-          typeof item.pvTechChoiceId === 'number' &&
-          typeof item.mountingTypeId === 'number'
-      )
-      .map((item: ISolarPanelSystem) => {
-        return <SolarPanelSystem>{
-          systemLoss: item.systemLoss,
-          installedCapacity: Number(item.installedCapacity),
-          pvTechChoiceId: item.pvTechChoiceId,
-          inclineAngle: item.trackingTypeId === 1 || item.trackingTypeId === 2 ? item.inclineAngel : null,
-          trackingTypeId: item.trackingTypeId,
-          mountingTypeId: item.mountingTypeId,
-          orientationAngle: item.trackingTypeId === 1 || item.trackingTypeId === 3 ? Number(item.orientationAngle) : null,
-        };
-      });
-
-    if (solarPanelSystemList.length === 0) {
-      statusId = 3;
-    }
-
-    if (createBuildingDto.generalBuildingInformation.sustainabilityRatingId === null) {
-      //Empty value
-      createBuildingDto.generalBuildingInformation.sustainabilityRatingId = 86;
-    }
-
-    const addingBuildingObject = {
-      name: createBuildingDto.generalBuildingInformation.buildingName,
-
-      storeysBelowGround: Number(createBuildingDto.generalBuildingInformation.storeysBelowGround),
-
-      storeysAboveGround: Number(createBuildingDto.generalBuildingInformation.storeysAboveGround),
-
-      numberOfFloorAboveGroundLvl: 0,
-
-      numberOfFloorBelowGroundLvl: 0,
-
-      buildingMajorOrientationId: 1,
-
-      averageInternalFloorToCeilingHeight: Number(createBuildingDto.generalBuildingInformation.avgInternalFloorToCeilingHeight),
-
-      averageInternalFloorToCeilingHeightUnit: createBuildingDto.generalBuildingInformation.avgInternalFloorToCeilingHeightUnit,
-
-      Property: {
-        create: {
-          statusId: statusId,
-          editedBy: user.uid,
-          streetAddress: createBuildingDto.generalBuildingInformation.address,
-
-          streetName: createBuildingDto.generalBuildingInformation.streetName,
-
-          streetNumber: createBuildingDto.generalBuildingInformation.streetNumber,
-
-          postCode: createBuildingDto.generalBuildingInformation.postalCode,
-
-          state: createBuildingDto.generalBuildingInformation.state,
-
-          city: createBuildingDto.generalBuildingInformation.city,
-
-          countryCode: createBuildingDto.generalBuildingInformation.countryCode,
-
-          grossFloorArea: 0,
-
-          grossInteriorArea: Number(createBuildingDto.generalBuildingInformation.grossInteriorArea),
-
-          grossInteriorAreaUnit: createBuildingDto.generalBuildingInformation.grossInteriorAreaUnit,
-
-          netUsableArea: Number(createBuildingDto.generalBuildingInformation.netUsableArea),
-
-          netUsableAreaUnit: createBuildingDto.generalBuildingInformation.netUsableAreaUnit,
-
-          latitude: createBuildingDto.generalBuildingInformation.location?.lat,
-
-          longitude: createBuildingDto.generalBuildingInformation.location?.lng,
-
-          majorOrientationId: createBuildingDto.generalBuildingInformation.buildingOrientedId,
-
-          completionYear: Number(createBuildingDto.generalBuildingInformation.constructionPeriodValue),
-
-          sustainabilityRatingSchemeId: Number(createBuildingDto.generalBuildingInformation.sustainabilityRatingSchemeId),
-
-          sustainabilityRatingId: Number(createBuildingDto.generalBuildingInformation.sustainabilityRatingId),
-
-          useTypeId: Number(createBuildingDto.generalBuildingInformation.useTypeId),
-
-          photo: createBuildingDto.generalBuildingInformation.buildingPhoto,
-
-          hasMajorRefurbishmentOrExtensionsDone: createBuildingDto.generalBuildingInformation.hasMajorRefurbishmentOrExtensionsDone,
-
-          latestYearForRefurbishmentOrExtension: createBuildingDto.generalBuildingInformation.latestYearForRefurbishmentOrExtension,
-
-          AverageOperatingHours: {
-            create: {
-              ...averageOperatingHours,
-            },
-          },
-
-          SpaceUsage: {
-            create: spaceUsageGFAList,
-          },
-
-          ElectricityConsumption: {
-            create: electricityConsumptionList,
-          },
-
-          HeatConsumption: {
-            create: heatConsumptionList,
-          },
-
-          LightingSystem: {
-            create: lightingSubSystemList,
-          },
-
-          ExternalEnvelopeSubSystem: !externalEnvelopeSubSystem
-            ? {}
-            : {
-                create: externalEnvelopeSubSystem,
-              },
-          SolarPanelSystem: {
-            create: solarPanelSystemList,
-          },
-
-          PropertyUser: {
-            create: {
-              userAuthUID: user.uid,
-            },
-          },
-        },
-      },
-    };
-
-    if (createBuildingDto.coolingSystem.hasCoolingSystem) {
-      addingBuildingObject.Property.create = <any>{
-        ...addingBuildingObject.Property.create,
-        CoolingSystem: {
-          create: {
-            coolingSystemTypeId: createBuildingDto.coolingSystem.coolingSystemTypeId,
-            Chiller: {
-              create: {
-                compressorTypeId: createBuildingDto.coolingSystem.compressorTypeId,
-                refrigerantTypeId: createBuildingDto.coolingSystem.refrigerantTypeId,
-                chillerEnergySourceTypeId: createBuildingDto.coolingSystem.chillerEnergySourceTypeId,
-              },
-            },
-          },
-        },
-      };
-    }
-
-    if (createBuildingDto.heatingSystem.hasHeatingSystem) {
-      addingBuildingObject.Property.create = <any>{
-        ...addingBuildingObject.Property.create,
-        HeatingSystem: {
-          create: {
-            heatingSystemTypeId: createBuildingDto.heatingSystem.heatingSystemTypeId,
-            Heater: {
-              create: {
-                heaterTypeId: createBuildingDto.heatingSystem.heaterTypeId,
-                heaterEnergySourceId: createBuildingDto.heatingSystem.heaterEnergySourceTypeId,
-              },
-            },
-          },
-        },
-      };
-    }
-
-    console.log('Create one partial building object', addingBuildingObject.name);
-    return this.prismaService.building.create({
-      data: addingBuildingObject,
     });
   }
 }
