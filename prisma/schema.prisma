@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL_BEE_INPUT")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL_BEE_INPUT")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model AuthType {
@@ -16,49 +17,28 @@ model AuthType {
 }
 
 model AverageOperatingHours {
-  id                 Int       @id(map: "averageoperatinghours_pk") @default(autoincrement())
-  propId             Int?
+  id                 Int     @id(map: "averageoperatinghours_pk") @default(autoincrement())
   weekly             Float?
   monthly            Float?
   annually           Float?
-  mondayStart        String?   @db.VarChar
-  mondayEnd          String?   @db.VarChar
-  tuesdayStart       String?   @db.VarChar
-  tuesdayEnd         String?   @db.VarChar
-  wednesdayStart     String?   @db.VarChar
-  wednesdayEnd       String?   @db.VarChar
-  thursdayStart      String?   @db.VarChar
-  thursdayEnd        String?   @db.VarChar
-  fridayStart        String?   @db.VarChar
-  fridayEnd          String?   @db.VarChar
-  saturdayStart      String?   @db.VarChar
-  saturdayEnd        String?   @db.VarChar
-  sundayStart        String?   @db.VarChar
-  sundayEnd          String?   @db.VarChar
-  publicHolidayStart String?   @db.VarChar
-  publicHolidayEnd   String?   @db.VarChar
-  Property           Property? @relation(fields: [propId], references: [id], onDelete: Cascade, map: "averageoperatinghours_property_id_fk")
-}
-
-model Building {
-  id                                      Int        @id(map: "building_pk") @default(autoincrement())
-  name                                    String     @db.VarChar
-  numberOfFloorAboveGroundLvl             Int?
-  numberOfFloorBelowGroundLvl             Int?
-  buildingMajorOrientationId              Int
-  averageInternalFloorToCeilingHeight     Float?
-  storeysAboveGround                      Int?
-  storeysBelowGround                      Int?
-  averageInternalFloorToCeilingHeightUnit String?    @db.VarChar
-  Floor                                   Floor[]
-  Property                                Property[]
-  Space                                   Space[]
-}
-
-model BuildingMajorOrientation {
-  id       Int        @id(map: "buildingmajororientation_pk") @default(autoincrement())
-  name     String     @unique(map: "buildingmajororientation_name_uindex") @db.VarChar
-  Property Property[]
+  mondayStart        String? @db.VarChar
+  mondayEnd          String? @db.VarChar
+  tuesdayStart       String? @db.VarChar
+  tuesdayEnd         String? @db.VarChar
+  wednesdayStart     String? @db.VarChar
+  wednesdayEnd       String? @db.VarChar
+  thursdayStart      String? @db.VarChar
+  thursdayEnd        String? @db.VarChar
+  fridayStart        String? @db.VarChar
+  fridayEnd          String? @db.VarChar
+  saturdayStart      String? @db.VarChar
+  saturdayEnd        String? @db.VarChar
+  sundayStart        String? @db.VarChar
+  sundayEnd          String? @db.VarChar
+  publicHolidayStart String? @db.VarChar
+  publicHolidayEnd   String? @db.VarChar
+  spaceId            Int?
+  Space              Space?  @relation(fields: [spaceId], references: [id], onDelete: Cascade, map: "averageoperatinghours_space__fk")
 }
 
 model CO2EmissionRate {
@@ -273,16 +253,6 @@ model FanType {
   name        String       @unique(map: "fantype_name_uindex") @db.VarChar
   description String?
   SpaceUsage  SpaceUsage[]
-}
-
-model Floor {
-  id         Int       @id(map: "floor_pk") @default(autoincrement())
-  buildingId Int
-  name       String    @db.VarChar
-  number     String?   @db.VarChar
-  createdAt  DateTime? @db.Date
-  updatedAt  DateTime? @db.Date
-  Building   Building  @relation(fields: [buildingId], references: [id], onDelete: Cascade, map: "floor_building_id_fk")
 }
 
 model GroundInsulationType {
@@ -519,10 +489,9 @@ model Property {
   countryCode                           String?                                @db.VarChar
   grossFloorArea                        Float
   completionYear                        Int?
-  majorOrientationId                    Int?
+  buildingOrientation                   String?                                @db.VarChar
   createdAt                             DateTime?                              @default(now()) @db.Timestamp(6)
   updatedAt                             DateTime?                              @db.Timestamp(6)
-  buildingId                            Int?
   sustainabilityRatingSchemeId          Int?
   sustainabilityRatingId                Int?
   latitude                              Decimal?                               @db.Decimal
@@ -539,7 +508,11 @@ model Property {
   streetNumber                          String?                                @db.VarChar
   streetName                            String?                                @db.VarChar
   editedBy                              String?                                @db.VarChar
-  AverageOperatingHours                 AverageOperatingHours[]
+  name                                  String?                                @db.VarChar
+  averageInternalFloorToCeilingHeight   Float?
+  storeysAboveGround                    Int?
+  storeysBelowGround                    Int?
+  constructionPeriod                    String?                                @db.VarChar
   CoolingHistorizedPoint                CoolingHistorizedPoint[]
   CoolingSystem                         CoolingSystem[]
   ElectricityConsumption                ElectricityConsumption[]
@@ -552,14 +525,11 @@ model Property {
   LightingSystem                        LightingSystem[]
   MechanicalVentilationHistorizedPoint  MechanicalVentilationHistorizedPoint[]
   OverallHistorizedPoint                OverallHistorizedPoint[]
-  Building                              Building?                              @relation(fields: [buildingId], references: [id], onDelete: Cascade, map: "property_building_id_fk")
-  BuildingMajorOrientation              BuildingMajorOrientation?              @relation(fields: [majorOrientationId], references: [id], onDelete: Cascade, map: "property_buildingmajororientation _id_fk")
   Status                                Status?                                @relation(fields: [statusId], references: [id], onDelete: Cascade, map: "property_status_id_fk")
   User                                  User?                                  @relation(fields: [editedBy], references: [externalUID], onDelete: NoAction, onUpdate: NoAction, map: "property_user_externaluid_fk")
-  UseType                               UseType?                               @relation(fields: [useTypeId], references: [id], onDelete: Cascade, map: "property_usetype_id_fk")
   PropertyUser                          PropertyUser[]
-  Property_UseType                      Property_UseType[]
   SolarPanelSystem                      SolarPanelSystem[]
+  Space                                 Space[]
   SpaceUsage                            SpaceUsage[]
 }
 
@@ -568,14 +538,6 @@ model PropertyUser {
   userAuthUID String   @db.VarChar
   propertyId  Int
   Property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, map: "propertyuser_property_id_fk")
-}
-
-model Property_UseType {
-  id         Int      @id(map: "property_propertytype_pk") @default(autoincrement())
-  useTypeId  Int
-  propertyId Int
-  Property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, map: "property_propertytype_property_id_fk")
-  UseType    UseType  @relation(fields: [useTypeId], references: [id], onDelete: Cascade, map: "property_propertytype_propertytype_id_fk")
 }
 
 model R_CoolingLoadRuleOfThumb {
@@ -759,14 +721,6 @@ model TrackingType {
   id               Int                @id(map: "trackingtype_pk") @default(autoincrement())
   name             String             @db.VarChar
   SolarPanelSystem SolarPanelSystem[]
-}
-
-model UseType {
-  id               Int                @id(map: "buildingtype_pk") @default(autoincrement())
-  name             String             @unique(map: "buildingtype_name_uindex") @db.VarChar
-  description      String?
-  Property         Property[]
-  Property_UseType Property_UseType[]
 }
 
 model User {
@@ -1040,12 +994,13 @@ model PCAF_EuropeanCommercialBuildingEmissionFactor {
 }
 
 model Space {
-  id               Int            @id(map: "zone_pk")
-  name             String?        @db.VarChar
-  buildingId       Int?
-  spaceUsageTypeId Int
-  area             Float?
-  floor            Int?
-  SpaceUsageType   SpaceUsageType @relation(fields: [spaceUsageTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "space_spaceusagetype_id_fk")
-  Building         Building?      @relation(fields: [buildingId], references: [id], onDelete: Cascade, map: "zone_building_id_fk")
+  id                    Int                     @id(map: "space_pk") @default(autoincrement())
+  name                  String?                 @db.VarChar
+  propId                Int?
+  spaceUsageTypeId      Int
+  area                  Float?
+  floor                 Int?
+  AverageOperatingHours AverageOperatingHours[]
+  Property              Property?               @relation(fields: [propId], references: [id], onDelete: Cascade, map: "space_property__fk")
+  SpaceUsageType        SpaceUsageType          @relation(fields: [spaceUsageTypeId], references: [id], onDelete: Cascade, map: "space_spaceusagetype_id_fk")
 }

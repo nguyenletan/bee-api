@@ -3,23 +3,16 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-firebase-jwt';
 import * as firebaseConfig from './firebase.config.json';
 import * as firebase from 'firebase-admin';
-
-const firebase_params = {
-  type: firebaseConfig.type,
+import { ServiceAccount } from 'firebase-admin';
+const firebase_params: ServiceAccount = {
   projectId: firebaseConfig.project_id,
-  privateKeyId: firebaseConfig.private_key_id,
-  privateKey: firebaseConfig.private_key,
+  privateKey: firebaseConfig.private_key.replace(/\\n/g, '\n'),
   clientEmail: firebaseConfig.client_email,
-  clientId: firebaseConfig.client_id,
-  authUri: firebaseConfig.auth_uri,
-  tokenUri: firebaseConfig.token_uri,
-  authProviderX509CertUrl: firebaseConfig.auth_provider_x509_cert_url,
-  clientC509CertUrl: firebaseConfig.client_x509_cert_url,
 };
 
 @Injectable()
 export class FirebaseAuthStrategy extends PassportStrategy(Strategy, 'firebase-auth') {
-  private defaultApp: any;
+  private defaultApp: firebase.app.App;
 
   constructor() {
     super({
@@ -35,6 +28,7 @@ export class FirebaseAuthStrategy extends PassportStrategy(Strategy, 'firebase-a
       .auth()
       .verifyIdToken(token, true)
       .catch((err) => {
+        console.error(err);
         throw new UnauthorizedException(err.message);
       });
     if (!firebaseUser) {

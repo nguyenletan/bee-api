@@ -61,7 +61,7 @@ export class ImprovementService {
   ) {
     const prop = await this.prismaService.property.findFirst({
       where: {
-        buildingId: {
+        id: {
           equals: buildingId,
         },
       },
@@ -94,7 +94,7 @@ export class ImprovementService {
   async getBaselineAnnualLightingSystemEnergyConsumption(buildingId: number, period: number, startDate: Date) {
     const prop = await this.prismaService.property.findFirst({
       where: {
-        buildingId: {
+        id: {
           equals: buildingId,
         },
       },
@@ -124,11 +124,11 @@ export class ImprovementService {
     });
 
     const operationHours = await this.prismaService.averageOperatingHours.findFirst({
-      where: {
-        propId: {
-          equals: prop.id,
-        },
-      },
+      // where: {
+      //   propId: {
+      //     equals: prop.id,
+      //   },
+      // },
       orderBy: {
         id: 'asc',
       },
@@ -186,7 +186,7 @@ export class ImprovementService {
   async getAnnualCarbonEmissionsAvoided(buildingId: number, percentReplacement: number, period: number, startDate: Date) {
     const prop = await this.prismaService.property.findFirst({
       where: {
-        buildingId: {
+        id: {
           equals: buildingId,
         },
       },
@@ -211,7 +211,7 @@ export class ImprovementService {
   async getCostOfImprovement(buildingId: number, percentReplacement: number) {
     const prop = await this.prismaService.property.findFirst({
       where: {
-        buildingId: {
+        id: {
           equals: buildingId,
         },
       },
