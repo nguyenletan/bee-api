@@ -42,7 +42,6 @@ export class PropertiesService {
   }
 
   create(createProperty: Property) {
-    console.log(createProperty);
     return 'This action adds a new property';
   }
 
@@ -110,6 +109,11 @@ export class PropertiesService {
   findOne(id: number) {
     return this.prismaService.property.findUnique({
       where: { id },
+      include: {
+        ElectricityConsumption: {
+          orderBy: [{ year: 'desc' }, { month: 'desc' }],
+        },
+      },
     });
   }
 

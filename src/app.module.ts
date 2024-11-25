@@ -13,6 +13,7 @@ import { LightingSystemImprovementModule } from './lighting-system-improvement/l
 import { PCAF_EuropeanCommercialBuildingEmissionFactorModule } from './pcaf_european-commercial-building-emission-factor/pcaf_european-commercial-building-emission-factor.module';
 import { SpacesModule } from './spaces/spaces.module';
 import { PropertiesModule } from './properties/properties.module';
+import { ElectricityConsumptionsModule } from './electricity-consumptions/electricity-consumptions.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PropertiesModule } from './properties/properties.module';
     PCAF_EuropeanCommercialBuildingEmissionFactorModule,
     SpacesModule,
     PropertiesModule,
+    ElectricityConsumptionsModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, PrismaService, FirebaseAuthStrategy],
