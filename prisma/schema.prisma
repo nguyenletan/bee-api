@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["tracing"]
+  previewFeatures = ["fullTextSearchPostgres", "tracing", "relationJoins"]
 }
 
 datasource db {
@@ -52,37 +52,6 @@ model CO2EmissionRate {
   ElectricitySupplierInformation   ElectricitySupplierInformation @relation(fields: [electricitySupplierInformationId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "co2emissionrate_electricitysupplierinformation_id_fk")
 }
 
-model Chiller {
-  id                        Int                  @id(map: "chiller_pk") @default(autoincrement())
-  chillerTypeId             Int?
-  compressorTypeId          Int?
-  capacity                  Float?
-  refrigerantTypeId         Int?
-  manufacturerId            Int?
-  modelId                   Int?
-  chillerEnergySourceTypeId Int?
-  coolingSystemId           Int
-  ChillerEnergySource       ChillerEnergySource? @relation(fields: [chillerEnergySourceTypeId], references: [id], onDelete: Cascade, map: "chiller_chillerenergysource_id_fk")
-  ChillerType               ChillerType?         @relation(fields: [chillerTypeId], references: [id], onDelete: Cascade, map: "chiller_chillertype_id_fk")
-  CompressorType            CompressorType?      @relation(fields: [compressorTypeId], references: [id], onDelete: Cascade, map: "chiller_compressortype_id_fk")
-  CoolingSystem             CoolingSystem        @relation(fields: [coolingSystemId], references: [id], onDelete: Cascade, map: "chiller_coolingsystem_id_fk")
-  RefrigerantType           RefrigerantType?     @relation(fields: [refrigerantTypeId], references: [id], onDelete: Cascade, map: "chiller_refrigeranttype_id_fk")
-}
-
-model ChillerEnergySource {
-  id          Int       @id(map: "coolingsystemenergysource_pk") @default(autoincrement())
-  name        String    @unique(map: "coolingsystemenergysource_name_uindex") @db.VarChar
-  description String?
-  Chiller     Chiller[]
-}
-
-model ChillerType {
-  id          Int       @id(map: "chillertype_pk") @default(autoincrement())
-  name        String    @db.VarChar
-  description String?
-  Chiller     Chiller[]
-}
-
 model ClimateControl {
   id          Int          @id(map: "climatecontrol_pk") @default(autoincrement())
   name        String       @db.VarChar
@@ -91,10 +60,9 @@ model ClimateControl {
 }
 
 model CompressorType {
-  id          Int       @id(map: "compressortype_pk") @default(autoincrement())
-  name        String    @db.VarChar
+  id          Int     @id(map: "compressortype_pk") @default(autoincrement())
+  name        String  @db.VarChar
   description String?
-  Chiller     Chiller[]
 }
 
 model CoolingHistorizedPoint {
@@ -109,23 +77,20 @@ model CoolingHistorizedPoint {
 }
 
 model CoolingSystem {
-  id                               Int                @id(map: "coolingsystem_pk") @default(autoincrement())
-  estimatedCoolingSystemEfficiency Float?
-  propId                           Int?
-  estimatedCoolingLoad             Float?
-  percentageCooledFloorArea        Float?
-  coolingSystemTypeId              Int?
-  Chiller                          Chiller[]
-  CoolingSystemType                CoolingSystemType? @relation(fields: [coolingSystemTypeId], references: [id], onDelete: Cascade, map: "coolingsystem_coolingsystemtype_id_fk")
-  Property                         Property?          @relation(fields: [propId], references: [id], onDelete: Cascade, map: "coolingsystem_property_id_fk")
-  Equipments                       Equipments[]
+  id                      Int      @id(map: "chiller_pk") @default(autoincrement())
+  compressorType          String?  @db.VarChar
+  refrigerantType         String?  @db.VarChar
+  chillerEnergySourceType String?  @db.VarChar
+  coolingSystemType       String?  @db.VarChar
+  propId                  Int      @unique(map: "CoolingSystem_propId_unique")
+  Property                Property @relation(fields: [propId], references: [id], onDelete: Cascade, map: "coolingsystem_property_id_fk")
 }
 
 model CoolingSystemType {
-  id            Int             @id(map: "coolingsystemtype_pk") @default(autoincrement())
-  name          String          @unique(map: "coolingsystemtype_name_uindex") @db.VarChar
-  description   String?
-  CoolingSystem CoolingSystem[]
+  id                Int                 @id(map: "coolingsystemtype_pk") @default(autoincrement())
+  name              String              @unique(map: "coolingsystemtype_name_uindex") @db.VarChar
+  description       String?
+  CoolingSystem_old CoolingSystem_old[]
 }
 
 model ElectricityConsumption {
@@ -217,8 +182,8 @@ model Equipments {
   spaceUsageId                  Int?
   mechanicalVentilationSystemId Int?
   EquipmentDetail               EquipmentDetail[]
-  CoolingSystem                 CoolingSystem?               @relation(fields: [coolingSystemId], references: [id], onUpdate: SetNull, map: "equipments_coolingsystem_id_fk")
-  HeatingSystem                 HeatingSystem?               @relation(fields: [heatingSystemId], references: [id], onUpdate: SetNull, map: "equipments_heatingsystem_id_fk")
+  CoolingSystem                 CoolingSystem_old?           @relation(fields: [coolingSystemId], references: [id], onUpdate: SetNull, map: "equipments_coolingsystem_id_fk")
+  HeatingSystem                 HeatingSystem_OLD?           @relation(fields: [heatingSystemId], references: [id], onUpdate: SetNull, map: "equipments_heatingsystem_id_fk")
   LightingSystem                LightingSystem?              @relation(fields: [lightingSystemId], references: [id], onUpdate: SetNull, map: "equipments_lightingsystem_id_fk")
   MechanicalVentilationSystem   MechanicalVentilationSystem? @relation(fields: [mechanicalVentilationSystemId], references: [id], onDelete: Cascade, map: "equipments_mechanicalventilation_id_fk")
   Property                      Property?                    @relation(fields: [propertyId], references: [id], onDelete: Cascade, map: "equipments_property_id_fk")
@@ -263,21 +228,6 @@ model GroundInsulationType {
   ExternalEnvelopeSubSystem ExternalEnvelopeSubSystem[]
 }
 
-model HeatConsumption {
-  id                      Int                      @default(autoincrement())
-  heatSupplierId          Int?
-  monthlyCost             Float
-  monthlyValue            Float
-  month                   Int
-  year                    Int
-  propId                  Int?
-  heattype                Int
-  HeatSupplierInformation HeatSupplierInformation? @relation(fields: [heatSupplierId], references: [id], onDelete: Cascade, map: "heatconsumption_heatsupplierinformation_id_fk")
-  Property                Property?                @relation(fields: [propId], references: [id], onDelete: Cascade, map: "heatconsumption_property_id_fk")
-
-  @@id([id, heattype])
-}
-
 model HeatSupplierAPI {
   id                        Int                     @id(map: "heatsupplierapi_pk") @default(autoincrement())
   supplierId                Int?
@@ -302,36 +252,20 @@ model HeatSupplierInformation {
   id                Int                 @id(map: "heatsupplierinformation_pk") @default(autoincrement())
   companyName       String?             @db.VarChar
   apiKey            String?             @db.VarChar
-  HeatConsumption   HeatConsumption[]
   HeatSupplierAPI   HeatSupplierAPI[]
   HeatSupplierAreas HeatSupplierAreas[]
 }
 
-model Heater {
-  id                   Int                 @id(map: "heater_pk") @default(autoincrement())
-  heaterTypeId         Int?
-  capacity             Float?
-  manufacturerId       Int?
-  modelId              Int?
-  heaterEnergySourceId Int?
-  heatingSystemId      Int?
-  HeaterEnergySource   HeaterEnergySource? @relation(fields: [heaterEnergySourceId], references: [id], onDelete: Cascade, map: "heater_heaterenergysource_id_fk")
-  HeaterType           HeaterType?         @relation(fields: [heaterTypeId], references: [id], onDelete: Cascade, map: "heater_heatertype_id_fk")
-  HeatingSystem        HeatingSystem?      @relation(fields: [heatingSystemId], references: [id], onDelete: Cascade, map: "heater_heatingsystem_id_fk")
-}
-
 model HeaterEnergySource {
-  id          Int      @id(map: "heatingsystemenergysource_pk") @default(autoincrement())
-  name        String   @unique(map: "heatingsystemenergysource_name_uindex") @db.VarChar
+  id          Int     @id(map: "heatingsystemenergysource_pk") @default(autoincrement())
+  name        String  @unique(map: "heatingsystemenergysource_name_uindex") @db.VarChar
   description String?
-  Heater      Heater[]
 }
 
 model HeaterType {
-  id          Int      @id(map: "heatertype_pk") @default(autoincrement())
-  name        String   @db.VarChar
+  id          Int     @id(map: "heatertype_pk") @default(autoincrement())
+  name        String  @db.VarChar
   description String?
-  Heater      Heater[]
 }
 
 model HeatingHistorizedPoint {
@@ -346,23 +280,19 @@ model HeatingHistorizedPoint {
 }
 
 model HeatingSystem {
-  id                               Int                @id(map: "heatingventilationairconditioning_pk") @default(autoincrement())
-  propId                           Int?
-  heatingSystemTypeId              Int?
-  estimatedHeatingSystemEfficiency Float?
-  estimatedHeatingLoad             Float?
-  percentageHeatedFloorArea        Float?
-  Equipments                       Equipments[]
-  Heater                           Heater[]
-  HeatingSystemType                HeatingSystemType? @relation(fields: [heatingSystemTypeId], references: [id], onDelete: Cascade, map: "heatingsystem_heatingsystemtype_id_fk")
-  Property                         Property?          @relation(fields: [propId], references: [id], onDelete: Cascade, map: "heatingsystem_property_id_fk")
+  id                     Int       @id(map: "heater_pk") @default(autoincrement())
+  heaterType             String?   @db.VarChar
+  heaterEnergySourceType String?   @db.VarChar
+  heatingSystemType      String?   @db.VarChar
+  propId                 Int?      @unique(map: "HeatingSystem_propId_unique")
+  Property               Property? @relation(fields: [propId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "heatingsystem_property_id_fk")
 }
 
 model HeatingSystemType {
-  id            Int             @id(map: "heatingsystemtype_pk") @default(autoincrement())
-  name          String          @unique(map: "heatingsystemtype_name_uindex") @db.VarChar
-  description   String?
-  HeatingSystem HeatingSystem[]
+  id                Int                 @id(map: "heatingsystemtype_pk") @default(autoincrement())
+  name              String              @unique(map: "heatingsystemtype_name_uindex") @db.VarChar
+  description       String?
+  HeatingSystem_OLD HeatingSystem_OLD[]
 }
 
 model LightingFittingType {
@@ -514,13 +444,15 @@ model Property {
   storeysBelowGround                    Int?
   constructionPeriod                    String?                                @db.VarChar
   CoolingHistorizedPoint                CoolingHistorizedPoint[]
-  CoolingSystem                         CoolingSystem[]
+  CoolingSystem                         CoolingSystem?
+  CoolingSystem_old                     CoolingSystem_old[]
   ElectricityConsumption                ElectricityConsumption[]
   Equipments                            Equipments[]
   ExternalEnvelopeSubSystem             ExternalEnvelopeSubSystem[]
-  HeatConsumption                       HeatConsumption[]
+  HeatingConsumption                    HeatingConsumption[]
   HeatingHistorizedPoint                HeatingHistorizedPoint[]
-  HeatingSystem                         HeatingSystem[]
+  HeatingSystem                         HeatingSystem?
+  HeatingSystem_OLD                     HeatingSystem_OLD[]
   LightingHistorizedPoint               LightingHistorizedPoint[]
   LightingSystem                        LightingSystem[]
   MechanicalVentilationHistorizedPoint  MechanicalVentilationHistorizedPoint[]
@@ -630,7 +562,6 @@ model RefrigerantType {
   id              Int               @id(map: "refrigeranttype_pk") @default(autoincrement())
   name            String            @db.VarChar
   description     String?
-  Chiller         Chiller[]
   EquipmentDetail EquipmentDetail[]
 }
 
@@ -1003,4 +934,40 @@ model Space {
   AverageOperatingHours AverageOperatingHours[]
   Property              Property?               @relation(fields: [propId], references: [id], onDelete: Cascade, map: "space_property__fk")
   SpaceUsageType        SpaceUsageType          @relation(fields: [spaceUsageTypeId], references: [id], onDelete: Cascade, map: "space_spaceusagetype_id_fk")
+}
+
+model HeatingConsumption {
+  id                Int       @id(map: "HeatConsumption_pkey") @default(autoincrement())
+  heatingsupplierid Int?
+  monthlyCost       Float
+  monthlyValue      Float
+  month             Int
+  year              Int
+  propId            Int?
+  heatType          String?   @db.VarChar
+  Property          Property? @relation(fields: [propId], references: [id], onDelete: Cascade, map: "heatconsumption_property_id_fk")
+}
+
+model CoolingSystem_old {
+  id                               Int                @id(map: "coolingsystem_pk") @default(autoincrement())
+  estimatedCoolingSystemEfficiency Float?
+  propId                           Int?
+  estimatedCoolingLoad             Float?
+  percentageCooledFloorArea        Float?
+  coolingSystemTypeId              Int?
+  CoolingSystemType                CoolingSystemType? @relation(fields: [coolingSystemTypeId], references: [id], onDelete: Cascade, map: "coolingsystem_coolingsystemtype_id_fk")
+  Property                         Property?          @relation(fields: [propId], references: [id], onDelete: Cascade, map: "coolingsystem_property_id_fk")
+  Equipments                       Equipments[]
+}
+
+model HeatingSystem_OLD {
+  id                               Int                @id(map: "heatingventilationairconditioning_pk") @default(autoincrement())
+  propId                           Int?
+  heatingSystemTypeId              Int?
+  estimatedHeatingSystemEfficiency Float?
+  estimatedHeatingLoad             Float?
+  percentageHeatedFloorArea        Float?
+  Equipments                       Equipments[]
+  HeatingSystemType                HeatingSystemType? @relation(fields: [heatingSystemTypeId], references: [id], onDelete: Cascade, map: "heatingsystem_heatingsystemtype_id_fk")
+  Property                         Property?          @relation(fields: [propId], references: [id], onDelete: Cascade, map: "heatingsystem_property_id_fk")
 }

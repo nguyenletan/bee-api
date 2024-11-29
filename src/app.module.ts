@@ -14,6 +14,9 @@ import { PCAF_EuropeanCommercialBuildingEmissionFactorModule } from './pcaf_euro
 import { SpacesModule } from './spaces/spaces.module';
 import { PropertiesModule } from './properties/properties.module';
 import { ElectricityConsumptionsModule } from './electricity-consumptions/electricity-consumptions.module';
+import { HeatingConsumptionsModule } from './heating-consumptions/heating-consumptions.module';
+import { CoolingSystemModule } from './cooling-system/cooling-system.module';
+import { HeatingSystemModule } from './heating-system/heating-system.module';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { ElectricityConsumptionsModule } from './electricity-consumptions/electr
     SpacesModule,
     PropertiesModule,
     ElectricityConsumptionsModule,
+    HeatingConsumptionsModule,
+    CoolingSystemModule,
+    HeatingSystemModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, PrismaService, FirebaseAuthStrategy],

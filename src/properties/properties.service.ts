@@ -53,8 +53,6 @@ export class PropertiesService {
   }
 
   update(id: number, updateProperty: Property, user: any) {
-    console.log('Update property', updateProperty);
-
     return this.prismaService.property.update({
       where: { id },
       data: this.mapPropertyData(updateProperty, user),
@@ -108,11 +106,17 @@ export class PropertiesService {
 
   findOne(id: number) {
     return this.prismaService.property.findUnique({
+      relationLoadStrategy: 'join',
       where: { id },
       include: {
         ElectricityConsumption: {
           orderBy: [{ year: 'desc' }, { month: 'desc' }],
         },
+        HeatingConsumption: {
+          orderBy: [{ year: 'desc' }, { month: 'desc' }],
+        },
+        HeatingSystem: true,
+        CoolingSystem: true,
       },
     });
   }
