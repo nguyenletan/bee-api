@@ -117,6 +117,8 @@ export class PropertiesService {
         },
         HeatingSystem: true,
         CoolingSystem: true,
+        LightingSystem: true,
+        EnvelopeFacadeSystem: true,
       },
     });
   }
