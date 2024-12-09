@@ -25,7 +25,7 @@ export class SolarPanelSystemService {
     const createDtos = saveSolarPanelSystemDtos.filter((dto) => !dto.id);
     const deleteDtos = saveSolarPanelSystemDtos.filter((dto) => dto.id && dto.isDeleted);
     const updateDtos = saveSolarPanelSystemDtos.filter((dto) => dto.id && !dto.isDeleted);
-    
+
     try {
       // Create new records in bulk
       if (createDtos.length > 0) {

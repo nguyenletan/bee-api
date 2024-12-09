@@ -115,7 +115,7 @@ export class PropertiesService {
         HeatingConsumption: {
           orderBy: [{ year: 'desc' }, { month: 'desc' }],
         },
-        HeatingSystem: true, 
+        HeatingSystem: true,
         CoolingSystem: true,
         LightingSystem: {
           orderBy: {
