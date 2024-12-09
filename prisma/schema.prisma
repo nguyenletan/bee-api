@@ -513,10 +513,9 @@ model MechanicalVentilationSystem {
 }
 
 model MountingType {
-  id               Int                @id(map: "mountingtype_pk") @default(autoincrement())
-  name             String             @db.VarChar
-  description      String?
-  SolarPanelSystem SolarPanelSystem[]
+  id          Int     @id(map: "mountingtype_pk") @default(autoincrement())
+  name        String  @db.VarChar
+  description String?
 }
 
 model OverallHistorizedPoint {
@@ -589,15 +588,13 @@ model PCAF_EuropeanCommercialBuildingEmissionFactor {
 }
 
 model PVSystemType {
-  id               Int                @id(map: "pvsystemtype_pk") @default(autoincrement())
-  name             String             @db.VarChar
-  SolarPanelSystem SolarPanelSystem[]
+  id   Int    @id(map: "pvsystemtype_pk") @default(autoincrement())
+  name String @db.VarChar
 }
 
 model PVTechChoice {
-  id               Int                @id(map: "pvtechchoice_pk") @default(autoincrement())
-  name             String             @db.VarChar
-  SolarPanelSystem SolarPanelSystem[]
+  id   Int    @id(map: "pvtechchoice_pk") @default(autoincrement())
+  name String @db.VarChar
 }
 
 model Points {
@@ -788,22 +785,18 @@ model RoofType {
 }
 
 model SolarPanelSystem {
-  id                    Int           @id(map: "solarpanelsystem_pk") @default(autoincrement())
-  installedCapacity     Float?
-  systemLoss            Float?
-  inclineAngle          Float?
-  trackingTypeId        Int?
-  pvTechChoiceId        Int?
-  pvSystemTypeId        Int?
-  renewableEnergySystem Int?
-  propId                Int
-  mountingTypeId        Int?
-  orientationAngle      Float?
-  MountingType          MountingType? @relation(fields: [mountingTypeId], references: [id], onDelete: Cascade, map: "solarpanelsystem_mountingtype_id_fk")
-  Property              Property      @relation(fields: [propId], references: [id], onDelete: Cascade, map: "solarpanelsystem_property_id_fk")
-  PVSystemType          PVSystemType? @relation(fields: [pvSystemTypeId], references: [id], onDelete: Cascade, map: "solarpanelsystem_pvsystemtype_id_fk")
-  PVTechChoice          PVTechChoice? @relation(fields: [pvTechChoiceId], references: [id], onDelete: Cascade, map: "solarpanelsystem_pvtechchoice_id_fk")
-  TrackingType          TrackingType? @relation(fields: [trackingTypeId], references: [id], onDelete: Cascade, map: "solarpanelsystem_trackingtype_id_fk")
+  id                      Int      @id(map: "solarpanelsystem_pk") @default(autoincrement())
+  installedCapacity       Float?
+  systemLoss              Float?
+  inclineAngle            Float?
+  trackingType            String?  @db.VarChar
+  pvPanelType             String?  @db.VarChar
+  propId                  Int
+  mountingType            String?  @db.VarChar
+  orientationAngle        Float?
+  unknownInclineAngle     Boolean?
+  unknownOrientationAngle Boolean?
+  Property                Property @relation(fields: [propId], references: [id], onDelete: Cascade, map: "solarpanelsystem_property_id_fk")
 }
 
 model Space {
@@ -868,9 +861,8 @@ model SustainabilityRatingScheme {
 }
 
 model TrackingType {
-  id               Int                @id(map: "trackingtype_pk") @default(autoincrement())
-  name             String             @db.VarChar
-  SolarPanelSystem SolarPanelSystem[]
+  id   Int    @id(map: "trackingtype_pk") @default(autoincrement())
+  name String @db.VarChar
 }
 
 model User {

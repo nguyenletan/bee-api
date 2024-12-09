@@ -115,10 +115,19 @@ export class PropertiesService {
         HeatingConsumption: {
           orderBy: [{ year: 'desc' }, { month: 'desc' }],
         },
-        HeatingSystem: true,
+        HeatingSystem: true, 
         CoolingSystem: true,
-        LightingSystem: true,
+        LightingSystem: {
+          orderBy: {
+            id: 'desc',
+          },
+        },
         EnvelopeFacadeSystem: true,
+        SolarPanelSystem: {
+          orderBy: {
+            id: 'asc',
+          },
+        },
       },
     });
   }

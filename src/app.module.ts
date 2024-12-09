@@ -16,6 +16,7 @@ import { HeatingConsumptionsModule } from './heating-consumptions/heating-consum
 import { CoolingSystemModule } from './cooling-system/cooling-system.module';
 import { HeatingSystemModule } from './heating-system/heating-system.module';
 import { EnvelopFacadeSystemModule } from './envelop-facade-system/envelop-facade-system.module';
+import { SolarPanelSystemModule } from './solar-panel-system/solar-panel-system.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { EnvelopFacadeSystemModule } from './envelop-facade-system/envelop-facad
     CoolingSystemModule,
     HeatingSystemModule,
     EnvelopFacadeSystemModule,
+    SolarPanelSystemModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, PrismaService, FirebaseAuthStrategy],
