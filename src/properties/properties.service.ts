@@ -41,10 +41,6 @@ export class PropertiesService {
     };
   }
 
-  create(createProperty: Property) {
-    return 'This action adds a new property';
-  }
-
   createPartial(createProperty: Property, user: any) {
     console.log('Create one partial property object', createProperty);
     return this.prismaService.property.create({

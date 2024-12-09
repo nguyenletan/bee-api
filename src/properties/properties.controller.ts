@@ -7,11 +7,6 @@ import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
 export class PropertiesController {
   constructor(private readonly propertiesService: PropertiesService) {}
 
-  @Post()
-  create(@Body() createProperty: Property) {
-    return this.propertiesService.create(createProperty);
-  }
-
   @Post('/create-partial')
   @UseGuards(FirebaseAuthGuard)
   createPartial(@Body() createProperty: Property, @Req() req: any) {
