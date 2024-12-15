@@ -16,31 +16,6 @@ model AuthType {
   User        User[]
 }
 
-model AverageOperatingHours {
-  id                 Int     @id(map: "averageoperatinghours_pk") @default(autoincrement())
-  weekly             Float?
-  monthly            Float?
-  annually           Float?
-  mondayStart        String? @db.VarChar
-  mondayEnd          String? @db.VarChar
-  tuesdayStart       String? @db.VarChar
-  tuesdayEnd         String? @db.VarChar
-  wednesdayStart     String? @db.VarChar
-  wednesdayEnd       String? @db.VarChar
-  thursdayStart      String? @db.VarChar
-  thursdayEnd        String? @db.VarChar
-  fridayStart        String? @db.VarChar
-  fridayEnd          String? @db.VarChar
-  saturdayStart      String? @db.VarChar
-  saturdayEnd        String? @db.VarChar
-  sundayStart        String? @db.VarChar
-  sundayEnd          String? @db.VarChar
-  publicHolidayStart String? @db.VarChar
-  publicHolidayEnd   String? @db.VarChar
-  spaceId            Int?
-  Space              Space?  @relation(fields: [spaceId], references: [id], onDelete: Cascade, map: "averageoperatinghours_space__fk")
-}
-
 model BCA_CivicCommunityCulturalInstitution {
   id                            Int     @id(map: "bca_civiccommunityculturalinstitution_pk") @default(autoincrement())
   buildingName                  String?
@@ -800,15 +775,16 @@ model SolarPanelSystem {
 }
 
 model Space {
-  id                    Int                     @id(map: "space_pk") @default(autoincrement())
-  name                  String?                 @db.VarChar
-  propId                Int?
-  spaceUsageTypeId      Int
-  area                  Float?
-  floor                 Int?
-  AverageOperatingHours AverageOperatingHours[]
-  Property              Property?               @relation(fields: [propId], references: [id], onDelete: Cascade, map: "space_property__fk")
-  SpaceUsageType        SpaceUsageType          @relation(fields: [spaceUsageTypeId], references: [id], onDelete: Cascade, map: "space_spaceusagetype_id_fk")
+  id             Int             @id(map: "space_pk") @default(autoincrement())
+  name           String?         @db.VarChar
+  propId         Int?
+  spaceUsageType String?         @db.VarChar
+  area           Float?
+  floor          Int?
+  fromFloor      Int?
+  toFloor        Int?
+  OperatingHours OperatingHours?
+  Property       Property?       @relation(fields: [propId], references: [id], onDelete: Cascade, map: "space_property__fk")
 }
 
 model SpaceUsage {
@@ -835,7 +811,6 @@ model SpaceUsageType {
   heatingLoad  Float?
   mvLoad       Float?
   lightingLoad Float?
-  Space        Space[]
   SpaceUsage   SpaceUsage[]
 }
 
@@ -931,4 +906,26 @@ model nc_evolutions {
   created     DateTime? @db.Timestamptz(6)
   created_at  DateTime? @db.Timestamptz(6)
   updated_at  DateTime? @db.Timestamptz(6)
+}
+
+model OperatingHours {
+  id                 Int     @id(map: "averageoperatinghours_pk") @default(autoincrement())
+  mondayStart        String? @db.VarChar
+  mondayEnd          String? @db.VarChar
+  tuesdayStart       String? @db.VarChar
+  tuesdayEnd         String? @db.VarChar
+  wednesdayStart     String? @db.VarChar
+  wednesdayEnd       String? @db.VarChar
+  thursdayStart      String? @db.VarChar
+  thursdayEnd        String? @db.VarChar
+  fridayStart        String? @db.VarChar
+  fridayEnd          String? @db.VarChar
+  saturdayStart      String? @db.VarChar
+  saturdayEnd        String? @db.VarChar
+  sundayStart        String? @db.VarChar
+  sundayEnd          String? @db.VarChar
+  publicHolidayStart String? @db.VarChar
+  publicHolidayEnd   String? @db.VarChar
+  spaceId            Int     @unique(map: "SolarPanelSystem_spaceId_unique")
+  Space              Space   @relation(fields: [spaceId], references: [id], onDelete: Cascade, map: "averageoperatinghours_space__fk")
 }

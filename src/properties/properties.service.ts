@@ -124,6 +124,14 @@ export class PropertiesService {
             id: 'asc',
           },
         },
+        Space: {
+          orderBy: {
+            id: 'asc',
+          },
+          include: {
+            OperatingHours: true,
+          },
+        },
       },
     });
   }

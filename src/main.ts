@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { json, urlencoded } from 'express';
-import { setupRedoc } from './redoc.middleware';
 
 async function bootstrap() {
   const allowList = [
@@ -47,7 +46,6 @@ async function bootstrap() {
   const config = new DocumentBuilder().setTitle('BEE API').setDescription('The BEE API description').setVersion('1.0').addTag('BEE').build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  setupRedoc(app);
   BigInt.prototype['toJSON'] = function () {
     const int = Number.parseInt(this.toString());
     return int ?? this.toString();

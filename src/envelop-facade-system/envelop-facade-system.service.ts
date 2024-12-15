@@ -22,16 +22,5 @@ export class EnvelopFacadeSystemService {
       update: envelopeFacadeSystem,
       create: envelopeFacadeSystem,
     });
-
-    // if (saveEnvelopFacadeSystemDto.id) {
-    //   return this.prismaService.envelopeFacadeSystem.update({
-    //     where: { id: saveEnvelopFacadeSystemDto.id },
-    //     data: envelopeFacadeSystem,
-    //   });
-    // } else {
-    //   return this.prismaService.envelopeFacadeSystem.create({
-    //     data: envelopeFacadeSystem,
-    //   });
-    // }
   }
 }

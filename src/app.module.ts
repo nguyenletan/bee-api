@@ -5,9 +5,6 @@ import { UsersController } from './users/users.controller';
 import { PrismaService } from './prisma.service';
 import { UsersModule } from './users/users.module';
 import { FirebaseAuthStrategy } from './firebase/firebase-auth.strategy';
-import { HistorizedPointsModule } from './historized-points/historized-points.module';
-import { LightingSystemModule } from './lighting-system/lighting-system.module';
-import { LightingSystemImprovementModule } from './lighting-system-improvement/lighting-system-improvement.module';
 import { PCAF_EuropeanCommercialBuildingEmissionFactorModule } from './pcaf_european-commercial-building-emission-factor/pcaf_european-commercial-building-emission-factor.module';
 import { SpacesModule } from './spaces/spaces.module';
 import { PropertiesModule } from './properties/properties.module';
@@ -17,13 +14,11 @@ import { CoolingSystemModule } from './cooling-system/cooling-system.module';
 import { HeatingSystemModule } from './heating-system/heating-system.module';
 import { EnvelopFacadeSystemModule } from './envelop-facade-system/envelop-facade-system.module';
 import { SolarPanelSystemModule } from './solar-panel-system/solar-panel-system.module';
+import { OperationHoursModule } from './operation-hours/operation-hours.module';
 
 @Module({
   imports: [
     UsersModule,
-    HistorizedPointsModule,
-    LightingSystemModule,
-    LightingSystemImprovementModule,
     PCAF_EuropeanCommercialBuildingEmissionFactorModule,
     SpacesModule,
     PropertiesModule,
@@ -33,6 +28,7 @@ import { SolarPanelSystemModule } from './solar-panel-system/solar-panel-system.
     HeatingSystemModule,
     EnvelopFacadeSystemModule,
     SolarPanelSystemModule,
+    OperationHoursModule,
   ],
   controllers: [AppController, UsersController],
   providers: [AppService, PrismaService, FirebaseAuthStrategy],
